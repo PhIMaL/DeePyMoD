@@ -1,0 +1,36 @@
+site_name: DeePyMoD
+nav:
+    - Home: index.md
+    - Background:
+        - DeepMoD: background/deepmod.md
+        - Group sparsity: background/group_sparsity.md
+    - API: 
+        - Model:
+            - DeepMoD: api/deepmod.md
+            - Function Approximators: api/func_approx.md
+            - Libraries: api/lib.md
+            - Constraints: api/const.md
+            - Sparsity: api/sparse.md
+        - Training: api/training.md
+        - Phimal-Utilities: api/utils.md
+    - Examples: 
+        - Burgers: examples/Burgers/PDE_Burgers.md
+        - Korteweg-de Vries: examples/kdv/PDE_KdV.md
+
+theme:
+    name: "material"
+      
+plugins:
+    - search
+    - mkdocstrings
+markdown_extensions:
+    - pymdownx.arithmatex
+
+repo_url: "https://github.com/PhIMaL/DeePyMoD_torch"
+site_url: "https://phimal.github.io/DeePyMoD_torch/"
+
+extra_javascript:
+    - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML
+  
+      
+
