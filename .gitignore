@@ -1,8 +1,5 @@
 .mypy_cache/
-
 __pycache__
-src/DeePyMoD.egg-info/PKG-INFO
-src/DeePyMoD.egg-info/requires.txt
-src/DeePyMoD.egg-info/SOURCES.txt
-src/DeePyMoD.egg-info/top_level.txt
+src/DeePyMoD.egg/
 site/
+.vscode/

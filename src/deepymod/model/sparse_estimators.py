@@ -101,9 +101,10 @@ class Clustering(Estimator):
         return coeffs
 
 
-class PDEFIND():
+class PDEFIND(Estimator):
     ''' Implements PDEFIND as a sparse estimator.'''
     def __init__(self, lam: float = 1e-3, dtol: float = 0.1) -> None:
+        super().__init__()
         self.lam = lam
         self.dtol = dtol
 
@@ -117,6 +118,7 @@ class PDEFIND():
         Returns:
             np.ndarray: [description]
         """
+       
         coeffs = PDEFIND.TrainSTLSQ(X, y[:, None], self.lam, self.dtol)
         return coeffs.squeeze()
 
