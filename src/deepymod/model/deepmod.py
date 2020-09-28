@@ -1,5 +1,9 @@
-""" This file contains the building blocks for the deepmod framework. These are all abstract
-    classes and implement the flow logic, rather than the specifics.
+""" This file contains the four building blocks for the deepmod framework:
+    1) Function approximator, e.g. a neural network to represent the dataset,  XXXX Not present yet
+    2) Function library on which the model discovery is performed, 
+    3) Constraint function that constrains the neural network with the obtained solution 
+    4) Sparsity selection algorithm. 
+    These are all abstract classes and implement the flow logic, rather than the specifics.
 """
 
 import torch.nn as nn
@@ -11,10 +15,10 @@ import numpy as np
 
 
 class Constraint(nn.Module, metaclass=ABCMeta):
-    """ Class implementing the constraint set to the function approximator. 
+    """ Abstract class implementing the constraint set to the function approximator. 
 
     Args:
-        nn ([type]): Module of the function approximator, typically a neural network. 
+        nn (PyTorch Class): Module of the function approximator, typically a neural network. 
     """
     def __init__(self) -> None:
         super().__init__()
@@ -51,24 +55,24 @@ class Constraint(nn.Module, metaclass=ABCMeta):
 
 
 class Estimator(nn.Module,  metaclass=ABCMeta):
-    """[summary]
+    """Abstract class implementing the sparsity estimator set to the function approximator. 
 
     Args:
-        nn ([type]): [description]
+        nn (PyTorch Class): Module of the function approximator, typically a neural network. 
     """
     def __init__(self) -> None:
         super().__init__()
         self.coeff_vectors = None
 
     def forward(self, thetas: TensorList, time_derivs: TensorList) -> TensorList:
-        """[summary]
+        """This function nomalized the library and time derivatives and calculates the corresponding sparisity mask.  
 
         Args:
-            thetas (TensorList): [description]
-            time_derivs (TensorList): [description]
+            thetas (TensorList): List of library functions, one for every output. 
+            time_derivs (TensorList): List of time derivates of the data, one for every output. 
 
         Returns:
-            TensorList: [description]
+            TensorList: A list of sparsity masks, one for every output.  
         """
         
         # we first normalize theta and the time deriv
@@ -88,10 +92,11 @@ class Estimator(nn.Module,  metaclass=ABCMeta):
 
 
 class Library(nn.Module):
-    """[summary]
+    """ Abstract class that calculates the library function and time derivatives. 
+
 
     Args:
-        nn ([type]): [description]
+        nn (PyTorch Class): Module of the function approximator, typically a neural network. 
     """
     def __init__(self) -> None:
         super().__init__()  
@@ -115,10 +120,12 @@ class Library(nn.Module):
 
 
 class DeepMoD(nn.Module):
-    """[summary]
+    """ DeepMoD class integrating the various buiding blocks of the algorithm. It performs a function approximation of the data,
+    calculates the library and time-derivatives thereof, constrains the function approximator to the obtained solution and applies
+    the sparisty pattern of the underlying PDE.
 
     Args:
-        nn ([type]): [description]
+        nn (PyTorch Class): Module of the function approximator, typically a neural network. 
     """
     def __init__(self,
                  function_approximator: torch.nn.Sequential,
@@ -135,10 +142,10 @@ class DeepMoD(nn.Module):
         """[summary]
 
         Args:
-            input (torch.Tensor): [description]
+            input (torch.Tensor):  Tensor of shape (n_samples x (n_spatial + 1)) containing the coordinates, first column should be the time coordinate.
 
         Returns:
-            Tuple[TensorList, TensorList, TensorList, TensorList, TensorList]: [description]
+            Tuple[TensorList, TensorList, TensorList]: Tuple of tensors containing a tensor of shape (n_samples x n_features) containing the target data, a tensor of the time derivative of the data and the function library. 
         """
         prediction, coordinates = self.func_approx(input)
         time_derivs, thetas = self.library((prediction, coordinates))
@@ -159,9 +166,6 @@ class DeepMoD(nn.Module):
             coeff_vectors = [coeff / norm[:, None] for coeff, norm, mask in zip(coeff_vectors, self.library.norms, self.sparsity_masks)]
         if sparse:
             coeff_vectors = [sparsity_mask[:, None] * coeff for sparsity_mask, coeff in zip(self.sparsity_masks, coeff_vectors)]
-            #coeff_vectors = [torch.zeros((mask.shape[0], 1)).to(coeff_vector.device).masked_scatter_(mask[:, None], coeff_vector)
-            #                 for mask, coeff_vector
-            #                 in zip(self.sparsity_masks, coeff_vectors)]
         return coeff_vectors
 
 

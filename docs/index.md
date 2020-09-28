@@ -9,5 +9,5 @@ DeepMoD is a modular model discovery framewrok aimed at discovering the ODE/PDE 
 *   Constraint function that constrains the neural network with the obtained solution 
 *   Sparsity selection algorithm. 
 
-More information can be found in our paper:
+
 
