@@ -23,7 +23,8 @@ class NN(nn.Module):
         Returns:
             torch.Tensor: [description]
         """
-        return self.network(input)
+        coordinates = input.clone().detach().requires_grad_(True)
+        return self.network(coordinates), coordinates
 
     def build_network(self, n_in: int, n_hidden: List[int], n_out: int) -> torch.nn.Sequential:
         """ Constructs a feed-forward neural network.
@@ -103,7 +104,8 @@ class Siren(nn.Module):
         Returns:
             [type]: [description]
         """
-        return self.network(input)
+        coordinates = input.clone().detach().requires_grad_(True)
+        return self.network(coordinates), coordinates
 
     def build_network(self, n_in: int, n_hidden: List[int], n_out: int, first_omega_0: float, hidden_omega_0: float):
         """[summary]

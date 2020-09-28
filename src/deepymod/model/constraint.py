@@ -29,4 +29,17 @@ class LeastSquares(Constraint):
         for theta, dt in zip(sparse_thetas, time_derivs):
             Q, R = torch.qr(theta)  # solution of lst. sq. by QR decomp.
             opt_coeff.append(torch.inverse(R) @ Q.T @ dt)
-        return opt_coeff
+
+        # Putting them in the right spot
+        coeff_vectors = [torch.zeros((mask.shape[0], 1)).to(coeff_vector.device).masked_scatter_(mask[:, None], coeff_vector)
+                             for mask, coeff_vector
+                             in zip(self.sparsity_masks, opt_coeff)]
+        return coeff_vectors
+
+class GradParams(Constraint):
+    def __init__(self, n_params, n_eqs) -> None:
+        super().__init__()
+        self.coeff_vectors = torch.nn.ParameterList([torch.nn.Parameter(torch.randn(n_params, 1)) for _ in torch.arange(n_eqs)])
+
+    def calculate_coeffs(self, sparse_thetas, time_derivs):
+        return self.coeff_vectors
