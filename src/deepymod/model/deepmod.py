@@ -24,6 +24,8 @@ class Constraint(nn.Module, metaclass=ABCMeta):
         super().__init__()
         self.sparsity_masks: TensorList = None
 
+        
+    def forward(self, input: Tuple[TensorList, TensorList]) -> Tuple[TensorList, TensorList]:
         """Updates the coefficient vector for a given estimation of the library function and time derivatives.  
 
         Args:

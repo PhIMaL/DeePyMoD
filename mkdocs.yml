@@ -26,8 +26,16 @@ theme:
 plugins:
     - search
     - mkdocstrings
+    
 markdown_extensions:
+    - admonition
+    - codehilite
     - pymdownx.arithmatex
+    - pymdownx.superfences
+    - pymdownx.tabbed 
+
+extra_css:
+    - css/mkdocstrings.css
 
 repo_url: "https://github.com/PhIMaL/DeePyMoD"
 site_url: "https://phimal.github.io/DeePyMoD/"
