@@ -14,11 +14,11 @@ class Convergence:
         self.converged = False
 
     def __call__(self, epoch: int, l1_norm: torch.Tensor) -> None:
-        """[summary]
+        """
 
         Args:
-            epoch (int): [description]
-            l1_norm (torch.Tensor): [description]
+            epoch (int): Current epoch of the optimization
+            l1_norm (torch.Tensor): Value of the L1 norm
         """
         if self.start_l1 is None:
             self.start_l1 = l1_norm
