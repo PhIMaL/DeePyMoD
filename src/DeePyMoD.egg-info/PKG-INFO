@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: DeePyMoD
-Version: 2.0.post0.dev76+g2e9009a
+Version: 0.0.post0.dev13+gd31d764.dirty
 Summary: DeePyMoD is a PyTorch-based implementation of the DeepMoD algorithm for model discovery of PDEs.
 Home-page: https://github.com/pyscaffold/pyscaffold/
 Author: Gert-Jan
 Author-email: gert-jan.both@cri-paris.com
 License: mit
-Project-URL: Documentation, https://pyscaffold.org/
+Project-URL: Documentation, https://github.com/phimal/deepymod
 Description: # DeePyMoD
         
         ## Deep learning based model discovery for ODEs and PDEs
@@ -64,4 +64,3 @@ Classifier: Development Status :: 4 - Beta
 Classifier: Programming Language :: Python
 Requires-Python: >=3.6.*
 Description-Content-Type: text/markdown; charset=UTF-8
-Provides-Extra: testing

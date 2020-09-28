@@ -11,23 +11,19 @@ import numpy as np
 
 
 class Constraint(nn.Module, metaclass=ABCMeta):
-    """[summary]
+    """ Class implementing the constraint set to the function approximator. 
 
     Args:
-        nn ([type]): [description]
+        nn ([type]): Module of the function approximator, typically a neural network. 
     """
     def __init__(self) -> None:
         super().__init__()
         self.sparsity_masks: TensorList = None
 
-    def forward(self, input: Tuple[TensorList, TensorList]) -> Tuple[TensorList, TensorList]:
-        """[summary]
+        """Updates the coefficient vector for a given estimation of the library function and time derivatives.  
 
         Args:
-            input (Tuple[TensorList, TensorList]): [description]
-
-        Returns:
-            Tuple[TensorList, TensorList]: [description]
+            input (Tuple[TensorList, TensorList]): Tuple of tensors, containing an estimate of the time derivatives and the library function 
         """
         time_derivs, thetas = input
 
@@ -39,13 +35,13 @@ class Constraint(nn.Module, metaclass=ABCMeta):
 
 
     def apply_mask(self, thetas: TensorList) -> TensorList:
-        """[summary]
+        """ Function that applies the sparsity mask to the library function.  
 
         Args:
-            thetas (TensorList): [description]
+            thetas (TensorList): List of library functions, one for every output. 
 
         Returns:
-            TensorList: [description]
+            TensorList: The sparse version of the library function. 
         """
         sparse_thetas = [theta[:, sparsity_mask] for theta, sparsity_mask in zip(thetas, self.sparsity_masks)]
         return sparse_thetas
