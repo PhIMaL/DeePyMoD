@@ -23,6 +23,7 @@ class Constraint(nn.Module, metaclass=ABCMeta):
     def __init__(self) -> None:
         super().__init__()
         self.sparsity_masks: TensorList = None
+
         
     def forward(self, input: Tuple[TensorList, TensorList]) -> Tuple[TensorList, TensorList]:
         """Updates the coefficient vector for a given estimation of the library function and time derivatives.  
@@ -46,7 +47,7 @@ class Constraint(nn.Module, metaclass=ABCMeta):
             thetas (TensorList): List of library functions, one for every output. 
 
         Returns:
-            (TensorList): The sparse version of the library function. 
+            TensorList: The sparse version of the library function. 
         """
         sparse_thetas = [theta[:, sparsity_mask] for theta, sparsity_mask in zip(thetas, self.sparsity_masks)]
         return sparse_thetas
