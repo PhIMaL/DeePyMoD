@@ -1,16 +1,14 @@
-# DeePyMoD
+![Screenshot](docs/figures/DeepMoD_logo.png)
 
-## Deep learning based model discovery for ODEs and PDEs
+DeePyMoD is a modular framework for model discovery of PDEs and ODEs from noise data. The framework is comprised of four components, that can seperately be altered: i) A function approximator to construct a surrogate of the data, ii) a function to construct the library of features, iii) a sparse regression algorithm to select the active components from the feature library and iv) a constraint on the function approximator, based on the active components. 
 
-DeePyMoD is a PyTorch-based implementation of the DeepMoD algorithm for model discovery of PDEs and ODEs. We use a neural network to model our dataset, build a library of possible terms from the networks output and employ sparse regression to find the PDE underlying the dataset. More information can be found in our paper: [arXiv:1904.09406](http://arxiv.org/abs/1904.09406) 
+![Screenshot](docs/figures/framework.png)
+
+More information can be found in our paper: [arXiv:1904.09406](http://arxiv.org/abs/1904.09406) and the full documentation is availeble on [phimal.github.io/DeePyMoD/](https://phimal.github.io/DeePyMoD/).
 
 **What's the use case?** Classical Model Discovery methods struggle with elevated noise levels and sparse datasets due the low accuracy of numerical differentiation. DeepMoD can handle high noise and sparse datasets, making it well suited for model discovery on actual experimental data.
 
 **What types of models can you discover?** DeepMoD can discover non-linear, multi-dimensional and/or coupled ODEs and PDEs. See our paper and the examples folder for a demonstration of each.
-
-**How hard is it to apply it to my data?** Not at all! We've designed the code to be accessible without having in-depth knowledge of deep learning or model discovery. You can load in the data, train the model and get the result in a few lines of code. We include a few notebooks with examples in the examples folder. Feel free to open an issue if you need any additional help.
-
-**How do I modify the code?** We provide two interfaces, an object-based and functional-based one. The object-based interface is simply a wrapper around the functional one. The code has been modularly designed and is well documented, so you should be able to plug-in another training regime, cost function or library function yourself pretty easily.
 
 # Features
 
@@ -32,20 +30,4 @@ DeePyMoD is released as a pip package, so simply run
 
 ``` pip install DeePyMoD```
 
-to install. Alternatively, you can clone the 
-We currently provide two ways to use our software, either in a docker container or as a normal package. If you want to use it as a package, simply clone the repo and run:
-
-```python setup.py install```
-
-
-## Container
-A GPU-ready Docker image can also be used. Once you've cloned the repo, go into the config folder and run:
-
-```./start_notebook.sh```
-
-This pulls our lab's standard docker image from dockerhub, mounts the project directory inside the container and starts a jupyterlab server which can be accessed through localhost:8888. You can stop the container by running the stop_notebook script.  This will stop the container; next time you run start_notebook.sh it will look if any containers from that project exist and restart them instead of building a new one, so your changes inside the container are maintained.
-
-
-
-
-
+to install. 
