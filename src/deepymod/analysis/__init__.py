@@ -1,2 +1,2 @@
-from .tensorboard.load_tensorboard import load_tensorboard
-from .tensorboard.load_tensorboard import Results
+from load_tensorboard import load_tensorboard
+from load_tensorboard import Results
