@@ -11,8 +11,8 @@ from deepymod.model.sparse_estimators import Threshold
 from deepymod.training import train
 from deepymod.training.sparsity_scheduler import TrainTestPeriodic
 
-from phimal_utilities.data import Dataset
-from phimal_utilities.data.burgers import BurgersDelta
+from deepymod.data import Dataset
+from deepymod.data.burgers import BurgersDelta
 
 if torch.cuda.is_available():
     device = 'cuda'
