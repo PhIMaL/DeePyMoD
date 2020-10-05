@@ -6,13 +6,19 @@ import matplotlib.pyplot as plt
 
 
 def load_tensorboard(path):
-    '''Function to load tensorboard file from a folder.
-    Assumes one file per folder!'''
+    """ Loads tensorboard files into a pandas dataframe. Assumes one run per folder!
+
+    Args:
+        path (string): path of folder with tensorboard files.
+
+    Returns:
+        DataFrame: Pandas dataframe with all run data.
+    """
 
     event_paths = [file for file in os.walk(path, topdown=True) if file[2][0][:len('events')] == 'events']
 
     df = pd.DataFrame()
-    steps = None # steps are the same for all files
+    steps = None  # steps are the same for all files
 
     for event_idx, path in enumerate(event_paths):
         summary_iterator = EventAccumulator(os.path.join(path[0], path[2][0])).Reload()
@@ -33,6 +39,7 @@ def load_tensorboard(path):
 
 
 class Results:
+    """Deprecated?"""
     def __init__(self, path):
         self.df = load_tensorboard(path)
         self.keys = self.get_keys()
