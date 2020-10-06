@@ -113,7 +113,8 @@ class TrainTestPeriodic:
             if self.counter >= self.patience:
                 self.apply_sparsity = True
                 self.initial_epoch = iteration
-                checkpoint = torch.load(self.path)
+                checkpoint_path = self.path + 'checkpoint.pt'
+                checkpoint = torch.load(checkpoint_path)
                 model.load_state_dict(checkpoint['model_state_dict'])
                 optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
@@ -124,8 +125,8 @@ class TrainTestPeriodic:
 
     def save_checkpoint(self, model, optimizer):
         '''Saves model when validation loss decrease.'''
-        torch.save(model.state_dict(), self.path)
-        torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(),}, self.path)
+        checkpoint_path = self.path + 'checkpoint.pt'
+        torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(),}, checkpoint_path)
 
     def reset(self) -> None:
         """[summary]

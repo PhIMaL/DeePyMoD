@@ -36,6 +36,7 @@ def train(model: DeepMoD,
     """
     start_time = time.time()
     board = Tensorboard(log_dir)  # initializing tb board
+    sparsity_scheduler.path = board.writer.get_logdir() # write checkpoint to same folder as tb output.
 
     # Splitting data, assumes data is already randomized
     n_train = int(split * data.shape[0])
