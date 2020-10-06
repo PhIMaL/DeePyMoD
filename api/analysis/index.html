@@ -5,10 +5,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<link href="https://phimal.github.io/DeePyMoD/api/convergence/" rel="canonical"/>
+<link href="https://phimal.github.io/DeePyMoD/api/analysis/" rel="canonical"/>
 <link href="../../assets/images/favicon.png" rel="shortcut icon"/>
 <meta content="mkdocs-1.1.2, mkdocs-material-5.3.3" name="generator"/>
-<title>Convergence - DeePyMoD</title>
+<title>Analysis - DeePyMoD</title>
 <link href="../../assets/stylesheets/main.fe0cca5b.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.a46bcfb3.min.css" rel="stylesheet"/>
 <meta content="" name="theme-color"/>
@@ -22,7 +22,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#deepymod.training.convergence">
+<a class="md-skip" href="#deepymod.analysis.load_tensorboard">
           Skip to content
         </a>
 </div>
@@ -43,7 +43,7 @@
           </span>
 <span class="md-header-nav__topic md-ellipsis">
             
-              Convergence
+              Analysis
             
           </span>
 </div>
@@ -182,8 +182,8 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3-2" id="nav-3-2" type="checkbox"/>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-2" id="nav-3-2" type="checkbox"/>
 <label class="md-nav__link" for="nav-3-2">
       Training
       <span class="md-nav__icon md-icon">
@@ -208,46 +208,10 @@
       Sparsity Scheduler
     </a>
 </li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-        Convergence
-        <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
-</span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="./" title="Convergence">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../convergence/" title="Convergence">
       Convergence
     </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
-      Table of contents
-    </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#deepymod.training.convergence">
-    deepymod.training.convergence
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#deepymod.training.convergence.Convergence">
-    Convergence
-  </a>
-<nav aria-label="Convergence" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#deepymod.training.convergence.Convergence.__call__">
-    __call__()
-  </a>
-</li>
-</ul>
-</nav>
-</li>
-</ul>
-</nav>
 </li>
 </ul>
 </nav>
@@ -305,10 +269,42 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../analysis/" title="Analysis">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        Analysis
+        <span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
+</span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./" title="Analysis">
       Analysis
     </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.analysis.load_tensorboard">
+    deepymod.analysis.load_tensorboard
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.analysis.load_tensorboard.Results">
+    Results
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.analysis.load_tensorboard.load_tensorboard">
+    load_tensorboard()
+  </a>
+</li>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -359,23 +355,19 @@
     </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#deepymod.training.convergence">
-    deepymod.training.convergence
+<a class="md-nav__link" href="#deepymod.analysis.load_tensorboard">
+    deepymod.analysis.load_tensorboard
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#deepymod.training.convergence.Convergence">
-    Convergence
-  </a>
-<nav aria-label="Convergence" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#deepymod.training.convergence.Convergence.__call__">
-    __call__()
+<a class="md-nav__link" href="#deepymod.analysis.load_tensorboard.Results">
+    Results
   </a>
 </li>
-</ul>
-</nav>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.analysis.load_tensorboard.load_tensorboard">
+    load_tensorboard()
+  </a>
 </li>
 </ul>
 </nav>
@@ -384,32 +376,32 @@
 </div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
-<a class="md-content__button md-icon" href="https://github.com/PhIMaL/DeePyMoD/edit/master/docs/api/convergence.md" title="Edit this page">
+<a class="md-content__button md-icon" href="https://github.com/PhIMaL/DeePyMoD/edit/master/docs/api/analysis.md" title="Edit this page">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"></path></svg>
 </a>
-<h1>Convergence</h1>
+<h1>Analysis</h1>
 <div class="doc doc-object doc-module">
-<h2 class="hidden-toc" href="#deepymod.training.convergence" id="deepymod.training.convergence" style="visibility: hidden; width: 0; height: 0;">
+<h2 class="hidden-toc" href="#deepymod.analysis.load_tensorboard" id="deepymod.analysis.load_tensorboard" style="visibility: hidden; width: 0; height: 0;">
 </h2>
 <div class="doc doc-contents first">
 <div class="doc doc-children">
 <div class="doc doc-object doc-class">
-<h2 class="doc doc-heading" id="deepymod.training.convergence.Convergence">
-<code>Convergence</code>
+<h2 class="doc doc-heading" id="deepymod.analysis.load_tensorboard.Results">
+<code>Results</code>
 </h2>
 <div class="doc doc-contents">
-<p>Implements convergence criterium. Convergence is when change in patience
-    epochs is smaller than delta.</p>
+<p>Deprecated?</p>
 <div class="doc doc-children">
-<div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="deepymod.training.convergence.Convergence.__call__">
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-function">
+<h2 class="doc doc-heading" id="deepymod.analysis.load_tensorboard.load_tensorboard">
 <code class="highlight language-python">
-__call__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">l1_norm</span><span class="p">)</span> </code>
-<span class="doc doc-properties">
-<small class="doc doc-property doc-property-special"><code>special</code></small>
-</span>
-</h3>
+load_tensorboard<span class="p">(</span><span class="n">path</span><span class="p">)</span> </code>
+</h2>
 <div class="doc doc-contents">
+<p>Loads tensorboard files into a pandas dataframe. Assumes one run per folder!</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -422,30 +414,47 @@ __call__<span class="p">(</span><span class="bp">self</span><span class="p">,</s
 </thead>
 <tbody>
 <tr>
-<td><code>epoch</code></td>
-<td><code>int</code></td>
+<td><code>path</code></td>
+<td><code>string</code></td>
 <td>
-<p>Current epoch of the optimization</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>l1_norm</code></td>
-<td><code>Tensor</code></td>
-<td>
-<p>Value of the L1 norm</p>
+<p>path of folder with tensorboard files.</p>
 </td>
 <td><em>required</em></td>
 </tr>
 </tbody>
 </table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DataFrame</code></td>
+<td>
+<p>Pandas dataframe with all run data.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <details class="quote">
-<summary>Source code in <code>deepymod/training/convergence.py</code></summary>
+<summary>Source code in <code>deepymod/analysis/load_tensorboard.py</code></summary>
 <table class="highlighttable">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>16
+<pre><span></span> 8
+ 9
+10
+11
+12
+13
+14
+15
+16
 17
 18
 19
@@ -459,35 +468,56 @@ __call__<span class="p">(</span><span class="bp">self</span><span class="p">,</s
 27
 28
 29
-30</pre>
+30
+31
+32
+33
+34
+35
+36
+37
+38</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">l1_norm</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">"""</span>
+<pre><span></span><code><span class="k">def</span> <span class="nf">load_tensorboard</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">""" Loads tensorboard files into a pandas dataframe. Assumes one run per folder!</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        epoch (int): Current epoch of the optimization</span>
-<span class="sd">        l1_norm (torch.Tensor): Value of the L1 norm</span>
+<span class="sd">        path (string): path of folder with tensorboard files.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DataFrame: Pandas dataframe with all run data.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_l1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start_l1</span> <span class="o">=</span> <span class="n">l1_norm</span>
-    <span class="k">elif</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_l1</span> <span class="o">-</span> <span class="n">l1_norm</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_iteration</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">patience</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start_l1</span> <span class="o">=</span> <span class="n">l1_norm</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">best_iteration</span> <span class="o">=</span> <span class="n">epoch</span>
+
+    <span class="n">event_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">file</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">file</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">][:</span><span class="nb">len</span><span class="p">(</span><span class="s1">'events'</span><span class="p">)]</span> <span class="o">==</span> <span class="s1">'events'</span><span class="p">]</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># steps are the same for all files</span>
+
+    <span class="k">for</span> <span class="n">event_idx</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">event_paths</span><span class="p">):</span>
+        <span class="n">summary_iterator</span> <span class="o">=</span> <span class="n">EventAccumulator</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">Reload</span><span class="p">()</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">summary_iterator</span><span class="o">.</span><span class="n">Tags</span><span class="p">()[</span><span class="s1">'scalars'</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">event</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">summary_iterator</span><span class="o">.</span><span class="n">Scalars</span><span class="p">(</span><span class="n">tag</span><span class="p">)]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">step</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">summary_iterator</span><span class="o">.</span><span class="n">Scalars</span><span class="p">(</span><span class="n">tags</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+
+        <span class="c1"># Adding to dataframe</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">]</span> <span class="c1"># for name consistency</span>
+        <span class="k">if</span> <span class="n">event_idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># We have one file in the top level, so after we need to use folder name</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tags</span><span class="p">):</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">steps</span>
+    <span class="k">return</span> <span class="n">df</span>
 </code></pre>
 </div>
 </td>
 </tr>
 </table>
 </details>
-</div>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -500,7 +530,7 @@ __call__<span class="p">(</span><span class="bp">self</span><span class="p">,</s
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--prev" href="../spars_sched/" rel="prev" title="Sparsity Scheduler">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="../data/kdv/" rel="prev" title="Korteweg-de Vries">
 <div class="md-footer-nav__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -509,17 +539,17 @@ __call__<span class="p">(</span><span class="bp">self</span><span class="p">,</s
 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Sparsity Scheduler
+                Korteweg-de Vries
               </div>
 </div>
 </a>
-<a class="md-footer-nav__link md-footer-nav__link--next" href="../data/base/" rel="next" title="Base">
+<a class="md-footer-nav__link md-footer-nav__link--next" href="../../examples/Burgers/PDE_Burgers/" rel="next" title="Burgers">
 <div class="md-footer-nav__title">
 <div class="md-ellipsis">
 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Base
+                Burgers
               </div>
 </div>
 <div class="md-footer-nav__button md-icon">

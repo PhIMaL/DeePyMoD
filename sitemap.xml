@@ -1,51 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://phimal.github.io/DeePyMoD/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/background/background/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/api/deepmod/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/api/func_approx/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/api/lib/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/api/constraint/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/api/sparse/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/api/training/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/api/spars_sched/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/api/convergence/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://phimal.github.io/DeePyMoD/api/data/base/</loc>
+     <lastmod>2020-10-06</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://phimal.github.io/DeePyMoD/api/data/burgers/</loc>
+     <lastmod>2020-10-06</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://phimal.github.io/DeePyMoD/api/data/kdv/</loc>
+     <lastmod>2020-10-06</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://phimal.github.io/DeePyMoD/api/analysis/</loc>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/examples/Burgers/PDE_Burgers/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://phimal.github.io/DeePyMoD/examples/kdv/PDE_KdV/</loc>
-     <lastmod>2020-09-28</lastmod>
+     <lastmod>2020-10-06</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
