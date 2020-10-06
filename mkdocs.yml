@@ -15,8 +15,8 @@ nav:
             - Convergence: api/convergence.md
         - Phimal-Utilities: api/utils.md
     - Examples: 
-        - Burgers: examples/Burgers/PDE_Burgers.md
-        - Korteweg-de Vries: examples/kdv/PDE_KdV.md
+        - 2D Advection Diffusion: examples/2DAD/2DAD.md
+        - KdV: examples/PDE_KdV/PDE_KdV.md
 
 theme:
     name: "material"
