@@ -47,4 +47,4 @@ model = DeepMoD(network, library, estimator, constraint).to(device) # Putting it
 sparsity_scheduler = TrainTestPeriodic(periodicity=50, patience=200, delta=1e-5) # in terms of write iterations
 optimizer = torch.optim.Adam(model.parameters(), betas=(0.99, 0.999), amsgrad=True, lr=2e-3) # Defining optimizer
 
-train(model, X, y, optimizer, sparsity_scheduler, split=0.8, test='mse', log_dir=f'data/', write_iterations=25, max_iterations=20000, delta=0.001, patience=200) 
+train(model, X, y, optimizer, sparsity_scheduler, split=0.8, log_dir=f'data/', write_iterations=25, max_iterations=20000, delta=0.001, patience=200) 
