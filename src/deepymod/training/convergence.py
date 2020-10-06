@@ -12,7 +12,7 @@ class Convergence:
         self.start_iteration = None
         self.start_l1 = None
 
-    def __call__(self, iteration: int, l1_norm: torch.Tensor) -> None:
+    def __call__(self, iteration: int, l1_norm: torch.Tensor) -> bool:
         """
 
         Args:
