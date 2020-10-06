@@ -1,12 +1,20 @@
+import numpy as np
+import torch
+import sys, time
 from torch.utils.tensorboard import SummaryWriter
 
-class Tensorboard():
-    '''Tensorboard class for logging during deepmod training. '''
+class Logger:
     def __init__(self, log_dir):
         self.writer = SummaryWriter(log_dir, max_queue=5, flush_secs=10)
-        #self.writer.add_custom_scalars(custom_board(number_of_terms))
+        self.log_dir = self.writer.get_logdir()
 
-    def write(self, iteration, loss, loss_mse, loss_reg, loss_l1,
+    def __call__(self, iteration, loss, MSE, Reg, constraint_coeffs, unscaled_constraint_coeffs, estimator_coeffs, **kwargs):
+        l1_norm = torch.sum(torch.abs(torch.cat(constraint_coeffs, dim=1)), dim=0)
+
+        self.update_tensorboard(iteration, loss, MSE, Reg, l1_norm, constraint_coeffs, unscaled_constraint_coeffs, estimator_coeffs, **kwargs)
+        self.update_terminal(iteration, MSE, Reg, l1_norm)
+
+    def update_tensorboard(self, iteration, loss, loss_mse, loss_reg, loss_l1,
               constraint_coeff_vectors, unscaled_constraint_coeff_vectors, estimator_coeff_vectors, **kwargs):
         # Costs and coeff vectors
         self.writer.add_scalar('loss/loss', loss, iteration)
@@ -26,6 +34,16 @@ class Tensorboard():
             else:
                 self.writer.add_scalars(f'remaining/{key}', {f'val_{idx}': val.squeeze() for idx, val in enumerate(value.squeeze())}, iteration)
 
-    def close(self):
+    def update_terminal(self, iteration, MSE, Reg, L1):
+        '''Prints and updates progress of training cycle in command line.'''
+        sys.stdout.write(f"\r{iteration:>6}  MSE: {torch.sum(MSE).item():>8.2e}  Reg: {torch.sum(Reg).item():>8.2e}  L1: {torch.sum(L1).item():>8.2e} ")
+        sys.stdout.flush()
+
+    def close(self, model):
         self.writer.flush()  # flush remaining stuff to disk
         self.writer.close()  # close writer
+
+        # Save model
+        model_path = self.log_dir + 'model.pt'
+        torch.save(model.state_dict(), model_path)
+
