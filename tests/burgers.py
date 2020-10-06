@@ -35,7 +35,7 @@ x = np.linspace(-3, 4, 100)
 t = np.linspace(0.5, 5.0, 50)
 x_grid, t_grid = np.meshgrid(x, t, indexing='ij')
 dataset = Dataset(BurgersDelta, v=v, A=A)
-X, y = dataset.create_dataset(x_grid.reshape(-1, 1), t_grid.reshape(-1, 1), n_samples=1000, noise=0.6, random=True, normalize=False)
+X, y = dataset.create_dataset(x_grid.reshape(-1, 1), t_grid.reshape(-1, 1), n_samples=1000, noise=0.4, random=True, normalize=False)
 X, y = X.to(device), y.to(device)
         
 network = NN(2, [30, 30, 30, 30, 30], 1)
@@ -44,7 +44,7 @@ estimator = Threshold(0.1) # Sparse estimator
 constraint = LeastSquares() # How to constrain
 model = DeepMoD(network, library, estimator, constraint).to(device) # Putting it all in the model
 
-sparsity_scheduler = TrainTestPeriodic(periodicity=50, patience=8, delta=1e-5) # in terms of write iterations
+sparsity_scheduler = TrainTestPeriodic(periodicity=50, patience=200, delta=1e-5) # in terms of write iterations
 optimizer = torch.optim.Adam(model.parameters(), betas=(0.99, 0.999), amsgrad=True, lr=2e-3) # Defining optimizer
 
-train(model, X, y, optimizer, sparsity_scheduler, split=0.8, test='mse', log_dir=f'data/', write_iterations=25, max_iterations=20000, delta=0.001, patience=8) 
+train(model, X, y, optimizer, sparsity_scheduler, split=0.8, test='mse', log_dir=f'data/', write_iterations=25, max_iterations=20000, delta=0.001, patience=200) 
