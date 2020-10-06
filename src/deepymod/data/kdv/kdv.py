@@ -3,13 +3,15 @@ import numpy as np
 
 
 def SingleSoliton(x, t, c, x0):
-    """[summary]
-    source:
+    """Single soliton solution of the KdV equation (u_t + u_{xxx} - 6 u u_x = 0)
+
     Args:
-        x ([type]): [description]
-        t ([type]): [description]
-        c ([type]): [description]
-        x0 ([type]): [description]
+        x ([Tensor]): Input vector of spatial coordinates.
+        t ([Tensor]): Input vector of temporal coordinates.
+        c ([Float]): Velocity. 
+        x0 ([Float]): Offset.
+    Returns:
+        [Tensor]: Solution. 
     """
     xi = np.sqrt(c) / 2 * (x - c * t - x0) # switch to moving coordinate frame
 
@@ -18,13 +20,17 @@ def SingleSoliton(x, t, c, x0):
 
 
 def DoubleSoliton(x, t, c, x0):
-    """[summary]
+    """ Single soliton solution of the KdV equation (u_t + u_{xxx} - 6 u u_x = 0)
     source: http://lie.math.brocku.ca/~sanco/solitons/kdv_solitons.php
+
     Args:
-        x ([type]): [description]
-        t ([type]): [description]
-        c ([type]): [description]
-        x0 ([type]): [description]
+        x ([Tensor]): Input vector of spatial coordinates.
+        t ([Tensor]): Input vector of temporal coordinates.
+        c ([Array]): Array containing the velocities of the two solitons, note that c[0] > c[1]. 
+        x0 ([Array]):  Array containing the offsets of the two solitons.
+
+    Returns:
+        [Tensor]: Solution.
     """
     assert c[0] > c[1], 'c1 has to be bigger than c[2]'
     

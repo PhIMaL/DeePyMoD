@@ -3,12 +3,20 @@ from numpy import pi
 
 
 def BurgersDelta(x, t, v, A):
-    ''' Function to generate analytical solutions of Burgers equation with
-    delta peak initial condition: u(x, 0) = A delta(x)
+    """ Function to generate analytical solutions of Burgers equation with delta peak initial condition: u(x, 0) = A delta(x)
 
     Source: https://www.iist.ac.in/sites/default/files/people/IN08026/Burgers_equation_viscous.pdf
-    Note that this source has an error in the erfc prefactor, should be sqrt(pi)/2, not sqrt(pi/2).'''
+    Note that this source has an error in the erfc prefactor, should be sqrt(pi)/2, not sqrt(pi/2).
 
+    Args:
+        x ([Tensor]): Input vector of spatial coordinates.
+        t ([Tensor]): Input vector of temporal coordinates.
+        v (Float): Velocity.
+        A (Float): Amplitude of the initial condition.
+
+    Returns:
+        [Tensor]: solution. 
+    """
     R = torch.tensor(A / (2 * v))  # otherwise throws error
     z = x / torch.sqrt(4 * v * t)
 
@@ -17,10 +25,21 @@ def BurgersDelta(x, t, v, A):
 
 
 def BurgersCos(x, t, v, a, b, k):
-    ''' Function to generate analytical solutions of Burgers equation with
-    cosine initial condition: u(x, 0) = b + a * cos(k*x)
+    """Function to generate analytical solutions of Burgers equation with cosine initial condition: u(x, 0) = b + a * cos(k*x)
 
-    Source: https://www.iist.ac.in/sites/default/files/people/IN08026/Burgers_equation_viscous.pdf'''
+    Source: https://www.iist.ac.in/sites/default/files/people/IN08026/Burgers_equation_viscous.pdf
+
+    Args:
+        x ([Tensor]): Input vector of spatial coordinates.
+        t ([Tensor]): Input vector of temporal coordinates.
+        v (Float): Velocity. 
+        a ([type]): Amplitude of the initial periodic condition.
+        b ([type]): Offset of the initial condition.
+        k ([type]): Wavenumber of the initial condition.
+
+    Returns:
+        [Tensor]: solution. 
+    """
 
     z = v * k**2 * t
 
@@ -29,11 +48,20 @@ def BurgersCos(x, t, v, a, b, k):
 
 
 def BurgersSawtooth(x, t, v):
-    ''' Function to generate analytical solutions of Burgers equation with
-    sawtooth initial condition (see soruce for exact expression). Solution only
+    """Function to generate analytical solutions of Burgers equation with sawtooth initial condition (see soruce for exact expression). Solution only
     valid between for x in [0, 2pi] and t in [0, 0.5]
 
-    http://www.thevisualroom.com/02_barba_projects/burgers_equation.html'''
+    http://www.thevisualroom.com/02_barba_projects/burgers_equation.html
+
+    Args:
+        x ([Tensor]): Input vector of spatial coordinates.
+        t ([Tensor]): Input vector of temporal coordinates.
+        v (Float): Velocity. 
+
+    Returns:
+        [Tensor]: solution. 
+    """
+
 
     z_left = (x - 4 * t)
     z_right = (x - 4 * t - 2 * pi)
