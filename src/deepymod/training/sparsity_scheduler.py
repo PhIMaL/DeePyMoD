@@ -84,52 +84,58 @@ class TrainTest:
         self.apply_sparsity = False
         self.val_loss_min = np.Inf
 
+
 class TrainTestPeriodic:
-    """Early stops the training if validation loss doesn't improve after a given patience."""
+    """Early stops the training if validation loss doesn't improve after a given patience. 
+       Note that periodicity should be multitude of write_iterations."""
     def __init__(self, periodicity=50, patience=200, delta=1e-5, path='checkpoint.pt'):
-        self.patience = patience
-        self.best_iteration = 0
-        self.best_score = None
-        self.apply_sparsity = False
-        self.val_loss_min = np.Inf
         self.path = path
-        self.initial_epoch = None
-        self.periodicity = periodicity
+        self.patience = patience
         self.delta = delta
+        self.periodicity = periodicity
+       
+        self.best_iteration = None
+        self.best_loss = None
+        self.periodic = False
 
-    def __call__(self, iteration, val_loss, model, optimizer):
-        score = -val_loss
-        if self.initial_epoch is not None:
-            if (iteration - self.initial_epoch) % self.periodicity == 0:
-                self.apply_sparsity = True 
-    
-        elif self.best_score is None:
-            self.best_score = score
-            self.save_checkpoint(model, optimizer)
+    def __call__(self, iteration, loss, model, optimizer):
+        # Update periodically if we have updated once
+        apply_sparsity = False # we overwrite it if we need to update
 
-        elif score < self.best_score + self.delta:
-            if (iteration - self.best_iteration) >= self.patience:
-                self.apply_sparsity = True
-                self.initial_epoch = iteration
-                checkpoint_path = self.path + 'checkpoint.pt'
-                checkpoint = torch.load(checkpoint_path)
-                model.load_state_dict(checkpoint['model_state_dict'])
-                optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        if self.periodic is True:
+            if (iteration - self.best_iteration) % self.periodicity == 0:
+                apply_sparsity = True
 
-        else:
-            self.best_score = score
-            self.save_checkpoint(model, optimizer)
+        # Check for improvements if we havent updated yet.
+        # Initialize if doesnt exist yet
+        elif self.best_loss is None:
+            self.best_loss = loss
             self.best_iteration = iteration
+            self.save_checkpoint(model, optimizer)
+
+        # If it didnt improve, check if we're past patience
+        elif (self.best_loss - loss) < self.delta:
+            if (iteration - self.best_iteration) >= self.patience:
+                self.load_checkpoint(model, optimizer)  # reload model to best point
+                self.periodic = True  # switch to periodic regime
+                self.best_iteration = iteration  # because the iterator doesnt reset
+                apply_sparsity = True
+    
+        # If not, keep going
+        else:
+            self.best_loss = loss
+            self.best_iteration = iteration
+            self.save_checkpoint(model, optimizer)
+
+        return apply_sparsity
 
     def save_checkpoint(self, model, optimizer):
         '''Saves model when validation loss decrease.'''
         checkpoint_path = self.path + 'checkpoint.pt'
         torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(),}, checkpoint_path)
 
-    def reset(self) -> None:
-        """[summary]
-        """
-        self.best_iteration = 0
-        self.best_score = None
-        self.apply_sparsity = False
-        self.val_loss_min = np.Inf
+    def load_checkpoint(self, model, optimizer):
+        checkpoint_path = self.path + 'checkpoint.pt'
+        checkpoint = torch.load(checkpoint_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
