@@ -1,20 +1,18 @@
 import torch
-import time
-from math import pi
 import numpy as np
 
-from ..utils.tensorboard import Tensorboard
-from ..utils.output import progress
+from ..utils.logger import Logger
 from .convergence import Convergence
 from ..model.deepmod import DeepMoD
 from typing import Optional
+
 
 def train(model: DeepMoD,
           data: torch.Tensor,
           target: torch.Tensor,
           optimizer,
           sparsity_scheduler,
-          test = 'mse',
+          test='mse',
           split: float = 0.8,
           log_dir: Optional[str] = None,
           max_iterations: int = 10000,
@@ -34,9 +32,8 @@ def train(model: DeepMoD,
         max_iterations (int, optional): [description]. Max number of epochs , by default 10000.
         write_iterations (int, optional): [description]. Sets how often data is written to tensorboard and checks train loss , by default 25.
     """
-    start_time = time.time()
-    board = Tensorboard(log_dir)  # initializing tb board
-    sparsity_scheduler.path = board.writer.get_logdir() # write checkpoint to same folder as tb output.
+    logger = Logger(log_dir)
+    sparsity_scheduler.path = logger.log_dir # write checkpoint to same folder as tb output.
 
     # Splitting data, assumes data is already randomized
     n_train = int(split * data.shape[0])
@@ -46,7 +43,6 @@ def train(model: DeepMoD,
     
     # Training
     convergence = Convergence(**convergence_kwargs)
-    print('| Iteration | Progress | Time remaining |     Loss |      MSE |      Reg |    L1 norm |')
     for iteration in np.arange(0, max_iterations + 1):
         # ================== Training Model ============================
         prediction, time_derivs, thetas = model(data_train)
@@ -73,12 +69,8 @@ def train(model: DeepMoD,
             
             # ====================== Logging =======================
             _ = model.sparse_estimator(thetas, time_derivs) # calculating l1 adjusted coeffs but not setting mask
-            estimator_coeff_vectors = model.estimator_coeffs()
             l1_norm = torch.sum(torch.abs(torch.cat(model.constraint_coeffs(sparse=True, scaled=True), dim=1)), dim=0)
-            progress(iteration, start_time, max_iterations, loss.item(),
-                     torch.sum(MSE).item(), torch.sum(Reg).item(), torch.sum(l1_norm).item())
-            board.write(iteration, loss, MSE, Reg, l1_norm, model.constraint_coeffs(sparse=True, scaled=True), model.constraint_coeffs(sparse=True, scaled=False), estimator_coeff_vectors, MSE_test=MSE_test, Reg_test=Reg_test, loss_test=loss_test)
-            
+            logger(iteration, MSE, Reg, l1_norm)
             # ================== Sparsity update =============
             # Updating sparsity and or convergence
             #sparsity_scheduler(iteration, l1_norm)
@@ -98,6 +90,5 @@ def train(model: DeepMoD,
             if convergence.converged is True:
                 print('Algorithm converged. Stopping training.')
                 break
-    board.close()
-    model_path = board.writer.get_logdir() + 'model.pt'
-    torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()}, model_path)
+    logger.close(model, optimizer)
+  
