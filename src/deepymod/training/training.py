@@ -10,6 +10,7 @@ def train(model: DeepMoD,
           optimizer,
           sparsity_scheduler,
           split: float = 0.8,
+          exp_ID: str = None,
           log_dir: str = None,
           max_iterations: int = 10000,
           write_iterations: int = 25,
@@ -23,11 +24,12 @@ def train(model: DeepMoD,
         optimizer ([type]):  Pytorch optimizer.
         sparsity_scheduler ([type]):  Decides when to update the sparsity mask.
         split (float, optional):  Fraction of the train set, by default 0.8.
+        exp_ID (str, optional): Unique ID to identify tensorboard file. Not used if log_dir is given, see pytorch documentation.
         log_dir (str, optional): Directory where tensorboard file is written, by default None.
         max_iterations (int, optional): [description]. Max number of epochs , by default 10000.
         write_iterations (int, optional): [description]. Sets how often data is written to tensorboard and checks train loss , by default 25.
     """
-    logger = Logger(log_dir)
+    logger = Logger(exp_ID, log_dir)
     sparsity_scheduler.path = logger.log_dir # write checkpoint to same folder as tb output.
 
     # Splitting data, assumes data is already randomized

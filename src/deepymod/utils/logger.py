@@ -4,8 +4,8 @@ import sys, time
 from torch.utils.tensorboard import SummaryWriter
 
 class Logger:
-    def __init__(self, log_dir):
-        self.writer = SummaryWriter(log_dir, max_queue=5, flush_secs=10)
+    def __init__(self, exp_ID, log_dir):
+        self.writer = SummaryWriter(comment=exp_ID, log_dir=log_dir, max_queue=5, flush_secs=10)
         self.log_dir = self.writer.get_logdir()
 
     def __call__(self, iteration, loss, MSE, Reg, constraint_coeffs, unscaled_constraint_coeffs, estimator_coeffs, **kwargs):
