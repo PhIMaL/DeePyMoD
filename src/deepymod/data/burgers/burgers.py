@@ -25,7 +25,8 @@ def BurgersDelta(x, t, v, A):
 
 
 def BurgersCos(x, t, v, a, b, k):
-    """Function to generate analytical solutions of Burgers equation with cosine initial condition: u(x, 0) = b + a * cos(k*x)
+    """Function to generate analytical solutions of Burgers equation with cosine initial condition: 
+    $u(x, 0) = b + a \cos(kx)$
 
     Source: https://www.iist.ac.in/sites/default/files/people/IN08026/Burgers_equation_viscous.pdf
 
