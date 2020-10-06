@@ -7,12 +7,14 @@ from deepymod import DeepMoD
 from deepymod.model.func_approx import NN
 from deepymod.model.library import Library1D
 from deepymod.model.constraint import LeastSquares
-from deepymod.model.sparse_estimators import Threshold 
+from deepymod.model.sparse_estimators import Threshold
 from deepymod.training import train
 from deepymod.training.sparsity_scheduler import TrainTestPeriodic
 
 from deepymod.data import Dataset
 from deepymod.data.burgers import BurgersDelta
+
+from deepymod.analysis import load_tensorboard
 
 if torch.cuda.is_available():
     device = 'cuda'
