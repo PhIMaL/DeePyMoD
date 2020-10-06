@@ -1,10 +1,7 @@
 import torch
-import numpy as np
-
 from ..utils.logger import Logger
 from .convergence import Convergence
 from ..model.deepmod import DeepMoD
-from typing import Optional
 
 
 def train(model: DeepMoD,
@@ -12,9 +9,8 @@ def train(model: DeepMoD,
           target: torch.Tensor,
           optimizer,
           sparsity_scheduler,
-          test='mse',
           split: float = 0.8,
-          log_dir: Optional[str] = None,
+          log_dir: str = None,
           max_iterations: int = 10000,
           write_iterations: int = 25,
           **convergence_kwargs) -> None:
@@ -26,9 +22,8 @@ def train(model: DeepMoD,
         target (torch.Tensor): Tensor of shape (n_samples x n_features) containing the target data.
         optimizer ([type]):  Pytorch optimizer.
         sparsity_scheduler ([type]):  Decides when to update the sparsity mask.
-        test (str, optional): Sets what to use for the test loss, by default 'mse'
         split (float, optional):  Fraction of the train set, by default 0.8.
-        log_dir (Optional[str], optional): Directory where tensorboard file is written, by default None.
+        log_dir (str, optional): Directory where tensorboard file is written, by default None.
         max_iterations (int, optional): [description]. Max number of epochs , by default 10000.
         write_iterations (int, optional): [description]. Sets how often data is written to tensorboard and checks train loss , by default 25.
     """
@@ -43,7 +38,7 @@ def train(model: DeepMoD,
     
     # Training
     convergence = Convergence(**convergence_kwargs)
-    for iteration in np.arange(0, max_iterations + 1):
+    for iteration in torch.arange(0, max_iterations):
         # ================== Training Model ============================
         prediction, time_derivs, thetas = model(data_train)
 
@@ -59,16 +54,12 @@ def train(model: DeepMoD,
         
         if iteration % write_iterations == 0:
             # ================== Validation costs ================
-            prediction_test, coordinates = model.func_approx(data_test)
-            time_derivs_test, thetas_test = model.library((prediction_test, coordinates))
             with torch.no_grad():
+                prediction_test = model.func_approx(data_test)[0]
                 MSE_test = torch.mean((prediction_test - target_test)**2, dim=0)  # loss per output
-                Reg_test = torch.stack([torch.mean((dt - theta @ coeff_vector)**2)
-                           for dt, theta, coeff_vector in zip(time_derivs_test, thetas_test, model.constraint_coeffs(scaled=False, sparse=True))])
-                loss_test = torch.sum(MSE_test + Reg_test) 
-            
+         
             # ====================== Logging =======================
-            _ = model.sparse_estimator(thetas, time_derivs) # calculating l1 adjusted coeffs but not setting mask
+            _ = model.sparse_estimator(thetas, time_derivs) # calculating estimator coeffs but not setting mask
             logger(iteration, 
                    loss, MSE, Reg,
                    model.constraint_coeffs(sparse=True, scaled=True), 
@@ -77,23 +68,15 @@ def train(model: DeepMoD,
                    MSE_test=MSE_test)
 
             # ================== Sparsity update =============
-            # Updating sparsity and or convergence
-            if iteration % write_iterations == 0:
-                if test == 'mse':
-                    sparsity_scheduler(iteration, torch.sum(MSE_test), model, optimizer)
-                else:
-                    sparsity_scheduler(iteration, loss_test, model, optimizer) 
-                    
-                if sparsity_scheduler.apply_sparsity is True:
-                    with torch.no_grad():
-                        model.constraint.sparsity_masks = model.sparse_estimator(thetas, time_derivs)
-                        sparsity_scheduler.reset()
+            # Updating sparsity 
+            update_sparsity = sparsity_scheduler(iteration, torch.sum(MSE_test), model, optimizer)
+            if update_sparsity: 
+                model.constraint.sparsity_masks = model.sparse_estimator(thetas, time_derivs)
 
             # ================= Checking convergence
             l1_norm = torch.sum(torch.abs(torch.cat(model.constraint_coeffs(sparse=True, scaled=True), dim=1)))
-            convergence(iteration, l1_norm)
-            if convergence.converged is True:
-                print('Algorithm converged. Stopping training.')
+            converged = convergence(iteration, l1_norm)
+            if converged:
                 break
     logger.close(model)
-  
+    

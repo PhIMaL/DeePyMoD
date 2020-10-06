@@ -40,6 +40,7 @@ class Logger:
         sys.stdout.flush()
 
     def close(self, model):
+        print('Algorithm converged. Writing model to disk.')
         self.writer.flush()  # flush remaining stuff to disk
         self.writer.close()  # close writer
 
