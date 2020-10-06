@@ -35,7 +35,7 @@ x = np.linspace(-3, 4, 100)
 t = np.linspace(0.5, 5.0, 50)
 x_grid, t_grid = np.meshgrid(x, t, indexing='ij')
 dataset = Dataset(BurgersDelta, v=v, A=A)
-X, y = dataset.create_dataset(x_grid.reshape(-1, 1), t_grid.reshape(-1, 1), n_samples=1000, noise=0.6, random=True, normalize=False)
+X, y = dataset.create_dataset(x_grid.reshape(-1, 1), t_grid.reshape(-1, 1), n_samples=1000, noise=0.4, random=True, normalize=False)
 X, y = X.to(device), y.to(device)
         
 network = NN(2, [30, 30, 30, 30, 30], 1)

@@ -69,11 +69,15 @@ def train(model: DeepMoD,
             
             # ====================== Logging =======================
             _ = model.sparse_estimator(thetas, time_derivs) # calculating l1 adjusted coeffs but not setting mask
-            l1_norm = torch.sum(torch.abs(torch.cat(model.constraint_coeffs(sparse=True, scaled=True), dim=1)), dim=0)
-            logger(iteration, MSE, Reg, l1_norm)
+            logger(iteration, 
+                   loss, MSE, Reg,
+                   model.constraint_coeffs(sparse=True, scaled=True), 
+                   model.constraint_coeffs(sparse=True, scaled=False),
+                   model.estimator_coeffs(),
+                   MSE_test=MSE_test)
+
             # ================== Sparsity update =============
             # Updating sparsity and or convergence
-            #sparsity_scheduler(iteration, l1_norm)
             if iteration % write_iterations == 0:
                 if test == 'mse':
                     sparsity_scheduler(iteration, torch.sum(MSE_test), model, optimizer)
@@ -86,9 +90,10 @@ def train(model: DeepMoD,
                         sparsity_scheduler.reset()
 
             # ================= Checking convergence
-            convergence(iteration, torch.sum(l1_norm))
+            l1_norm = torch.sum(torch.abs(torch.cat(model.constraint_coeffs(sparse=True, scaled=True), dim=1)))
+            convergence(iteration, l1_norm)
             if convergence.converged is True:
                 print('Algorithm converged. Stopping training.')
                 break
-    logger.close(model, optimizer)
+    logger.close(model)
   

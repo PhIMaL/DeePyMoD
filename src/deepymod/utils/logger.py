@@ -8,8 +8,10 @@ class Logger:
         self.writer = SummaryWriter(log_dir, max_queue=5, flush_secs=10)
         self.log_dir = self.writer.get_logdir()
 
-    def __call__(self, iteration, MSE, Reg, l1_norm, **kwargs):
-        #self.update_tensorboard()
+    def __call__(self, iteration, loss, MSE, Reg, constraint_coeffs, unscaled_constraint_coeffs, estimator_coeffs, **kwargs):
+        l1_norm = torch.sum(torch.abs(torch.cat(constraint_coeffs, dim=1)), dim=0)
+
+        self.update_tensorboard(iteration, loss, MSE, Reg, l1_norm, constraint_coeffs, unscaled_constraint_coeffs, estimator_coeffs, **kwargs)
         self.update_terminal(iteration, MSE, Reg, l1_norm)
 
     def update_tensorboard(self, iteration, loss, loss_mse, loss_reg, loss_l1,
@@ -34,12 +36,14 @@ class Logger:
 
     def update_terminal(self, iteration, MSE, Reg, L1):
         '''Prints and updates progress of training cycle in command line.'''
-        sys.stdout.write(f"\r{iteration:>6}  MSE: {torch.sum(MSE).item():>8.2e}  Reg: {torch.sum(Reg).item():>8.2e}  L1: {L1.item():>8.2e} ")
+        sys.stdout.write(f"\r{iteration:>6}  MSE: {torch.sum(MSE).item():>8.2e}  Reg: {torch.sum(Reg).item():>8.2e}  L1: {torch.sum(L1).item():>8.2e} ")
         sys.stdout.flush()
 
-    def close(self, model, optimizer):
+    def close(self, model):
         self.writer.flush()  # flush remaining stuff to disk
         self.writer.close()  # close writer
+
+        # Save model
         model_path = self.log_dir + 'model.pt'
-        torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()}, model_path)
+        torch.save(model.state_dict(), model_path)
 
