@@ -47,7 +47,7 @@ class TrainTest:
         """
         self.patience = patience
         self.verbose = verbose
-        self.counter = 0
+        self.best_iteration = 0
         self.best_score = None
         self.apply_sparsity = False
         self.val_loss_min = np.Inf
@@ -62,14 +62,13 @@ class TrainTest:
             self.best_score = score
             self.save_checkpoint(model, optimizer)
         elif score < self.best_score + self.delta:
-            self.counter += (iteration - self.counter)
             #self.trace_func(f'EarlyStopping counter: {self.counter} out of {self.patience}')
-            if self.counter >= self.patience:
+            if (iteration - self.best_iteration) >= self.patience:
                 self.apply_sparsity = True
         else:
             self.best_score = score
             self.save_checkpoint(model, optimizer)
-            self.counter = 0
+            self.best_iteration = iteration
 
     def save_checkpoint(self, model, optimizer):
         '''Saves model when validation loss decrease.'''
@@ -80,16 +79,16 @@ class TrainTest:
         """[summary]
         """
       
-        self.counter = 0
+        self.best_iteration = 0
         self.best_score = None
         self.apply_sparsity = False
         self.val_loss_min = np.Inf
 
 class TrainTestPeriodic:
     """Early stops the training if validation loss doesn't improve after a given patience."""
-    def __init__(self, periodicity=50, patience=7, delta=0.00, path='checkpoint.pt'):
+    def __init__(self, periodicity=50, patience=200, delta=1e-5, path='checkpoint.pt'):
         self.patience = patience
-        self.counter = 0
+        self.best_iteration = 0
         self.best_score = None
         self.apply_sparsity = False
         self.val_loss_min = np.Inf
@@ -109,8 +108,7 @@ class TrainTestPeriodic:
             self.save_checkpoint(model, optimizer)
 
         elif score < self.best_score + self.delta:
-            self.counter += (iteration - self.counter)
-            if self.counter >= self.patience:
+            if (iteration - self.best_iteration) >= self.patience:
                 self.apply_sparsity = True
                 self.initial_epoch = iteration
                 checkpoint_path = self.path + 'checkpoint.pt'
@@ -121,7 +119,7 @@ class TrainTestPeriodic:
         else:
             self.best_score = score
             self.save_checkpoint(model, optimizer)
-            self.counter = 0
+            self.best_iteration = iteration
 
     def save_checkpoint(self, model, optimizer):
         '''Saves model when validation loss decrease.'''
@@ -131,8 +129,7 @@ class TrainTestPeriodic:
     def reset(self) -> None:
         """[summary]
         """
-      
-        self.counter = 0
+        self.best_iteration = 0
         self.best_score = None
         self.apply_sparsity = False
         self.val_loss_min = np.Inf
