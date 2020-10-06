@@ -36,6 +36,7 @@ def train(model: DeepMoD,
     """
     start_time = time.time()
     board = Tensorboard(log_dir)  # initializing tb board
+    sparsity_scheduler.path = board.writer.get_logdir() # write checkpoint to same folder as tb output.
 
     # Splitting data, assumes data is already randomized
     n_train = int(split * data.shape[0])
@@ -98,3 +99,5 @@ def train(model: DeepMoD,
                 print('Algorithm converged. Stopping training.')
                 break
     board.close()
+    model_path = board.writer.get_logdir() + 'model.pt'
+    torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()}, model_path)
