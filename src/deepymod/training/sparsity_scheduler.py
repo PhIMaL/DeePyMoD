@@ -55,15 +55,14 @@ class TrainTest:
         self.path = path
         self.trace_func = trace_func
 
-    def __call__(self, val_loss, model, optimizer):
-
+    def __call__(self, iteration, val_loss, model, optimizer):
         score = -val_loss
 
         if self.best_score is None:
             self.best_score = score
             self.save_checkpoint(model, optimizer)
         elif score < self.best_score + self.delta:
-            self.counter += 1
+            self.counter += (iteration - self.counter)
             #self.trace_func(f'EarlyStopping counter: {self.counter} out of {self.patience}')
             if self.counter >= self.patience:
                 self.apply_sparsity = True
@@ -108,8 +107,9 @@ class TrainTestPeriodic:
         elif self.best_score is None:
             self.best_score = score
             self.save_checkpoint(model, optimizer)
+
         elif score < self.best_score + self.delta:
-            self.counter += 1
+            self.counter += (iteration - self.counter)
             if self.counter >= self.patience:
                 self.apply_sparsity = True
                 self.initial_epoch = iteration

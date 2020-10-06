@@ -23,7 +23,7 @@ class Convergence:
         if self.start_l1 is None:
             self.start_l1 = l1_norm
         elif torch.abs(self.start_l1 - l1_norm).item() < self.delta:
-            self.counter += 1
+            self.counter += (epoch - self.counter)
             if self.counter >= self.patience:
                 self.converged = True
         else:
