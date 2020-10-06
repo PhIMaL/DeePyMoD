@@ -32,7 +32,7 @@ class Periodic:
 class TrainTest:
     """Early stops the training if validation loss doesn't improve after a given patience."""
     def __init__(self, patience=7, verbose=False, delta=0, path='checkpoint.pt', trace_func=print):
-        """
+        """TO DO: LOAD MODEL AND OPTIMIZER LIKE TRAINTESTPERIODIC
         Args:
             patience (int): How long to wait after last time validation loss improved.
                             Default: 7
@@ -73,8 +73,8 @@ class TrainTest:
 
     def save_checkpoint(self, model, optimizer):
         '''Saves model when validation loss decrease.'''
-        torch.save(model.state_dict(), self.path)
-        torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(),}, self.path)
+        checkpoint_path = self.path + 'checkpoint.pt'
+        torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()}, checkpoint_path)
 
     def reset(self) -> None:
         """[summary]
