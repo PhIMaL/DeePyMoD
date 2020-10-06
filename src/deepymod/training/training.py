@@ -99,3 +99,5 @@ def train(model: DeepMoD,
                 print('Algorithm converged. Stopping training.')
                 break
     board.close()
+    model_path = board.writer.get_logdir() + 'model.pt'
+    torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict()}, model_path)
