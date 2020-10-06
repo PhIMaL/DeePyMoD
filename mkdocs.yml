@@ -13,12 +13,12 @@ nav:
             - Training: api/training.md
             - Sparsity Scheduler: api/spars_sched.md
             - Convergence: api/convergence.md
-        - Phimal-Utilities: 
-            - Data generation: 
-                - Base: api/data/base.md
+        - Data: 
+            - Base: api/data/base.md
+            - Equations:
                 - Burgers: api/data/burgers.md
-                - KdV: api/data/kdv.md
-            - Analysis: api/data/analysis.md
+                - Korteweg-de Vries: api/data/kdv.md
+        - Analysis: api/analysis.md
     - Examples: 
         - Burgers: examples/Burgers/PDE_Burgers.md
         - Korteweg-de Vries: examples/kdv/PDE_KdV.md
