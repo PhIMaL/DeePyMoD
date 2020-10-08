@@ -9,7 +9,7 @@ from deepymod.model.library import Library1D
 from deepymod.model.constraint import LeastSquares
 from deepymod.model.sparse_estimators import Threshold
 from deepymod.training import train
-from deepymod.training.sparsity_scheduler import TrainTestPeriodic
+from deepymod.training.sparsity_scheduler import TrainTestPeriodic, Periodic
 
 from deepymod.data import Dataset
 from deepymod.data.burgers import BurgersDelta
@@ -44,7 +44,8 @@ estimator = Threshold(0.1) # Sparse estimator
 constraint = LeastSquares() # How to constrain
 model = DeepMoD(network, library, estimator, constraint).to(device) # Putting it all in the model
 
-sparsity_scheduler = TrainTestPeriodic(periodicity=50, patience=200, delta=1e-5) # in terms of write iterations
+#sparsity_scheduler = TrainTestPeriodic(periodicity=50, patience=200, delta=1e-5) # in terms of write iterations
+sparsity_scheduler = Periodic(initial_iteration=1000, periodicity=25)
 optimizer = torch.optim.Adam(model.parameters(), betas=(0.99, 0.999), amsgrad=True, lr=2e-3) # Defining optimizer
 
 train(model, X, y, optimizer, sparsity_scheduler, exp_ID='Test', split=0.8, write_iterations=25, max_iterations=20000, delta=0.001, patience=200) 
