@@ -277,22 +277,7 @@ class Dataset:
         '''
         self.temporal_domain = torch.tensor(t_domain, dtype=torch.float32)
         self.spatial_domain = torch.tensor(x_domain, dtype=torch.float32)
-
-        if callable(data): # if its a function, we run it to get the datya
-            t_grid, x_grid = torch.meshgrid(self.temporal_domain, self.spatial_domain)
-            self.data = data(x_grid, t_grid)
-            self.analytical_solution = data
-        elif isinstance(data, (np.ndarray, torch.Tensor)):
-            if isinstance(data, np.ndarray):  # if its an array, we tensorize it
-                self.data = torch.tensor(data)
-            else:
-                self.data = data
-            self.analytical_solution = None
-        else:
-            print('Format not recognized. Please supply a function, array or tensor')
-
-        if data.shape[0] != t_domain.shape[0]:
-            print('First dimension of data does not have the same shape as time domain.')
+        self.data, self.analytical_solution = self.initialize_data(data, self.temporal_domain, self.spatial_domain)
         
         self.noise = noise
         self.n_samples = n_samples_per_frame  # so total number of samples is size(self.t_domain) * n_samples_per_frame
@@ -324,6 +309,25 @@ class Dataset:
         return X
 
     # Logic
+    def initialize_data(self, data, temporal_domain, spatial_domain):
+        if callable(data): # if its a function, we run it to get the datya
+            t_grid, x_grid = torch.meshgrid(temporal_domain, spatial_domain)
+            dataset = data(x_grid, t_grid)
+            analytical_solution = data
+        elif isinstance(data, (np.ndarray, torch.Tensor)):
+            if isinstance(data, np.ndarray):  # if its an array, we tensorize it
+                dataset = torch.tensor(data)
+            else:
+                dataset = data
+            analytical_solution = None
+        else: # if none of the above, we cant use it
+            raise ValueError('Format not recognized. Please supply a function, array or tensor.')
+        
+        # first dimension of dataset should be time
+        assert dataset.shape[0] == temporal_domain.shape[0], 'First dimension of data should have the same shape as time domain.'
+        
+        return dataset, analytical_solution
+
     def create_dataset(self, n_samples, data, temporal_domain, spatial_domain, noise, normalize, randomize, random_state):
         # Get samples
         X, idx = self.sample_idx(n_samples, temporal_domain, spatial_domain)  # get sample locations and indices
