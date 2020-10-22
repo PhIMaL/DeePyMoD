@@ -22,6 +22,8 @@ nav:
     - Examples: 
         - 2D Advection Diffusion: examples/2DAD/2DAD.md
         - KdV: examples/PDE_KdV/PDE_KdV.md
+        - Burgers: examples/Burgers/PDE_Burgers.md
+        - Non-linear ODE: examples/ODE_nonlin/ODE.md
 
 theme:
     name: "material"
