@@ -5,7 +5,7 @@ from natsort import natsorted
 import matplotlib.pyplot as plt
 
 
-def load_tensorboard(path):
+def load_tensorboard(path: str) -> pd.DataFrame:
     """ Loads tensorboard files into a pandas dataframe. Assumes one run per folder!
 
     Args:
