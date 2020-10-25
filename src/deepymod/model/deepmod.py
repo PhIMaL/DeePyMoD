@@ -53,7 +53,16 @@ class Constraint(nn.Module, metaclass=ABCMeta):
         return sparse_thetas
 
     @abstractmethod
-    def calculate_coeffs(self, sparse_thetas: TensorList, time_derivs: TensorList) -> TensorList: pass
+    def calculate_coeffs(self, sparse_thetas: TensorList, time_derivs: TensorList) -> TensorList:
+        """Abstract method to compute the coefficients for the library.
+        Args:
+            sparse_thetas (TensorList): List of sparsified library functions, one for every output. 
+            time_derivs (TensorList): List of time derivatives
+
+        Returns:
+            Coefficients (TensorList): Return the coefficients.
+        """
+        pass
 
 
 class Estimator(nn.Module,  metaclass=ABCMeta):
@@ -74,7 +83,7 @@ class Estimator(nn.Module,  metaclass=ABCMeta):
             time_derivs (TensorList): List of time derivates of the data, one for every output. 
 
         Returns:
-            TensorList: A list of sparsity masks, one for every output.  
+            sparsity_mask (TensorList): A list of sparsity masks, one for every output.  
         """
         
         # we first normalize theta and the time deriv
@@ -90,12 +99,20 @@ class Estimator(nn.Module,  metaclass=ABCMeta):
         return sparsity_masks
 
     @abstractmethod
-    def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray: pass
+    def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """ Abstract method to compute the result of the network based on data X and labels y
+        Args: 
+            x (np.ndarray): input data
+            y (np.ndarray): output labels
+
+        Returns:
+            coefficients (np.ndarray)
+        """
+        pass
 
 
 class Library(nn.Module):
     """ Abstract class that calculates the library function and time derivatives. 
-
 
     Args:
         nn (PyTorch Class): Module of the function approximator, typically a neural network. 
@@ -105,20 +122,31 @@ class Library(nn.Module):
         self.norms = None
 
     def forward(self, input: Tuple[TensorList, TensorList]) -> Tuple[TensorList, TensorList]:
-        """[summary]
+        """Compute the library (time derivatives and thetas) given a dataset
 
         Args:
-            input (torch.Tensor): [description]
+            input (Tuple[TensorList, TensorList]): tuple with firstly the predicted values and 
+            secondly the respective coordinates for the prediction
 
         Returns:
-            Tuple[TensorList, TensorList]: [description]
+            Tuple[TensorList, TensorList]: The time derivatives and thetas
         """
         time_derivs, thetas = self.library(input)
         self.norms = [(torch.norm(time_deriv) / torch.norm(theta, dim=0, keepdim=True)).detach().squeeze() for time_deriv, theta in zip(time_derivs, thetas)]
         return time_derivs, thetas
 
     @abstractmethod
-    def library(self, input: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[TensorList, TensorList]: pass
+    def library(self, input: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[TensorList, TensorList]: 
+        """Abstract method that should compute the library:
+        
+        Args:
+            input (Tuple[TensorList, TensorList]): predictions and coordinates for which to evaluate 
+            the library.
+            
+        Returns:
+            (Tuple[TensorList, TensorList]): The time derivatives and thetas
+        """
+        pass
 
 
 class DeepMoD(nn.Module):
@@ -153,16 +181,31 @@ class DeepMoD(nn.Module):
         time_derivs, thetas = self.library((prediction, coordinates))
         self.constraint((time_derivs, thetas))
         return prediction, time_derivs, thetas
-    
+
     @property
     def sparsity_masks(self):
+        """The sparsity mask defines which library terms are used and masked"""
         return self.constraint.sparsity_masks
-    
+
     def estimator_coeffs(self):
+        """ Get the coefficients of the sparsity estimator
+
+        Returns:
+            Coefficient vector (TensorList): The sparse coefficient estimator
+        """
         coeff_vectors = self.sparse_estimator.coeff_vectors
         return coeff_vectors
 
     def constraint_coeffs(self, scaled=False, sparse=False):
+        """ Get the coefficients of the constraint
+
+        Args:
+            scaled (bool): Determine whether or not the coefficients should be normalized
+            sparse (bool): Apply the sparsity mask to the coefficients or not
+
+        Returns: 
+            coeff_vectors (TensorList): list with the coefficients
+        """
         coeff_vectors = self.constraint.coeff_vectors
         if scaled:
             coeff_vectors = [coeff / norm[:, None] for coeff, norm, mask in zip(coeff_vectors, self.library.norms, self.sparsity_masks)]
