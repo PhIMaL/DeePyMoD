@@ -23,7 +23,7 @@ class LeastSquares(Constraint):
             time_derivs (TensorList): List containing the time derivatives.
 
         Returns:
-            [TensorList]: Calculated coefficients.
+            (TensorList): Calculated coefficients.
         """
         opt_coeff = []
         for theta, dt in zip(sparse_thetas, time_derivs):
@@ -37,9 +37,18 @@ class LeastSquares(Constraint):
         return coeff_vectors
 
 class GradParams(Constraint):
+    """[Summary] """
     def __init__(self, n_params, n_eqs) -> None:
         super().__init__()
         self.coeff_vectors = torch.nn.ParameterList([torch.nn.Parameter(torch.randn(n_params, 1)) for _ in torch.arange(n_eqs)])
 
     def calculate_coeffs(self, sparse_thetas, time_derivs):
+        """[Summary]
+        Args:
+            sparse_thetas (TensorList): List containing the sparse feature tensors. 
+            time_derivs (TensorList): List containing the time derivatives.
+
+        Returns:
+            (TensorList): Calculated coefficients.
+        """
         return self.coeff_vectors
