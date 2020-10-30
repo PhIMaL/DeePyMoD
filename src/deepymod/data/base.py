@@ -1,4 +1,3 @@
-from operator import sub
 import torch
 import numpy as np
 from numpy import ndarray
@@ -267,18 +266,12 @@ class Dataset_2D:
         else:
             return X_train, y_train, rand_idx
 
-from numpy.random import default_rng, random
+from numpy.random import default_rng
 
 
 class Dataset:
-    def __init__(self, data, t_domain, x_domain, noise, n_samples_per_frame, device='cpu', normalize=False, randomize=True, split=0.8, random_state=42):
-        '''
-        First dimension of data should be time!
-        '''
-        self.temporal_domain = torch.tensor(t_domain, dtype=torch.float32)
-        self.spatial_domain = torch.tensor(x_domain, dtype=torch.float32)
-        self.data, self.analytical_solution = self.initialize_data(data, self.temporal_domain, self.spatial_domain)
-        
+    def __init__(self, dataset, noise, n_samples_per_frame, device='cpu', normalize=False, randomize=True, split=0.8, random_state=42):
+        self.dataset = dataset # function which returns the data and the grid
         self.noise = noise
         self.n_samples = n_samples_per_frame  # so total number of samples is size(self.t_domain) * n_samples_per_frame
         self.device = device
@@ -290,7 +283,7 @@ class Dataset:
     # User facing methods
     def __call__(self):
         # Get dataset
-        X, y = self.create_dataset(self.n_samples, self.data, self.temporal_domain, self.spatial_domain, self.noise, self._normalize, self._randomize, self.random_state)
+        X, y = self.create_dataset(self.n_samples, self.dataset, self.noise, self._normalize, self._randomize, self.random_state)
         trainset, testset = self.prepare_dataset(X, y, self.device, self._split)
         return trainset, testset
 
@@ -298,83 +291,60 @@ class Dataset:
         if subsampled:
             n_samples = self.n_samples
         else:
-            n_samples = self.spatial_domain.shape[0] 
+            n_samples = self.dataset()[0].shape[2]
 
-        X, y = self.create_dataset(n_samples, self.data, self.temporal_domain, self.spatial_domain, 0.0, normalized, False, self.random_state)        
-        return X.reshape(-1, n_samples, 2), y.reshape(-1, n_samples)
+        X, y = self.create_dataset(n_samples, self.dataset, 0.0, normalized, False, self.random_state)        
+        return X.reshape(2, -1, n_samples), y.reshape(1, -1, n_samples)
 
     def grid(self, subsampled=False, normalized=False):
         grid = self.ground_truth(subsampled=subsampled, normalized=normalized)[0]
         X = grid.reshape(-1, 2).to(self.device)
         return X
 
-    # Logic
-    def initialize_data(self, data, temporal_domain, spatial_domain):
-        if callable(data): # if its a function, we run it to get the datya
-            t_grid, x_grid = torch.meshgrid(temporal_domain, spatial_domain)
-            dataset = data(x_grid, t_grid)
-            analytical_solution = data
-        elif isinstance(data, (np.ndarray, torch.Tensor)):
-            if isinstance(data, np.ndarray):  # if its an array, we tensorize it
-                dataset = torch.tensor(data)
-            else:
-                dataset = data
-            analytical_solution = None
-        else: # if none of the above, we cant use it
-            raise ValueError('Format not recognized. Please supply a function, array or tensor.')
-        
-        # first dimension of dataset should be time
-        assert dataset.shape[0] == temporal_domain.shape[0], 'First dimension of data should have the same shape as time domain.'
-        
-        return dataset, analytical_solution
-
-    def create_dataset(self, n_samples, data, temporal_domain, spatial_domain, noise, normalize, randomize, random_state):
+    @classmethod
+    def create_dataset(cls, n_samples, dataset, noise, normalize, randomize, random_state):
         # Get samples
-        X, idx = self.sample_idx(n_samples, temporal_domain, spatial_domain)  # get sample locations and indices
-        y = self.sample(data, idx)  # turns indices into values
+        data, grid = dataset()
+        X, y = cls.sample(data, grid, n_samples)  # subsample data and grid
       
         # add noise
-        y = self.add_noise(y, noise, random_state)
+        y += cls.add_noise(y, noise, random_state)
 
         # normalize
         if normalize:
-            X = self.normalize(X)
+            X = cls.normalize(X)
 
         # Randomize data
         if randomize:
-            X, y = self.randomize(X, y, random_state)
+            X, y = cls.randomize(X, y, random_state)
 
         return X, y
 
-    def prepare_dataset(self, X, y, device, split):
+    @classmethod
+    def prepare_dataset(cls, X, y, device, split):
         # Split into test / train, assumes data is randomized
-        X_train, y_train, X_test, y_test = self.split(X, y, split)
+        X_train, y_train, X_test, y_test = cls.split(X, y, split)
 
-        # Make into tensor and move to device
+        # Move to device
         X_train, y_train, X_test, y_test = X_train.to(device), y_train.to(device), X_test.to(device), y_test.to(device)  
 
         return (X_train, y_train), (X_test, y_test)
 
     @staticmethod
-    def sample_idx(n_samples, temporal_domain, spatial_domain):
+    def sample(data, grid, n_samples):
         # getting indices of samples
-        x_idx = torch.round(torch.linspace(0, spatial_domain.shape[0]-1, n_samples)).type(torch.long) # getting x locations
-        t_idx = torch.linspace(0, temporal_domain.shape[0]-1, temporal_domain.shape[0]).type(torch.long)
-        t_grid, x_grid = torch.meshgrid(t_idx, x_idx)
+        x_idx = torch.round(torch.linspace(0, grid.shape[2]-1, n_samples)).type(torch.long) # getting x locations
 
         # getting sample locations from indices
-        X = torch.stack(torch.meshgrid(temporal_domain[t_idx], spatial_domain[x_idx]), dim=-1).reshape(-1, 2)
-   
-        return X, (t_grid.flatten(), x_grid.flatten())
+        X = grid[:, :, x_idx].reshape(-1, 2)
+        y = data[:, :, x_idx].reshape(-1, 1)
 
-    @staticmethod
-    def sample(data, idx):
-        return data[idx[0], idx[1]][:, None]
+        return X, y
 
     @staticmethod
     def add_noise(y, noise_level, random_state):
         ''' Adds gaussian white noise'''
-        noise = noise_level * torch.std(y).data 
+        noise = noise_level * torch.std(y).data
         y_noisy = y + torch.tensor(default_rng(random_state).normal(loc=0.0, scale=noise, size=y.shape), dtype=torch.float32) # TO DO: switch to pytorch rng
 
         return y_noisy
@@ -400,70 +370,3 @@ class Dataset:
 
         return X_train, y_train, X_test, y_test
 
-
-class SamplingDataset(Dataset):
-    # Logic
-    def sample_locations(self, n_samples, method, sampling_time, **sample_kwargs):
-        if method == 'grid':  # regular sampling immediately gives sampling locations
-            x_samples, t_samples = self.grid_sample(n_samples, self.sampling_domain, sampling_time)
-
-        else:  # irregular sampling returns a sampling distribution
-            if method == 'magnitude':
-                y = self.dataset.generate_solution(x_grid, t_grid)
-                sample_dist = self.magnitude_sample(y)
-
-            elif method == 'dt':
-                dydt = self.dataset.time_deriv(x_grid, t_grid)
-                sample_dist = self.dt_sample(dydt) 
-
-            elif method == 'library':
-                theta = self.dataset.library(x_grid.reshape(-1, 1), t_grid.reshape(-1, 1), **sample_kwargs)
-                weights = np.ones(theta.shape[1])
-                sample_dist = self._library_sample(theta.reshape(*x_grid.shape, -1), weights) 
-
-            # Generating samples from sampling distribution
-            x_samples = np.stack([np.random.choice(self.sampling_domain, size=n_samples, p=sample_dist[:, frame]) for frame in np.arange(sample_dist.shape[1])], axis=1)
-            t_samples = np.ones_like(x_samples) * sampling_time
-        
-        X = np.concatenate((t_samples, x_samples))
-        return X
-
-    def sample(self, sample_locs):
-        y = self.data[sample_locs]
-        return y
-
-    def grid_sample(self, n_samples, sampling_domain, sampling_time, epsilon=1e-3):
-            """Samples n_samples per t step in time on sampling domain on a grid.
-            Returns locations where to sample."""
-
-            x = np.linspace(sampling_domain.min(), sampling_domain.max(), n_samples)
-            x_samples, t_samples = np.meshgrid(x, sampling_time, indexing='ij')
-
-            return x_samples, t_samples
-
-    def magnitude_sample(self, y, epsilon=1e-3):
-        """Samples n_samples per t step in time on sampling domain using magnitude sampling,
-        i.e. p(u). Epsilon sets how much to sample empty space. Returns locations where to sample."""
-
-        p = np.abs(y) + epsilon
-        p = p / np.sum(p, axis=0)
-
-        return  p
-
-    def dt_sample(self, dydt, epsilon=1e-3):
-        """Samples n_samples per t step in time on sampling domain using magnitude sampling,
-        i.e. p(u). Epsilon sets how much to sample empty space. Returns locations where to sample."""
-
-        p = np.abs(dydt) + epsilon
-        p = p / np.sum(p, axis=0)
-        return p
-    
-    def library_sample(self, theta, weights, epsilon=1e-3):
-        """Samples n_samples per t step in time on sampling domain using library sampling,
-        i.e. p(u). Epsilon sets how much to sample empty space. Returns locations where to sample."""
-
-        p = np.abs(theta) + epsilon
-        p = p / np.sum(p, axis=0)  # normalize each term each time step
-        p = np.average(p, weights=weights, axis=2)  # combine all terms
-
-        return p
