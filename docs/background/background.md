@@ -4,7 +4,9 @@
 
 Deep learning-based model discovery typically uses a neural network to construct a noiseless surrogate $\hat{u}$ of the data $u$. A library of potential terms $\Theta$ is constructed using automatic differentiation from $\hat{u}$ and the neural network is constrained to solutions allowed by this library . The loss function of the network thus consists of two contributions, (i) a mean square error to learn the mapping $(\vec{x},t) \rightarrow \hat{u}$ and (ii) a term to constrain the network,
 
+
 $\mathcal{L} = \frac{1}{N}\sum_{i=1}^{N}\left( u_i - \hat{u}_i \right) ^2 +\frac{1}{N}\sum_{i=1}^{N}\left( \partial_t \hat{u}_i - \Theta_{i}\xi \right)^2 .$
+
 
  The sparse coefficient vector $\xi$ is learned concurrently with the network parameters and plays two roles: 1) determining the active (i.e. non-zero) components of the underlying PDE and 2) constraining the network according to these active terms. We propose to separate these two tasks by decoupling the constraint from the sparsity selection process itself. We first calculate a sparsity mask $g$ and then constrain the network only by the active terms in the mask. Mathematically, we replace $\xi$ by $\xi \circ \ g$. The sparsity mask $g$ need not be calculated differentiably, so that any classical, non-differentiable sparse estimator can be used. Our approach has several additional advantages: i) It provides an unbiased estimate of the coefficient vector since we do not apply $l_1$ or $l_2$ regularisation on $\xi$, ii) the sparsity pattern is determined from the full library $\Theta$, rather than only from the remaining active terms, allowing dynamic addition and removal of active terms throughout training, and iii) we can use cross validation or similar methods in the sparse estimator to find the optimal hyperparameters for model selection.
 
