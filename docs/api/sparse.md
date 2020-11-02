@@ -1,1 +1,1 @@
-:::deepymod.training.sparsity_scheduler
+:::deepymod.model.sparse_estimators
