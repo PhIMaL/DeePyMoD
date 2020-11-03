@@ -1,3 +1,9 @@
+    """ This files contains the function approximators that are used by DeepMoD. 
+    Note that the output of the function approximator has to be a Torch module. 
+
+    """
+
+
 import torch
 import torch.nn as nn
 from typing import List
