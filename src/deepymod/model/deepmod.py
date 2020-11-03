@@ -1,8 +1,7 @@
-""" This file contains the four building blocks for the deepmod framework:
-    1) Function approximator, e.g. a neural network to represent the dataset,  XXXX Not present yet
-    2) Function library on which the model discovery is performed, 
-    3) Constraint function that constrains the neural network with the obtained solution 
-    4) Sparsity selection algorithm. 
+""" This file contains building blocks for the deepmod framework: 
+    i) The constraint class that constrains the neural network with the obtained solution, 
+    ii) The sparsity estimator class,
+    iii) Function library class on which the model discovery is performed. Finally, the DeepMoD class integrates these seperate building blocks.
     These are all abstract classes and implement the flow logic, rather than the specifics.
 """
 
