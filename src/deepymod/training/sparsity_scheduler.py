@@ -1,12 +1,19 @@
+""" Contains classes that schedule when the sparsity mask should be applied """
 import torch
 import numpy as np
 
 
 class Periodic:
-    """Periodically applies sparsity evert periodicity iterations
+    """Periodically applies sparsity every periodicity iterations
     after initial_epoch.
     """
     def __init__(self, periodicity=50, initial_iteration=1000): 
+        """Periodically applies sparsity every periodicity iterations
+        after initial_epoch.
+        Args:
+            periodicity (int): after initial_iterations, apply sparsity mask per periodicity epochs
+            initial_iteration (int): wait initial_iterations before applying sparsity
+        """
         self.periodicity = periodicity
         self.initial_iteration = initial_iteration       
 
@@ -23,6 +30,13 @@ class TrainTest:
     """Early stops the training if validation loss doesn't improve after a given patience. 
        Note that periodicity should be multitude of write_iterations."""
     def __init__(self, patience=200, delta=1e-5, path='checkpoint.pt'):
+        """Early stops the training if validation loss doesn't improve after a given patience. 
+        Note that periodicity should be multitude of write_iterations.
+        Args:
+            patience (int): wait patience epochs before checking TrainTest
+            delta (float): desired accuracy
+            path (str): pathname where to store the savepoints, must have ".pt" extension
+            """
         self.path = path
         self.patience = patience
         self.delta = delta
@@ -62,6 +76,7 @@ class TrainTest:
         torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(),}, checkpoint_path)
 
     def load_checkpoint(self, model, optimizer):
+        '''Loads model from disk'''
         checkpoint_path = self.path + 'checkpoint.pt'
         checkpoint = torch.load(checkpoint_path)
         model.load_state_dict(checkpoint['model_state_dict'])
@@ -72,6 +87,13 @@ class TrainTestPeriodic:
     """Early stops the training if validation loss doesn't improve after a given patience. 
        Note that periodicity should be multitude of write_iterations."""
     def __init__(self, periodicity=50, patience=200, delta=1e-5, path='checkpoint.pt'):
+         """Early stops the training if validation loss doesn't improve after a given patience. 
+        Note that periodicity should be multitude of write_iterations.
+        Args:
+            periodicity (int): apply sparsity mask per periodicity epochs
+            patience (int): wait patience epochs before checking TrainTest
+            delta (float): desired accuracy
+            path (str): pathname where to store the savepoints, must have ".pt" extension"""
         self.path = path
         self.patience = patience
         self.delta = delta
@@ -118,6 +140,7 @@ class TrainTestPeriodic:
         torch.save({'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(),}, checkpoint_path)
 
     def load_checkpoint(self, model, optimizer):
+        '''Loads model from disk'''
         checkpoint_path = self.path + 'checkpoint.pt'
         checkpoint = torch.load(checkpoint_path)
         model.load_state_dict(checkpoint['model_state_dict'])
