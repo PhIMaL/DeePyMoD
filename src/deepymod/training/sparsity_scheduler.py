@@ -87,7 +87,7 @@ class TrainTestPeriodic:
     """Early stops the training if validation loss doesn't improve after a given patience. 
        Note that periodicity should be multitude of write_iterations."""
     def __init__(self, periodicity=50, patience=200, delta=1e-5, path='checkpoint.pt'):
-         """Early stops the training if validation loss doesn't improve after a given patience. 
+        """Early stops the training if validation loss doesn't improve after a given patience. 
         Note that periodicity should be multitude of write_iterations.
         Args:
             periodicity (int): apply sparsity mask per periodicity epochs
