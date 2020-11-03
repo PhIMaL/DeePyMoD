@@ -1,3 +1,5 @@
+""" Constains a tool to convert from Tensorboard to Pandas DataFrame """
+
 import pandas as pd
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 import os

@@ -12,6 +12,7 @@ class LeastSquares(Constraint):
     """Implements the constraint as a least squares problem solved by QR decomposition. """
 
     def __init__(self) -> None:
+        """ Least Squares Constraint solved by QR decomposition"""
         super().__init__()
 
     def calculate_coeffs(self, sparse_thetas: TensorList, time_derivs: TensorList) -> TensorList:
@@ -38,8 +39,10 @@ class LeastSquares(Constraint):
 
 class GradParams(Constraint):
     def __init__(self, n_params, n_eqs) -> None:
+        """ [Summary] """
         super().__init__()
         self.coeff_vectors = torch.nn.ParameterList([torch.nn.Parameter(torch.randn(n_params, 1)) for _ in torch.arange(n_eqs)])
 
     def calculate_coeffs(self, sparse_thetas, time_derivs):
+        """ [Summary] """
         return self.coeff_vectors

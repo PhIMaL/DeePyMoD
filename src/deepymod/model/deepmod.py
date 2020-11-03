@@ -90,12 +90,19 @@ class Estimator(nn.Module,  metaclass=ABCMeta):
         return sparsity_masks
 
     @abstractmethod
-    def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray: pass
+    def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """ Abstract method to compute the result of the network based on data X and labels y
+        Args: 
+            x (np.ndarray): input data
+            y (np.ndarray): output labels
+        Returns:
+            coefficients (np.ndarray)
+        """
+        pass
 
 
 class Library(nn.Module):
     """ Abstract class that calculates the library function and time derivatives. 
-
 
     Args:
         nn (PyTorch Class): Module of the function approximator, typically a neural network. 
@@ -105,7 +112,7 @@ class Library(nn.Module):
         self.norms = None
 
     def forward(self, input: Tuple[TensorList, TensorList]) -> Tuple[TensorList, TensorList]:
-        """[summary]
+        """Compute the library (time derivatives and thetas) given the data 
 
         Args:
             input (torch.Tensor): [description]
@@ -156,6 +163,7 @@ class DeepMoD(nn.Module):
     
     @property
     def sparsity_masks(self):
+        """ [Summary] """
         return self.constraint.sparsity_masks
     
     def estimator_coeffs(self):

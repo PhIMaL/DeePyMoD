@@ -1,3 +1,4 @@
+""" Contains the library classes that store the parameters u_t, theta"""
 import numpy as np
 import torch
 from torch.autograd import grad
@@ -10,11 +11,11 @@ from ..utils.types import TensorList
 
 # ==================== Library helper functions =======================
 def library_poly(prediction: torch.Tensor, max_order: int) -> torch.Tensor:
-    """[summary]
+    """ Compute the library up to some polynomial order
 
     Args:
-        prediction (torch.Tensor): [description]
-        max_order (int): [description]
+        prediction (torch.Tensor): the data u for which to evaluate the library
+        max_order (int): the maximum polynomial order up to which compute the library
 
     Returns:
         torch.Tensor: [description]
@@ -54,24 +55,32 @@ def library_deriv(data: torch.Tensor, prediction: torch.Tensor, max_order: int) 
 
 # ========================= Actual library functions ========================
 class Library1D(Library):
-    """[summary]
+    """ Construct a 1-dimensional library.
 
     Args:
-        Library ([type]): [description]
+        Library ([type]): Library object that can compute the library
     """
     def __init__(self, poly_order: int, diff_order: int) -> None:
+        """ Create a library up with polynomial order containing up to 
+        differentials order. i.e. for poly_order=1, diff_order=3       
+        [$1, u_x, u_{xx}, u_{xxx}, u, u u_{x}, u u_{xx}, u u_{xxx}$]
+        Args:
+            poly_order (int): maximum order of the polynomial in the library
+            diff_order (int): maximum order of the differentials in the library
+            """
         super().__init__()
         self.poly_order = poly_order
         self.diff_order = diff_order
 
     def library(self, input: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[TensorList, TensorList]:
-        """[summary]
+        """ Compute the library for the given a prediction and data
 
         Args:
-            input (Tuple[torch.Tensor, torch.Tensor]): [description]
+            input (Tuple[torch.Tensor, torch.Tensor]): A prediction and its data
 
         Returns:
-            Tuple[TensorList, TensorList]: [description]
+            Tuple[TensorList, TensorList]: The time derivatives and the thetas
+            computed from the library and data.
         """
         prediction, data = input
         poly_list = []
@@ -106,23 +115,30 @@ class Library1D(Library):
 
 
 class Library2D(Library):
-    """[summary]
+    """ Construct a 2-dimensional library.
 
     Args:
-        Library ([type]): [description]
+        Library ([type]): Library object that can compute the library
     """
     def __init__(self, poly_order: int) -> None:
+        """ Create a 2D library up with polynomial order containing up to 
+        differentials order. i.e. for poly_order=1     
+        [$1, u_x, u_y, u_{xx}, u_{yy}, u_{xy}$]
+        Args:
+            poly_order (int): maximum order of the polynomial in the library
+            """
         super().__init__()
         self.poly_order = poly_order
 
     def library(self, input: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[TensorList, TensorList]:
-        """[summary]
+        """ Compute the library for the given a prediction and data
 
         Args:
-            input (Tuple[torch.Tensor, torch.Tensor]): [description]
+            input (Tuple[torch.Tensor, torch.Tensor]): A prediction and its data
 
         Returns:
-            Tuple[TensorList, TensorList]: [description]
+            Tuple[TensorList, TensorList]: The time derivatives and the thetas
+            computed from the library and data.
         """
 
         prediction, data = input
