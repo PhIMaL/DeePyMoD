@@ -5,23 +5,25 @@ import numpy as np
 
 
 class NN(nn.Module):
-    """[summary]
-
-    Args:
-        nn ([type]): [description]
-    """
     def __init__(self, n_in: int, n_hidden: List[int], n_out: int) -> None:
+        """ This class sets up a simple feed forward neural network as function approximator.
+
+        Args:
+            n_in (int): Number of input features.
+            n_hidden (List[int]): Number of neurons in each layer.
+            n_out (int): Number of output features.
+        """
         super().__init__()
         self.network = self.build_network(n_in, n_hidden, n_out)
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        """[summary]
+        """Performs a forward pass through the network. 
 
         Args:
-            input (torch.Tensor): [description]
+            input (torch.Tensor): Input tensor. 
 
         Returns:
-            torch.Tensor: [description]
+            torch.Tensor: Output tensor. 
         """
         coordinates = input.clone().detach().requires_grad_(True)
         return self.network(coordinates), coordinates
@@ -48,12 +50,15 @@ class NN(nn.Module):
 
 
 class SineLayer(nn.Module):
-    """[summary]
-
-    Args:
-        nn ([type]): [description]
-    """
     def __init__(self, in_features: int, out_features: int, omega_0: float = 30, is_first: bool = False):
+        """ Sine activation function with omega_0 scaling. 
+
+        Args:
+            in_features (int): Number of input features.
+            out_features (int): Number of output features.
+            omega_0 (float, optional): Scaling factor of the Sine function. Defaults to 30.
+            is_first (bool, optional): Defaults to False.
+        """
         super().__init__()
         self.omega_0 = omega_0
         self.is_first = is_first
@@ -64,7 +69,7 @@ class SineLayer(nn.Module):
         self.init_weights()
 
     def init_weights(self):
-        """[summary]
+        """Initialization of the weigths. 
         """
         with torch.no_grad():
             if self.is_first:
@@ -74,51 +79,55 @@ class SineLayer(nn.Module):
                                             np.sqrt(6 / self.in_features) / self.omega_0)
 
     def forward(self, input):
-        """[summary]
+        """Performs the forward pass through the network. 
 
         Args:
-            input ([type]): [description]
+            input (torch.Tensor): Input tensor.
 
         Returns:
-            [type]: [description]
+            torch.Tensor: Output tensor.
         """
         return torch.sin(self.omega_0 * self.linear(input))
 
 
 class Siren(nn.Module):
-    """[summary]
-
-    Args:
-        nn ([type]): [description]
-    """
     def __init__(self, n_in: int, n_hidden: List[int], n_out: int, first_omega_0: float = 30., hidden_omega_0: float = 30.):
+        """ SIREN model from the paper [Implicit Neural Representations with
+        Periodic Activation Functions](https://arxiv.org/abs/2006.09661).
+
+        Args:
+            n_in (int): Number of input features.
+            n_hidden (list[int]): Number of neurons in each layer.
+            n_out (int): Number of output features.
+            first_omega_0 (float, optional): Scaling factor of the Sine function of the first layer. Defaults to 30.
+            hidden_omega_0 (float, optional): Scaling factor of the Sine function of the hidden layers. Defaults to 30.
+        """
         super().__init__()
         self.network = self.build_network(n_in, n_hidden, n_out, first_omega_0, hidden_omega_0)
 
     def forward(self, input: torch.Tensor):
-        """[summary]
+        """Performs the forward pass through the network. 
 
         Args:
-            input (torch.Tensor): [description]
+            input (torch.Tensor): Input tensor.
 
         Returns:
-            [type]: [description]
+            torch.Tensor: Output tensor.
         """
         coordinates = input.clone().detach().requires_grad_(True)
         return self.network(coordinates), coordinates
 
     def build_network(self, n_in: int, n_hidden: List[int], n_out: int, first_omega_0: float, hidden_omega_0: float):
-        """[summary]
+        """Constructs the Siren neural network.
 
         Args:
-            n_in (int): [description]
-            n_hidden (List[int]): [description]
-            n_out (int): [description]
-            first_omega_0 (float): [description]
-            hidden_omega_0 (float): [description]
-
+            n_in (int): Number of input features.
+            n_hidden (list[int]): Number of neurons in each layer.
+            n_out (int): Number of output features.
+            first_omega_0 (float, optional): Scaling factor of the Sine function of the first layer. Defaults to 30.
+            hidden_omega_0 (float, optional): Scaling factor of the Sine function of the hidden layers. Defaults to 30.
         Returns:
-            [type]: [description]
+            torch.Sequential: Pytorch module
         """
         network = []
         # Input layer
