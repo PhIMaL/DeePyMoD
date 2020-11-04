@@ -1,5 +1,5 @@
-import torch
 '''This module implements convergence criteria'''
+import torch
 
 
 class Convergence:
@@ -7,6 +7,12 @@ class Convergence:
     epochs is smaller than delta.
     '''
     def __init__(self, patience: int = 200, delta: float = 1e-3) -> None:
+        '''Implements convergence criterium. Convergence is when change in patience
+        epochs is smaller than delta.
+        Args: 
+            patience (int): how often to check for convergence
+            delta (float): desired accuracy
+        '''
         self.patience = patience
         self.delta = delta
         self.start_iteration = None

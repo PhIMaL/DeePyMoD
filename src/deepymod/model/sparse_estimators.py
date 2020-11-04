@@ -15,7 +15,8 @@ warnings.filterwarnings("ignore", category=UserWarning)  # To silence annoying p
 
 
 class Base(Estimator):
-    """[summary]
+    """ Base Estimator Class, should return coefficients estimators 
+    which can used to determine sparsity masks.
 
     Args:
         Estimator ([type]): [description]

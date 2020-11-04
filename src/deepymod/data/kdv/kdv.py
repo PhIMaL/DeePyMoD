@@ -1,3 +1,8 @@
+""" Contains several interactive datasets for the Korteweg-de-Vries equation including:
+    - A single soliton wave
+    - Two soliton waves
+"""
+
 import torch
 import numpy as np
 
