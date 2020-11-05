@@ -1,3 +1,4 @@
+""" Useful tools, such as combining string matrix product and computing the terms in the library """
 from itertools import product, combinations, chain
 import torch
 import torch.nn as nn
