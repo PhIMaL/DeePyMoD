@@ -15,35 +15,39 @@ warnings.filterwarnings("ignore", category=UserWarning)  # To silence annoying p
 
 
 class Base(Estimator):
-    """ Base Estimator Class, should return coefficients estimators 
-    which can used to determine sparsity masks.
-
-    Args:
-        Estimator ([type]): [description]
-    """
     def __init__(self, estimator: BaseEstimator) -> None:
+        """Base Estimator Class which return coefficients estimators involved in determining the sparsity masks.
+
+        Args:
+            estimator (BaseEstimator): Sci-kit learn estimator. 
+        """
         super().__init__()
         self.estimator = estimator
         self.estimator.set_params(fit_intercept=False)  # Library contains offset so turn off the intercept
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
-        """[summary]
+        """Returns an array with the coefficient verctor after sparsity estimation.
 
         Args:
-            X (np.ndarray): [description]
-            y (np.ndarray): [description]
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: Coefficient vector. 
         """
         coeffs = self.estimator.fit(X, y).coef_
         return coeffs
 
 
 class Threshold(Estimator):
-    '''Performs additional thresholding on coefficient result from estimator. Basically
-    a thin wrapper around the given estimator. '''
+
     def __init__(self, threshold: float = 0.1, estimator: BaseEstimator = LassoCV(cv=5, fit_intercept=False)) -> None:
+        """Performs additional thresholding on coefficient result from estimator. Basically a thin wrapper around the given estimator. 
+
+        Args:
+            threshold (float, optional): Value of the threshold above which the terms are selected. Defaults to 0.1.
+            estimator (BaseEstimator, optional): Sparsity estimator. Defaults to LassoCV(cv=5, fit_intercept=False).
+        """
         super().__init__()
         self.estimator = estimator
         self.threshold = threshold
@@ -52,14 +56,14 @@ class Threshold(Estimator):
         self.estimator.set_params(fit_intercept=False)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
-        """[summary]
+        """Returns an array with the coefficient verctor after sparsity estimation.
 
         Args:
-            X (np.ndarray): [description]
-            y (np.ndarray): [description]
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: Coefficient vector. 
         """
         coeffs = self.estimator.fit(X, y).coef_
         coeffs[np.abs(coeffs) < self.threshold] = 0.0
@@ -68,11 +72,14 @@ class Threshold(Estimator):
 
 
 class Clustering(Estimator):
-    ''' Performs additional thresholding by clustering on coefficient result from estimator. Basically
-    a thin wrapper around the given estimator. Results are fitted to two groups:
-    components to keep and components to throw.
-    '''
     def __init__(self, estimator: BaseEstimator = LassoCV(cv=5, fit_intercept=False)) -> None:
+        """Performs additional thresholding by clustering on coefficient result from estimator. Basically
+        a thin wrapper around the given estimator. Results are fitted to two groups:
+        components to keep and components to throw.
+
+        Args:
+            estimator (BaseEstimator, optional): Estimator class. Defaults to LassoCV(cv=5, fit_intercept=False).
+        """
         super().__init__()
         self.estimator = estimator
         self.kmeans = KMeans(n_clusters=2)
@@ -81,14 +88,14 @@ class Clustering(Estimator):
         self.estimator.set_params(fit_intercept=False)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
-        """[summary]
+        """Returns an array with the coefficient verctor after sparsity estimation.
 
          Args:
-             X (np.ndarray): [description]
-             y (np.ndarray): [description]
+             X (np.ndarray): Training input data of shape (n_samples, n_features).
+             y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
          Returns:
-             np.ndarray: [description]
+             np.ndarray: Coefficient vector. 
         """
         coeffs = self.estimator.fit(X, y).coef_[:, None]  # sklearn returns 1D
         clusters = self.kmeans.fit_predict(np.abs(coeffs)).astype(np.bool)
@@ -103,21 +110,26 @@ class Clustering(Estimator):
 
 
 class PDEFIND(Estimator):
-    ''' Implements PDEFIND as a sparse estimator.'''
     def __init__(self, lam: float = 1e-3, dtol: float = 0.1) -> None:
+        """Implements PDEFIND as a sparse estimator.
+
+        Args:
+            lam (float, optional): Magnitude of the L2 regularization. Defaults to 1e-3.
+            dtol (float, optional): Initial stepsize for the search of the thresholdDefaults to 0.1.
+        """
         super().__init__()
         self.lam = lam
         self.dtol = dtol
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
-        """[summary]
+        """Returns an array with the coefficient verctor after sparsity estimation.
 
         Args:
-            X (np.ndarray): [description]
-            y (np.ndarray): [description]
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: Coefficient vector. 
         """
        
         coeffs = PDEFIND.TrainSTLSQ(X, y[:, None], self.lam, self.dtol)
@@ -131,19 +143,19 @@ class PDEFIND(Estimator):
                    max_iterations: int = 100,
                    test_size: float = 0.2,
                    random_state: int = 0) -> np.ndarray:
-        """[summary]
+        """PDE-FIND sparsity selection algorithm. Based on method described by Rudy et al. (10.1126/sciadv.1602614).
 
         Args:
-            X (np.ndarray): [description]
-            y (np.ndarray): [description]
-            alpha (float): [description]
-            delta_threshold (float): [description]
-            max_iterations (int, optional): [description]. Defaults to 100.
-            test_size (float, optional): [description]. Defaults to 0.2.
-            random_state (int, optional): [description]. Defaults to 0.
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
+            alpha (float): Magnitude of the L2 regularization.
+            delta_threshold (float): Initial stepsize for the search of the threshold
+            max_iterations (int, optional): Maximum number of iterations. Defaults to 100.
+            test_size (float, optional): Fraction of the data that is assigned to the test-set. Defaults to 0.2.
+            random_state (int, optional): Defaults to 0.
 
         Returns:
-            np.ndarray: [description]
+            np.ndarray: Coefficient vector. 
         """
         # Split data
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
