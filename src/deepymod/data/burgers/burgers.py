@@ -1,3 +1,8 @@
+""" Contains several interactive datasets for the Burgers equation including:
+    - Burgers with initial delta peak profile
+    - Burgers with initial cosine profile
+    - Burgers with initial sawtooth profile"""
+
 import torch
 from numpy import pi
 

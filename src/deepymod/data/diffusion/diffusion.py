@@ -1,3 +1,8 @@
+""" Contains several interactive datasets for the Diffusion equation including:
+    - Diffusion
+    - Advection-Diffusion in 2 dimensions
+"""
+
 from numpy import pi
 import torch
 
