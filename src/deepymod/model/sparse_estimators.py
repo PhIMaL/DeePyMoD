@@ -29,8 +29,8 @@ class Base(Estimator):
         """Returns an array with the coefficient verctor after sparsity estimation.
 
         Args:
-            X (np.ndarray): Input array.
-            y (np.ndarray): Output array.
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
             np.ndarray: Coefficient vector. 
@@ -59,8 +59,8 @@ class Threshold(Estimator):
         """Returns an array with the coefficient verctor after sparsity estimation.
 
         Args:
-            X (np.ndarray): Input array.
-            y (np.ndarray): Output array.
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
             np.ndarray: Coefficient vector. 
@@ -91,8 +91,8 @@ class Clustering(Estimator):
         """Returns an array with the coefficient verctor after sparsity estimation.
 
          Args:
-             X (np.ndarray): Input array.
-             y (np.ndarray): Output array.
+             X (np.ndarray): Training input data of shape (n_samples, n_features).
+             y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
          Returns:
              np.ndarray: Coefficient vector. 
@@ -115,7 +115,7 @@ class PDEFIND(Estimator):
 
         Args:
             lam (float, optional): Magnitude of the L2 regularization. Defaults to 1e-3.
-            dtol (float, optional): Defaults to 0.1.
+            dtol (float, optional): Initial stepsize for the search of the thresholdDefaults to 0.1.
         """
         super().__init__()
         self.lam = lam
@@ -125,8 +125,8 @@ class PDEFIND(Estimator):
         """Returns an array with the coefficient verctor after sparsity estimation.
 
         Args:
-            X (np.ndarray): Input array.
-            y (np.ndarray): Output array.
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
             np.ndarray: Coefficient vector. 
@@ -146,10 +146,10 @@ class PDEFIND(Estimator):
         """PDE-FIND sparsity selection algorithm. Based on method described by Rudy et al. (10.1126/sciadv.1602614).
 
         Args:
-            X (np.ndarray): Input array.
-            y (np.ndarray): Output array.
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
             alpha (float): Magnitude of the L2 regularization.
-            delta_threshold (float): [description]
+            delta_threshold (float): Initial stepsize for the search of the threshold
             max_iterations (int, optional): Maximum number of iterations. Defaults to 100.
             test_size (float, optional): Fraction of the data that is assigned to the test-set. Defaults to 0.2.
             random_state (int, optional): Defaults to 0.
