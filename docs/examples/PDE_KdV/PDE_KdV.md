@@ -34,7 +34,7 @@ Next, we prepare the dataset.
 
 
 ```python
-data = np.load('../data/kdv.npy', allow_pickle=True).item()
+data = np.load('data/kdv.npy', allow_pickle=True).item()
 print('Shape of grid:', data['x'].shape)
 ```
 
@@ -80,7 +80,7 @@ The dataset is also much larger than needed, so let's hussle it and pick out a 1
 
 
 ```python
-number_of_samples = 1000
+number_of_samples = 2000
 
 idx = np.random.permutation(y.shape[0])
 X_train = torch.tensor(X[idx, :][:number_of_samples], dtype=torch.float32, requires_grad=True)
@@ -92,7 +92,7 @@ y_train = torch.tensor(y_noisy[idx, :][:number_of_samples], dtype=torch.float32)
 print(X_train.shape, y_train.shape)
 ```
 
-    torch.Size([1000, 2]) torch.Size([1000, 1])
+    torch.Size([2000, 2]) torch.Size([2000, 1])
 
 
 We now have a dataset which we can use. Let's plot, for a final time, the original dataset, the noisy set and the samples points:
@@ -132,7 +132,7 @@ Configuration of the function approximator: Here the first argument is the numbe
 
 
 ```python
-network = NN(2, [50, 50, 50,50], 1)
+network = NN(2, [30, 30, 30, 30], 1)
 ```
 
 Configuration of the library function: We select athe library with a 2D spatial input. Note that that the max differential order has been pre-determined here out of convinience. So, for poly_order 1 the library contains the following 12 terms:
@@ -181,11 +181,10 @@ We can now run DeepMoD using all the options we have set and the training data:
 
 
 ```python
-train(model, X_train, y_train, optimizer,sparsity_scheduler, log_dir='runs/KDV/', split=0.8, max_iterations=100000, delta=1e-4, patience=8) 
+train(model, X_train, y_train, optimizer,sparsity_scheduler, log_dir='runs/KDV/', split=0.8, max_iterations=100000) 
 ```
 
-    | Iteration | Progress | Time remaining |     Loss |      MSE |      Reg |    L1 norm |
-          25775     25.77%            3510s   7.15e-06   6.44e-06   7.10e-07   2.88e+00 Algorithm converged. Stopping training.
+     11375  MSE: 9.29e-06  Reg: 3.11e-06  L1: 2.69e+00 Algorithm converged. Writing model to disk.
 
 
 Sparsity masks provide the active and non-active terms in the PDE:
@@ -210,21 +209,16 @@ estimatior_coeffs gives the magnitude of the active terms:
 print(model.estimator_coeffs())
 ```
 
-    [array([[ 0.       ],
-           [ 0.       ],
-           [ 0.       ],
-           [-0.9088099],
-           [ 0.       ],
-           [-1.7334794],
-           [ 0.       ],
-           [ 0.       ],
-           [ 0.       ],
-           [ 0.       ],
-           [ 0.       ],
-           [ 0.       ]], dtype=float32)]
+    [array([[ 0.        ],
+           [ 0.        ],
+           [ 0.        ],
+           [-0.82726973],
+           [ 0.        ],
+           [-1.5996557 ],
+           [ 0.        ],
+           [ 0.        ],
+           [ 0.        ],
+           [ 0.        ],
+           [ 0.        ],
+           [ 0.        ]], dtype=float32)]
 
-
-
-```python
-
-```
