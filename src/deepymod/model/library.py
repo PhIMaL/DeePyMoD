@@ -60,9 +60,9 @@ class Library1D(Library):
         """ Calculates the temporal derivative a library/feature matrix consisting of
         1) polynomials up to order poly_order, i.e. u, u^2...
         2) derivatives up to order diff_order, i.e. u_x, u_xx
-        3) cross terms of 1) and 2), i.e. Suu_xS, Su^2u_xxS
+        3) cross terms of 1) and 2), i.e. $uu_x$, $u^2u_xx$
 
-        Order of terms is derivative first, i.e. [S1, u_x, u, uu_x, u^2, ...S]
+        Order of terms is derivative first, i.e. [$1, u_x, u, uu_x, u^2, ...$]
 
         Only works for 1D+1 data. Also works for multiple outputs but in that case doesn't calculate
         polynomial and derivative cross terms.

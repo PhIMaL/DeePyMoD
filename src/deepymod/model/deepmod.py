@@ -72,7 +72,7 @@ class Estimator(nn.Module,  metaclass=ABCMeta):
 
     def forward(self, thetas: TensorList, time_derivs: TensorList) -> TensorList:
         """The forward pass of the sparse estimator module first normalizes the library matrices
-        and time derivatives by dividing them by their l2 norm, than calculate the coefficient vectors
+        and time derivatives by dividing each column (i.e. feature) by their l2 norm, than calculate the coefficient vectors
         according to the sparse estimation algorithm supplied by the child and finally returns the sparsity
         mask (i.e. which terms are active) based on these coefficients.
 
