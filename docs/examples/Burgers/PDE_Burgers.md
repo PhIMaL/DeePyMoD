@@ -69,11 +69,11 @@ print(X.shape, y.shape)
     (25856, 2) (25856, 1)
 
 
-As we can see, $X$ has 2 dimensions, $\{x, t\}$, while $y$ has only one, $\{u\}$. Always explicity set the shape (i.e. $N\times 1$, not $N$) or you'll get errors. This dataset is noiseless, so let's add $5\%$ noise:
+As we can see, $X$ has 2 dimensions, $\{x, t\}$, while $y$ has only one, $\{u\}$. Always explicity set the shape (i.e. $N\times 1$, not $N$) or you'll get errors. This dataset is noiseless, so let's add $2.5\%$ noise:
 
 
 ```python
-noise_level = 0.05
+noise_level = 0.025
 y_noisy = y + noise_level * np.std(y) * np.random.randn(y[:,0].size, 1)
 ```
 
@@ -133,7 +133,7 @@ Configuration of the function approximator: Here the first argument is the numbe
 
 
 ```python
-network = NN(2, [50, 50, 50,50], 1)
+network = NN(2, [30, 30, 30, 30], 1)
 ```
 
 Configuration of the library function: We select athe library with a 2D spatial input. Note that that the max differential order has been pre-determined here out of convinience. So, for poly_order 1 the library contains the following 12 terms:
@@ -185,7 +185,7 @@ We can now run DeepMoD using all the options we have set and the training data:
 train(model, X_train, y_train, optimizer,sparsity_scheduler, log_dir='runs/Burgers/', split=0.8, max_iterations=100000) 
 ```
 
-      9750  MSE: 8.48e-05  Reg: 1.16e-05  L1: 1.45e+00 Algorithm converged. Writing model to disk.
+     13350  MSE: 2.53e-05  Reg: 1.38e-05  L1: 1.45e+00 Algorithm converged. Writing model to disk.
 
 
 Sparsity masks provide the active and non-active terms in the PDE:
@@ -212,10 +212,10 @@ print(model.estimator_coeffs())
 
     [array([[ 0.        ],
            [ 0.        ],
-           [ 0.40999228],
+           [ 0.39227325],
            [ 0.        ],
            [ 0.        ],
-           [-0.99958825],
+           [-1.001875  ],
            [ 0.        ],
            [ 0.        ],
            [ 0.        ],
@@ -223,6 +223,9 @@ print(model.estimator_coeffs())
            [ 0.        ],
            [ 0.        ]], dtype=float32)]
 
+
+So the final terms that remain are the $u_{xx}$ and $u u_{x}$ resulting in the following Burgers equation (in normalized coefficients: 
+$u_t = 0.4 u_{xx} - u u_{x}$.
 
 
 ```python
