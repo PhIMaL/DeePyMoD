@@ -205,6 +205,11 @@
 <nav aria-label="Base" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.model.sparse_estimators.Base.__init__">
+    __init__()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#deepymod.model.sparse_estimators.Base.fit">
     fit()
   </a>
@@ -219,6 +224,11 @@
 <nav aria-label="Clustering" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.model.sparse_estimators.Clustering.__init__">
+    __init__()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#deepymod.model.sparse_estimators.Clustering.fit">
     fit()
   </a>
@@ -232,6 +242,11 @@
   </a>
 <nav aria-label="PDEFIND" class="md-nav">
 <ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.model.sparse_estimators.PDEFIND.__init__">
+    __init__()
+  </a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#deepymod.model.sparse_estimators.PDEFIND.fit">
     fit()
@@ -251,6 +266,11 @@
   </a>
 <nav aria-label="Threshold" class="md-nav">
 <ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.model.sparse_estimators.Threshold.__init__">
+    __init__()
+  </a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#deepymod.model.sparse_estimators.Threshold.fit">
     fit()
@@ -427,6 +447,11 @@
 <nav aria-label="Base" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.model.sparse_estimators.Base.__init__">
+    __init__()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#deepymod.model.sparse_estimators.Base.fit">
     fit()
   </a>
@@ -441,6 +466,11 @@
 <nav aria-label="Clustering" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.model.sparse_estimators.Clustering.__init__">
+    __init__()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#deepymod.model.sparse_estimators.Clustering.fit">
     fit()
   </a>
@@ -454,6 +484,11 @@
   </a>
 <nav aria-label="PDEFIND" class="md-nav">
 <ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.model.sparse_estimators.PDEFIND.__init__">
+    __init__()
+  </a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#deepymod.model.sparse_estimators.PDEFIND.fit">
     fit()
@@ -473,6 +508,11 @@
   </a>
 <nav aria-label="Threshold" class="md-nav">
 <ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deepymod.model.sparse_estimators.Threshold.__init__">
+    __init__()
+  </a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#deepymod.model.sparse_estimators.Threshold.fit">
     fit()
@@ -505,18 +545,81 @@ See scikitlearn.linear_models for applicable estimators.</p>
 <code>Base</code>
 </h2>
 <div class="doc doc-contents">
-<p>Base Estimator Class, should return coefficients estimators 
-   which can used to determine sparsity masks.</p>
-<p>!!! args
-       Estimator ([type]): [description]</p>
 <div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="deepymod.model.sparse_estimators.Base.__init__">
+<code class="highlight language-python">
+__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">)</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-special"><code>special</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Base Estimator Class which return coefficients estimators involved in determining the sparsity masks.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>estimator</code></td>
+<td><code>BaseEstimator</code></td>
+<td>
+<p>Sci-kit learn estimator. </p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>deepymod/model/sparse_estimators.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>18
+19
+20
+21
+22
+23
+24
+25
+26</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Base Estimator Class which return coefficients estimators involved in determining the sparsity masks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        estimator (BaseEstimator): Sci-kit learn estimator. </span>
+<span class="sd">    """</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">estimator</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Library contains offset so turn off the intercept</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="deepymod.model.sparse_estimators.Base.fit">
 <code class="highlight language-python">
 fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
-<p>[summary]</p>
+<p>Returns an array with the coefficient verctor after sparsity estimation.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -532,7 +635,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <td><code>X</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training input data of shape (n_samples, n_features).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -540,7 +643,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <td><code>y</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training target data of shape (n_samples, n_outputs).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -558,7 +661,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <tr>
 <td><code>ndarray</code></td>
 <td>
-<p>np.ndarray: [description]</p>
+<p>np.ndarray: Coefficient vector. </p>
 </td>
 </tr>
 </tbody>
@@ -569,7 +672,8 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>29
+<pre><span></span>28
+29
 30
 31
 32
@@ -579,21 +683,20 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 36
 37
 38
-39
-40</pre>
+39</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
 <pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">"""[summary]</span>
+    <span class="sd">"""Returns an array with the coefficient verctor after sparsity estimation.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        X (np.ndarray): [description]</span>
-<span class="sd">        y (np.ndarray): [description]</span>
+<span class="sd">        X (np.ndarray): Training input data of shape (n_samples, n_features).</span>
+<span class="sd">        y (np.ndarray): Training target data of shape (n_samples, n_outputs).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        np.ndarray: [description]</span>
+<span class="sd">        np.ndarray: Coefficient vector. </span>
 <span class="sd">    """</span>
     <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span>
     <span class="k">return</span> <span class="n">coeffs</span>
@@ -613,17 +716,93 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <code>Clustering</code>
 </h2>
 <div class="doc doc-contents">
-<p>Performs additional thresholding by clustering on coefficient result from estimator. Basically
-   a thin wrapper around the given estimator. Results are fitted to two groups:
-   components to keep and components to throw.</p>
 <div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="deepymod.model.sparse_estimators.Clustering.__init__">
+<code class="highlight language-python">
+__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="n">LassoCV</span><span class="p">(</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-special"><code>special</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Performs additional thresholding by clustering on coefficient result from estimator. Basically
+a thin wrapper around the given estimator. Results are fitted to two groups:
+components to keep and components to throw.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>estimator</code></td>
+<td><code>BaseEstimator</code></td>
+<td>
+<p>Estimator class. Defaults to LassoCV(cv=5, fit_intercept=False).</p>
+</td>
+<td><code>LassoCV(cv=5, fit_intercept=False)</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>deepymod/model/sparse_estimators.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">=</span> <span class="n">LassoCV</span><span class="p">(</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Performs additional thresholding by clustering on coefficient result from estimator. Basically</span>
+<span class="sd">    a thin wrapper around the given estimator. Results are fitted to two groups:</span>
+<span class="sd">    components to keep and components to throw.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        estimator (BaseEstimator, optional): Estimator class. Defaults to LassoCV(cv=5, fit_intercept=False).</span>
+<span class="sd">    """</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">estimator</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Library contains offset so turn off the intercept</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="deepymod.model.sparse_estimators.Clustering.fit">
 <code class="highlight language-python">
 fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
-<p>[summary]</p>
+<p>Returns an array with the coefficient verctor after sparsity estimation.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -639,7 +818,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <td><code>X</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training input data of shape (n_samples, n_features).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -647,7 +826,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <td><code>y</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training target data of shape (n_samples, n_outputs).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -665,7 +844,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <tr>
 <td><code>ndarray</code></td>
 <td>
-<p>np.ndarray: [description]</p>
+<p>np.ndarray: Coefficient vector. </p>
 </td>
 </tr>
 </tbody>
@@ -676,14 +855,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 83
- 84
- 85
- 86
- 87
- 88
- 89
- 90
+<pre><span></span> 90
  91
  92
  93
@@ -695,20 +867,27 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
  99
 100
 101
-102</pre>
+102
+103
+104
+105
+106
+107
+108
+109</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
 <pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">"""[summary]</span>
+    <span class="sd">"""Returns an array with the coefficient verctor after sparsity estimation.</span>
 
 <span class="sd">     Args:</span>
-<span class="sd">         X (np.ndarray): [description]</span>
-<span class="sd">         y (np.ndarray): [description]</span>
+<span class="sd">         X (np.ndarray): Training input data of shape (n_samples, n_features).</span>
+<span class="sd">         y (np.ndarray): Training target data of shape (n_samples, n_outputs).</span>
 
 <span class="sd">     Returns:</span>
-<span class="sd">         np.ndarray: [description]</span>
+<span class="sd">         np.ndarray: Coefficient vector. </span>
 <span class="sd">    """</span>
     <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>  <span class="c1"># sklearn returns 1D</span>
     <span class="n">clusters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kmeans</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coeffs</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
@@ -736,15 +915,91 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <code>PDEFIND</code>
 </h2>
 <div class="doc doc-contents">
-<p>Implements PDEFIND as a sparse estimator.</p>
 <div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="deepymod.model.sparse_estimators.PDEFIND.__init__">
+<code class="highlight language-python">
+__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">dtol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-special"><code>special</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Implements PDEFIND as a sparse estimator.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lam</code></td>
+<td><code>float</code></td>
+<td>
+<p>Magnitude of the L2 regularization. Defaults to 1e-3.</p>
+</td>
+<td><code>0.001</code></td>
+</tr>
+<tr>
+<td><code>dtol</code></td>
+<td><code>float</code></td>
+<td>
+<p>Initial stepsize for the search of the thresholdDefaults to 0.1.</p>
+</td>
+<td><code>0.1</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>deepymod/model/sparse_estimators.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>113
+114
+115
+116
+117
+118
+119
+120
+121
+122</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lam</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">dtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Implements PDEFIND as a sparse estimator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lam (float, optional): Magnitude of the L2 regularization. Defaults to 1e-3.</span>
+<span class="sd">        dtol (float, optional): Initial stepsize for the search of the thresholdDefaults to 0.1.</span>
+<span class="sd">    """</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">lam</span> <span class="o">=</span> <span class="n">lam</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dtol</span> <span class="o">=</span> <span class="n">dtol</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="deepymod.model.sparse_estimators.PDEFIND.fit">
 <code class="highlight language-python">
 fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
-<p>[summary]</p>
+<p>Returns an array with the coefficient verctor after sparsity estimation.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -760,7 +1015,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <td><code>X</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training input data of shape (n_samples, n_features).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -768,7 +1023,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <td><code>y</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training target data of shape (n_samples, n_outputs).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -786,7 +1041,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <tr>
 <td><code>ndarray</code></td>
 <td>
-<p>np.ndarray: [description]</p>
+<p>np.ndarray: Coefficient vector. </p>
 </td>
 </tr>
 </tbody>
@@ -797,32 +1052,32 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>112
-113
-114
-115
-116
-117
-118
-119
-120
-121
-122
-123
-124</pre>
+<pre><span></span>124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
 <pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">"""[summary]</span>
+    <span class="sd">"""Returns an array with the coefficient verctor after sparsity estimation.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        X (np.ndarray): [description]</span>
-<span class="sd">        y (np.ndarray): [description]</span>
+<span class="sd">        X (np.ndarray): Training input data of shape (n_samples, n_features).</span>
+<span class="sd">        y (np.ndarray): Training target data of shape (n_samples, n_outputs).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        np.ndarray: [description]</span>
+<span class="sd">        np.ndarray: Coefficient vector. </span>
 <span class="sd">    """</span>
 
     <span class="n">coeffs</span> <span class="o">=</span> <span class="n">PDEFIND</span><span class="o">.</span><span class="n">TrainSTLSQ</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">lam</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtol</span><span class="p">)</span>
@@ -844,7 +1099,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 </span>
 </h3>
 <div class="doc doc-contents">
-<p>[summary]</p>
+<p>PDE-FIND sparsity selection algorithm. Based on method described by Rudy et al. (10.1126/sciadv.1602614).</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -860,7 +1115,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <td><code>X</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training input data of shape (n_samples, n_features).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -868,7 +1123,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <td><code>y</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training target data of shape (n_samples, n_outputs).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -876,7 +1131,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <td><code>alpha</code></td>
 <td><code>float</code></td>
 <td>
-<p>[description]</p>
+<p>Magnitude of the L2 regularization.</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -884,7 +1139,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <td><code>delta_threshold</code></td>
 <td><code>float</code></td>
 <td>
-<p>[description]</p>
+<p>Initial stepsize for the search of the threshold</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -892,7 +1147,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <td><code>max_iterations</code></td>
 <td><code>int</code></td>
 <td>
-<p>[description]. Defaults to 100.</p>
+<p>Maximum number of iterations. Defaults to 100.</p>
 </td>
 <td><code>100</code></td>
 </tr>
@@ -900,7 +1155,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <td><code>test_size</code></td>
 <td><code>float</code></td>
 <td>
-<p>[description]. Defaults to 0.2.</p>
+<p>Fraction of the data that is assigned to the test-set. Defaults to 0.2.</p>
 </td>
 <td><code>0.2</code></td>
 </tr>
@@ -908,7 +1163,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <td><code>random_state</code></td>
 <td><code>int</code></td>
 <td>
-<p>[description]. Defaults to 0.</p>
+<p>Defaults to 0.</p>
 </td>
 <td><code>0</code></td>
 </tr>
@@ -926,7 +1181,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <tr>
 <td><code>ndarray</code></td>
 <td>
-<p>np.ndarray: [description]</p>
+<p>np.ndarray: Coefficient vector. </p>
 </td>
 </tr>
 </tbody>
@@ -937,19 +1192,7 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>126
-127
-128
-129
-130
-131
-132
-133
-134
-135
-136
-137
-138
+<pre><span></span>138
 139
 140
 141
@@ -993,7 +1236,19 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 179
 180
 181
-182</pre>
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194</pre>
 </div>
 </td>
 <td class="code">
@@ -1006,19 +1261,19 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
                <span class="n">max_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
                <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
                <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">"""[summary]</span>
+    <span class="sd">"""PDE-FIND sparsity selection algorithm. Based on method described by Rudy et al. (10.1126/sciadv.1602614).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        X (np.ndarray): [description]</span>
-<span class="sd">        y (np.ndarray): [description]</span>
-<span class="sd">        alpha (float): [description]</span>
-<span class="sd">        delta_threshold (float): [description]</span>
-<span class="sd">        max_iterations (int, optional): [description]. Defaults to 100.</span>
-<span class="sd">        test_size (float, optional): [description]. Defaults to 0.2.</span>
-<span class="sd">        random_state (int, optional): [description]. Defaults to 0.</span>
+<span class="sd">        X (np.ndarray): Training input data of shape (n_samples, n_features).</span>
+<span class="sd">        y (np.ndarray): Training target data of shape (n_samples, n_outputs).</span>
+<span class="sd">        alpha (float): Magnitude of the L2 regularization.</span>
+<span class="sd">        delta_threshold (float): Initial stepsize for the search of the threshold</span>
+<span class="sd">        max_iterations (int, optional): Maximum number of iterations. Defaults to 100.</span>
+<span class="sd">        test_size (float, optional): Fraction of the data that is assigned to the test-set. Defaults to 0.2.</span>
+<span class="sd">        random_state (int, optional): Defaults to 0.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        np.ndarray: [description]</span>
+<span class="sd">        np.ndarray: Coefficient vector. </span>
 <span class="sd">    """</span>
     <span class="c1"># Split data</span>
     <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
@@ -1071,16 +1326,97 @@ TrainSTLSQ<span class="p">(</span><span class="n">X</span><span class="p">,</spa
 <code>Threshold</code>
 </h2>
 <div class="doc doc-contents">
-<p>Performs additional thresholding on coefficient result from estimator. Basically
-    a thin wrapper around the given estimator. </p>
 <div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="deepymod.model.sparse_estimators.Threshold.__init__">
+<code class="highlight language-python">
+__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="n">LassoCV</span><span class="p">(</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-special"><code>special</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Performs additional thresholding on coefficient result from estimator. Basically a thin wrapper around the given estimator. </p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>threshold</code></td>
+<td><code>float</code></td>
+<td>
+<p>Value of the threshold above which the terms are selected. Defaults to 0.1.</p>
+</td>
+<td><code>0.1</code></td>
+</tr>
+<tr>
+<td><code>estimator</code></td>
+<td><code>BaseEstimator</code></td>
+<td>
+<p>Sparsity estimator. Defaults to LassoCV(cv=5, fit_intercept=False).</p>
+</td>
+<td><code>LassoCV(cv=5, fit_intercept=False)</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>deepymod/model/sparse_estimators.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">estimator</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">=</span> <span class="n">LassoCV</span><span class="p">(</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Performs additional thresholding on coefficient result from estimator. Basically a thin wrapper around the given estimator. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        threshold (float, optional): Value of the threshold above which the terms are selected. Defaults to 0.1.</span>
+<span class="sd">        estimator (BaseEstimator, optional): Sparsity estimator. Defaults to LassoCV(cv=5, fit_intercept=False).</span>
+<span class="sd">    """</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">estimator</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+
+    <span class="c1"># Library contains offset so turn off the intercept</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="deepymod.model.sparse_estimators.Threshold.fit">
 <code class="highlight language-python">
 fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
-<p>[summary]</p>
+<p>Returns an array with the coefficient verctor after sparsity estimation.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -1096,7 +1432,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <td><code>X</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training input data of shape (n_samples, n_features).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -1104,7 +1440,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <td><code>y</code></td>
 <td><code>ndarray</code></td>
 <td>
-<p>[description]</p>
+<p>Training target data of shape (n_samples, n_outputs).</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -1122,7 +1458,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <tr>
 <td><code>ndarray</code></td>
 <td>
-<p>np.ndarray: [description]</p>
+<p>np.ndarray: Coefficient vector. </p>
 </td>
 </tr>
 </tbody>
@@ -1133,11 +1469,7 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>54
-55
-56
-57
-58
+<pre><span></span>58
 59
 60
 61
@@ -1146,20 +1478,24 @@ fit<span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
 64
 65
 66
-67</pre>
+67
+68
+69
+70
+71</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
 <pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">"""[summary]</span>
+    <span class="sd">"""Returns an array with the coefficient verctor after sparsity estimation.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        X (np.ndarray): [description]</span>
-<span class="sd">        y (np.ndarray): [description]</span>
+<span class="sd">        X (np.ndarray): Training input data of shape (n_samples, n_features).</span>
+<span class="sd">        y (np.ndarray): Training target data of shape (n_samples, n_outputs).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        np.ndarray: [description]</span>
+<span class="sd">        np.ndarray: Coefficient vector. </span>
 <span class="sd">    """</span>
     <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span>
     <span class="n">coeffs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>

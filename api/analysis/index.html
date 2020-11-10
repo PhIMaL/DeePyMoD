@@ -384,7 +384,7 @@
 <h2 class="hidden-toc" href="#deepymod.analysis.load_tensorboard" id="deepymod.analysis.load_tensorboard" style="visibility: hidden; width: 0; height: 0;">
 </h2>
 <div class="doc doc-contents first">
-<p>Constains a tool to convert from Tensorboard to Pandas DataFrame </p>
+<p>Contains a tool to convert from Tensorboard run file to Pandas DataFrama. </p>
 <div class="doc doc-children">
 <div class="doc doc-object doc-function">
 <h2 class="doc doc-heading" id="deepymod.analysis.load_tensorboard.load_tensorboard">
@@ -437,7 +437,9 @@ load_tensorboard<span class="p">(</span><span class="n">path</span><span class="
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>10
+<pre><span></span> 8
+ 9
+10
 11
 12
 13
@@ -465,9 +467,7 @@ load_tensorboard<span class="p">(</span><span class="n">path</span><span class="
 35
 36
 37
-38
-39
-40</pre>
+38</pre>
 </div>
 </td>
 <td class="code">
@@ -487,16 +487,16 @@ load_tensorboard<span class="p">(</span><span class="n">path</span><span class="
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
     <span class="n">steps</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># steps are the same for all files</span>
 
-    <span class="k">for</span> <span class="n">event_idx</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">event_paths</span><span class="p">):</span>
-        <span class="n">summary_iterator</span> <span class="o">=</span> <span class="n">EventAccumulator</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">Reload</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">event_idx</span><span class="p">,</span> <span class="n">event_path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">event_paths</span><span class="p">):</span>
+        <span class="n">summary_iterator</span> <span class="o">=</span> <span class="n">EventAccumulator</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">event_path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">event_path</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">Reload</span><span class="p">()</span>
         <span class="n">tags</span> <span class="o">=</span> <span class="n">summary_iterator</span><span class="o">.</span><span class="n">Tags</span><span class="p">()[</span><span class="s1">'scalars'</span><span class="p">]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">event</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">summary_iterator</span><span class="o">.</span><span class="n">Scalars</span><span class="p">(</span><span class="n">tag</span><span class="p">)]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">step</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">summary_iterator</span><span class="o">.</span><span class="n">Scalars</span><span class="p">(</span><span class="n">tags</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
 
         <span class="c1"># Adding to dataframe</span>
-        <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">]</span> <span class="c1"># for name consistency</span>
-        <span class="k">if</span> <span class="n">event_idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># We have one file in the top level, so after we need to use folder name</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">]</span>  <span class="c1"># for name consistency</span>
+        <span class="k">if</span> <span class="n">event_idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># We have one file in the top level, so after we need to use folder name</span>
             <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tags</span><span class="p">):</span>
