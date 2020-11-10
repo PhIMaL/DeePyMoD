@@ -10,6 +10,36 @@ More information can be found in the following two papers: , [arXiv:2011.04336](
 
 **What types of models can you discover?** DeepMoD can discover non-linear, multi-dimensional and/or coupled ODEs and PDEs. See our paper and the examples folder for a demonstration of each.
 
+# How to install
+
+## Dependencies and CUDA
+We support Python 3.6, 3.7 and 3.8.
+We rely on the following packages, they will be installed in the pip installation proces for you:
+``` numpy, torch, sklearn, pysindy, natsort, tensorboard, matplotlib```
+
+
+We also make use of the PyTorch library, which can be installed with CPU and/or GPU support. Please
+refer to the PyTorch ["Get Started"](https://pytorch.org/get-started/locally/) guide to get the version
+that is optimal for your system. 
+
+## Install 
+To install DeePyMoD, pip can be used
+
+``` pip install deepymod ```
+
+in the main directory. 
+
+
+## Development
+
+If you wish to alter the code you can clone the package using:
+
+``` git clone git@github.com:PhIMaL/DeePyMoD.git ```
+
+and then install it from the cloned `DeePyMoD` directory using
+
+``` pip install -e ./ ```
+
 # Features
 
 * **Many example notebooks** We have implemented a varyity of examples ranging from 2D Advection Diffusion, Burgers' equation to non-linear, higher order ODE's If you miss any example, don't hesitate to give us a heads-up.
@@ -22,10 +52,3 @@ More information can be found in the following two papers: , [arXiv:2011.04336](
 
 * **Fast** Depending on the size of the data-set DeepMoD, running a model search with DeepMoD takes of the order of minutes/ tens of minutes on a standard CPU. Running the code on GPU's drastically improves performence. 
 
-# How to install
-
-To install DeePyMoD, simply run 
-
-``` pip install .```
-
-in the main directory. 
