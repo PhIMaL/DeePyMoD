@@ -4,7 +4,7 @@ DeePyMoD is a modular framework for model discovery of PDEs and ODEs from noise 
 
 ![Screenshot](docs/figures/framework.png)
 
-More information can be found in our paper: [arXiv:1904.09406](http://arxiv.org/abs/1904.09406) and the full documentation is availeble on [phimal.github.io/DeePyMoD/](https://phimal.github.io/DeePyMoD/).
+More information can be found in the following two papers: , [arXiv:2011.04336](https://arxiv.org/abs/2011.04336), [arXiv:1904.09406](http://arxiv.org/abs/1904.09406) and the full documentation is availeble on [phimal.github.io/DeePyMoD/](https://phimal.github.io/DeePyMoD/).
 
 **What's the use case?** Classical Model Discovery methods struggle with elevated noise levels and sparse datasets due the low accuracy of numerical differentiation. DeepMoD can handle high noise and sparse datasets, making it well suited for model discovery on actual experimental data.
 
@@ -23,11 +23,9 @@ More information can be found in our paper: [arXiv:1904.09406](http://arxiv.org/
 * **Fast** Depending on the size of the data-set DeepMoD, running a model search with DeepMoD takes of the order of minutes/ tens of minutes on a standard CPU. Running the code on GPU's drastically improves performence. 
 
 # How to install
-We provide two ways to use DeePyMoD, either as a package or in a ready-to-use Docker container. 
 
-## Package
-DeePyMoD is released as a pip package, so simply run 
+To install DeePyMoD, simply run 
 
-``` pip install DeePyMoD```
+``` pip install .```
 
-to install. 
+in the main directory. 
