@@ -16,10 +16,10 @@ warnings.filterwarnings("ignore", category=UserWarning)  # To silence annoying p
 
 class Base(Estimator):
     def __init__(self, estimator: BaseEstimator) -> None:
-        """Base Estimator Class which return coefficients estimators involved in determining the sparsity masks.
+        """ Basic sparse estimator class; simply a wrapper around the supplied sk-learn compatible estimator.
 
         Args:
-            estimator (BaseEstimator): Sci-kit learn estimator. 
+            estimator (BaseEstimator): Sci-kit learn estimator.
         """
         super().__init__()
         self.estimator = estimator
@@ -33,7 +33,7 @@ class Base(Estimator):
             y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
-            np.ndarray: Coefficient vector. 
+            np.ndarray: Coefficient vector (n_features, n_outputs).
         """
         coeffs = self.estimator.fit(X, y).coef_
         return coeffs
@@ -42,7 +42,7 @@ class Base(Estimator):
 class Threshold(Estimator):
 
     def __init__(self, threshold: float = 0.1, estimator: BaseEstimator = LassoCV(cv=5, fit_intercept=False)) -> None:
-        """Performs additional thresholding on coefficient result from estimator. Basically a thin wrapper around the given estimator. 
+        """Performs additional thresholding on coefficient result from supplied estimator.
 
         Args:
             threshold (float, optional): Value of the threshold above which the terms are selected. Defaults to 0.1.
@@ -63,7 +63,7 @@ class Threshold(Estimator):
             y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
-            np.ndarray: Coefficient vector. 
+            np.ndarray: Coefficient vector (n_features, n_outputs).
         """
         coeffs = self.estimator.fit(X, y).coef_
         coeffs[np.abs(coeffs) < self.threshold] = 0.0
@@ -73,9 +73,7 @@ class Threshold(Estimator):
 
 class Clustering(Estimator):
     def __init__(self, estimator: BaseEstimator = LassoCV(cv=5, fit_intercept=False)) -> None:
-        """Performs additional thresholding by clustering on coefficient result from estimator. Basically
-        a thin wrapper around the given estimator. Results are fitted to two groups:
-        components to keep and components to throw.
+        """Performs additional thresholding by Kmeans-clustering on coefficient result from estimator.
 
         Args:
             estimator (BaseEstimator, optional): Estimator class. Defaults to LassoCV(cv=5, fit_intercept=False).
@@ -95,7 +93,7 @@ class Clustering(Estimator):
              y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
          Returns:
-             np.ndarray: Coefficient vector. 
+             np.ndarray: Coefficient vector (n_features, n_outputs).
         """
         coeffs = self.estimator.fit(X, y).coef_[:, None]  # sklearn returns 1D
         clusters = self.kmeans.fit_predict(np.abs(coeffs)).astype(np.bool)
@@ -129,9 +127,9 @@ class PDEFIND(Estimator):
             y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
         Returns:
-            np.ndarray: Coefficient vector. 
+            np.ndarray: Coefficient vector (n_features, n_outputs).
         """
-       
+
         coeffs = PDEFIND.TrainSTLSQ(X, y[:, None], self.lam, self.dtol)
         return coeffs.squeeze()
 
@@ -155,7 +153,7 @@ class PDEFIND(Estimator):
             random_state (int, optional): Defaults to 0.
 
         Returns:
-            np.ndarray: Coefficient vector. 
+            np.ndarray: Coefficient vector.
         """
         # Split data
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
