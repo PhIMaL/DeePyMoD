@@ -1,4 +1,6 @@
 ![Screenshot](docs/figures/DeepMoD_logo.png)
+--------------------------------------------------------------------------------
+<img alt="PyPI" src="https://img.shields.io/pypi/v/deepymod?style=flat-square"> 
 
 DeePyMoD is a modular framework for model discovery of PDEs and ODEs from noise data. The framework is comprised of four components, that can seperately be altered: i) A function approximator to construct a surrogate of the data, ii) a function to construct the library of features, iii) a sparse regression algorithm to select the active components from the feature library and iv) a constraint on the function approximator, based on the active components. 
 
