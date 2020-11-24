@@ -21,13 +21,15 @@ def library_poly(prediction: torch.Tensor, max_order: int) -> torch.Tensor:
         torch.Tensor: Tensor with polynomials (n_samples, max_order + 1)
     """
     u = torch.ones_like(prediction)
-    for order in np.arange(1, max_order+1):
-        u = torch.cat((u, u[:, order-1:order] * prediction), dim=1)
+    for order in np.arange(1, max_order + 1):
+        u = torch.cat((u, u[:, order - 1 : order] * prediction), dim=1)
 
     return u
 
 
-def library_deriv(data: torch.Tensor, prediction: torch.Tensor, max_order: int) -> Tuple[torch.Tensor, torch.Tensor]:
+def library_deriv(
+    data: torch.Tensor, prediction: torch.Tensor, max_order: int
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """Given a prediction u evaluated at data (t, x), returns du/dt and du/dx up to max_order, including ones
     as first column.
 
@@ -39,7 +41,9 @@ def library_deriv(data: torch.Tensor, prediction: torch.Tensor, max_order: int) 
     Returns:
         Tuple[torch.Tensor, torch.Tensor]: time derivative and feature library ((n_samples, 1), (n_samples,  max_order + 1))
     """
-    dy = grad(prediction, data, grad_outputs=torch.ones_like(prediction), create_graph=True)[0]
+    dy = grad(
+        prediction, data, grad_outputs=torch.ones_like(prediction), create_graph=True
+    )[0]
     time_deriv = dy[:, 0:1]
 
     if max_order == 0:
@@ -48,8 +52,18 @@ def library_deriv(data: torch.Tensor, prediction: torch.Tensor, max_order: int) 
         du = torch.cat((torch.ones_like(time_deriv), dy[:, 1:2]), dim=1)
         if max_order > 1:
             for order in np.arange(1, max_order):
-                du = torch.cat((du, grad(du[:, order:order+1], data,
-                                grad_outputs=torch.ones_like(prediction), create_graph=True)[0][:, 1:2]), dim=1)
+                du = torch.cat(
+                    (
+                        du,
+                        grad(
+                            du[:, order : order + 1],
+                            data,
+                            grad_outputs=torch.ones_like(prediction),
+                            create_graph=True,
+                        )[0][:, 1:2],
+                    ),
+                    dim=1,
+                )
 
     return time_deriv, du
 
@@ -57,7 +71,7 @@ def library_deriv(data: torch.Tensor, prediction: torch.Tensor, max_order: int) 
 # ========================= Actual library functions ========================
 class Library1D(Library):
     def __init__(self, poly_order: int, diff_order: int) -> None:
-        """ Calculates the temporal derivative a library/feature matrix consisting of
+        """Calculates the temporal derivative a library/feature matrix consisting of
         1) polynomials up to order poly_order, i.e. u, u^2...
         2) derivatives up to order diff_order, i.e. u_x, u_xx
         3) cross terms of 1) and 2), i.e. $uu_x$, $u^2u_xx$
@@ -70,14 +84,16 @@ class Library1D(Library):
         Args:
             poly_order (int): maximum order of the polynomial in the library
             diff_order (int): maximum order of the differentials in the library
-            """
+        """
 
         super().__init__()
         self.poly_order = poly_order
         self.diff_order = diff_order
 
-    def library(self, input: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[TensorList, TensorList]:
-        """ Compute the temporal derivative and library for the given prediction at locations given by data.
+    def library(
+        self, input: Tuple[torch.Tensor, torch.Tensor]
+    ) -> Tuple[TensorList, TensorList]:
+        """Compute the temporal derivative and library for the given prediction at locations given by data.
             Data should have t in first column, x in second.
 
         Args:
@@ -94,8 +110,10 @@ class Library1D(Library):
 
         # Creating lists for all outputs
         for output in np.arange(prediction.shape[1]):
-            time_deriv, du = library_deriv(data, prediction[:, output:output+1], self.diff_order)
-            u = library_poly(prediction[:, output:output+1], self.poly_order)
+            time_deriv, du = library_deriv(
+                data, prediction[:, output : output + 1], self.diff_order
+            )
+            u = library_poly(prediction[:, output : output + 1], self.poly_order)
 
             poly_list.append(u)
             deriv_list.append(du)
@@ -108,12 +126,24 @@ class Library1D(Library):
         if len(poly_list) == 1:
             # If we have a single output, we simply calculate and flatten matrix product
             # between polynomials and derivatives to get library
-            theta = torch.matmul(poly_list[0][:, :, None], deriv_list[0][:, None, :]).view(samples, total_terms)
+            theta = torch.matmul(
+                poly_list[0][:, :, None], deriv_list[0][:, None, :]
+            ).view(samples, total_terms)
         else:
-            theta_uv = reduce((lambda x, y: (x[:, :, None] @ y[:, None, :]).view(samples, -1)), poly_list)
+            theta_uv = reduce(
+                (lambda x, y: (x[:, :, None] @ y[:, None, :]).view(samples, -1)),
+                poly_list,
+            )
             # calculate all unique combinations of derivatives
-            theta_dudv = torch.cat([torch.matmul(du[:, :, None], dv[:, None, :]).view(samples, -1)[:, 1:]
-                                    for du, dv in combinations(deriv_list, 2)], 1)
+            theta_dudv = torch.cat(
+                [
+                    torch.matmul(du[:, :, None], dv[:, None, :]).view(samples, -1)[
+                        :, 1:
+                    ]
+                    for du, dv in combinations(deriv_list, 2)
+                ],
+                1,
+            )
             theta = torch.cat([theta_uv, theta_dudv], dim=1)
 
         return time_deriv_list, [theta]
@@ -121,16 +151,18 @@ class Library1D(Library):
 
 class Library2D(Library):
     def __init__(self, poly_order: int) -> None:
-        """ Create a 2D library up to given polynomial order with second order derivatives
+        """Create a 2D library up to given polynomial order with second order derivatives
          i.e. for poly_order=1: [$1, u_x, u_y, u_{xx}, u_{yy}, u_{xy}$]
         Args:
             poly_order (int): maximum order of the polynomial in the library
-            """
+        """
         super().__init__()
         self.poly_order = poly_order
 
-    def library(self, input: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[TensorList, TensorList]:
-        """ Compute the library for the given a prediction and data
+    def library(
+        self, input: Tuple[torch.Tensor, torch.Tensor]
+    ) -> Tuple[TensorList, TensorList]:
+        """Compute the library for the given a prediction and data
 
         Args:
             input (Tuple[torch.Tensor, torch.Tensor]): A prediction and its data
@@ -144,18 +176,27 @@ class Library2D(Library):
         # Polynomial
 
         u = torch.ones_like(prediction)
-        for order in np.arange(1, self.poly_order+1):
-            u = torch.cat((u, u[:, order-1:order] * prediction), dim=1)
+        for order in np.arange(1, self.poly_order + 1):
+            u = torch.cat((u, u[:, order - 1 : order] * prediction), dim=1)
 
         # Gradients
-        du = grad(prediction, data, grad_outputs=torch.ones_like(prediction), create_graph=True)[0]
+        du = grad(
+            prediction,
+            data,
+            grad_outputs=torch.ones_like(prediction),
+            create_graph=True,
+        )[0]
         u_t = du[:, 0:1]
         u_x = du[:, 1:2]
         u_y = du[:, 2:3]
-        du2 = grad(u_x, data, grad_outputs=torch.ones_like(prediction), create_graph=True)[0]
+        du2 = grad(
+            u_x, data, grad_outputs=torch.ones_like(prediction), create_graph=True
+        )[0]
         u_xx = du2[:, 1:2]
         u_xy = du2[:, 2:3]
-        u_yy = grad(u_y, data, grad_outputs=torch.ones_like(prediction), create_graph=True)[0][:, 2:3]
+        u_yy = grad(
+            u_y, data, grad_outputs=torch.ones_like(prediction), create_graph=True
+        )[0][:, 2:3]
 
         du = torch.cat((torch.ones_like(u_x), u_x, u_y, u_xx, u_yy, u_xy), dim=1)
 
