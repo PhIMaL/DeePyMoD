@@ -1,6 +1,6 @@
-'''Sparsity estimators which can be plugged into deepmod.
+"""Sparsity estimators which can be plugged into deepmod.
 We keep the API in line with scikit learn (mostly), so scikit learn can also be plugged in.
-See scikitlearn.linear_models for applicable estimators.'''
+See scikitlearn.linear_models for applicable estimators."""
 
 import numpy as np
 from .deepmod import Estimator
@@ -11,19 +11,24 @@ from sklearn.model_selection import train_test_split
 from sklearn.base import BaseEstimator
 
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning)  # To silence annoying pysindy warnings
+
+warnings.filterwarnings(
+    "ignore", category=UserWarning
+)  # To silence annoying pysindy warnings
 
 
 class Base(Estimator):
     def __init__(self, estimator: BaseEstimator) -> None:
-        """ Basic sparse estimator class; simply a wrapper around the supplied sk-learn compatible estimator.
+        """Basic sparse estimator class; simply a wrapper around the supplied sk-learn compatible estimator.
 
         Args:
             estimator (BaseEstimator): Sci-kit learn estimator.
         """
         super().__init__()
         self.estimator = estimator
-        self.estimator.set_params(fit_intercept=False)  # Library contains offset so turn off the intercept
+        self.estimator.set_params(
+            fit_intercept=False
+        )  # Library contains offset so turn off the intercept
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """Returns an array with the coefficient verctor after sparsity estimation.
@@ -40,8 +45,11 @@ class Base(Estimator):
 
 
 class Threshold(Estimator):
-
-    def __init__(self, threshold: float = 0.1, estimator: BaseEstimator = LassoCV(cv=5, fit_intercept=False)) -> None:
+    def __init__(
+        self,
+        threshold: float = 0.1,
+        estimator: BaseEstimator = LassoCV(cv=5, fit_intercept=False),
+    ) -> None:
         """Performs additional thresholding on coefficient result from supplied estimator.
 
         Args:
@@ -72,7 +80,9 @@ class Threshold(Estimator):
 
 
 class Clustering(Estimator):
-    def __init__(self, estimator: BaseEstimator = LassoCV(cv=5, fit_intercept=False)) -> None:
+    def __init__(
+        self, estimator: BaseEstimator = LassoCV(cv=5, fit_intercept=False)
+    ) -> None:
         """Performs additional thresholding by Kmeans-clustering on coefficient result from estimator.
 
         Args:
@@ -88,12 +98,12 @@ class Clustering(Estimator):
     def fit(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """Returns an array with the coefficient verctor after sparsity estimation.
 
-         Args:
-             X (np.ndarray): Training input data of shape (n_samples, n_features).
-             y (np.ndarray): Training target data of shape (n_samples, n_outputs).
+        Args:
+            X (np.ndarray): Training input data of shape (n_samples, n_features).
+            y (np.ndarray): Training target data of shape (n_samples, n_outputs).
 
-         Returns:
-             np.ndarray: Coefficient vector (n_features, n_outputs).
+        Returns:
+            np.ndarray: Coefficient vector (n_features, n_outputs).
         """
         coeffs = self.estimator.fit(X, y).coef_[:, None]  # sklearn returns 1D
         clusters = self.kmeans.fit_predict(np.abs(coeffs)).astype(np.bool)
@@ -134,13 +144,15 @@ class PDEFIND(Estimator):
         return coeffs.squeeze()
 
     @staticmethod
-    def TrainSTLSQ(X: np.ndarray,
-                   y: np.ndarray,
-                   alpha: float,
-                   delta_threshold: float,
-                   max_iterations: int = 100,
-                   test_size: float = 0.2,
-                   random_state: int = 0) -> np.ndarray:
+    def TrainSTLSQ(
+        X: np.ndarray,
+        y: np.ndarray,
+        alpha: float,
+        delta_threshold: float,
+        max_iterations: int = 100,
+        test_size: float = 0.2,
+        random_state: int = 0,
+    ) -> np.ndarray:
         """PDE-FIND sparsity selection algorithm. Based on method described by Rudy et al. (10.1126/sciadv.1602614).
 
         Args:
@@ -156,16 +168,22 @@ class PDEFIND(Estimator):
             np.ndarray: Coefficient vector.
         """
         # Split data
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=random_state
+        )
 
         # Set up the initial tolerance l0 penalty and estimates
         l0 = 1e-3 * np.linalg.cond(X)
         delta_t = delta_threshold  # for interal use, can be updated
 
         # Initial estimate
-        optimizer = STLSQ(threshold=0, alpha=0.0, fit_intercept=False)  # Now similar to LSTSQ
+        optimizer = STLSQ(
+            threshold=0, alpha=0.0, fit_intercept=False
+        )  # Now similar to LSTSQ
         y_predict = optimizer.fit(X_train, y_train).predict(X_test)
-        min_loss = np.linalg.norm(y_predict - y_test, 2) + l0 * np.count_nonzero(optimizer.coef_)
+        min_loss = np.linalg.norm(y_predict - y_test, 2) + l0 * np.count_nonzero(
+            optimizer.coef_
+        )
 
         # Setting alpha and tolerance
         best_threshold = delta_t
@@ -174,7 +192,9 @@ class PDEFIND(Estimator):
         for iteration in np.arange(max_iterations):
             optimizer.set_params(alpha=alpha, threshold=threshold)
             y_predict = optimizer.fit(X_train, y_train).predict(X_test)
-            loss = np.linalg.norm(y_predict - y_test, 2) + l0 * np.count_nonzero(optimizer.coef_)
+            loss = np.linalg.norm(y_predict - y_test, 2) + l0 * np.count_nonzero(
+                optimizer.coef_
+            )
 
             if (loss <= min_loss) and not (np.all(optimizer.coef_ == 0)):
                 min_loss = loss
