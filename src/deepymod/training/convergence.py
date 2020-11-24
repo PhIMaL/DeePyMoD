@@ -1,18 +1,19 @@
-'''This module implements convergence criteria'''
+"""This module implements convergence criteria"""
 import torch
 
 
 class Convergence:
-    '''Implements convergence criterium. Convergence is when change in patience
+    """Implements convergence criterium. Convergence is when change in patience
     epochs is smaller than delta.
-    '''
+    """
+
     def __init__(self, patience: int = 200, delta: float = 1e-3) -> None:
-        '''Implements convergence criterium. Convergence is when change in patience
+        """Implements convergence criterium. Convergence is when change in patience
         epochs is smaller than delta.
-        Args: 
+        Args:
             patience (int): how often to check for convergence
             delta (float): desired accuracy
-        '''
+        """
         self.patience = patience
         self.delta = delta
         self.start_iteration = None
@@ -25,13 +26,13 @@ class Convergence:
             epoch (int): Current epoch of the optimization
             l1_norm (torch.Tensor): Value of the L1 norm
         """
-        converged = False # overwrite later
+        converged = False  # overwrite later
 
         # Initialize if doesn't exist
         if self.start_l1 is None:
             self.start_l1 = l1_norm
             self.start_iteration = iteration
-        
+
         # Check if change is smaller than delta and if we've exceeded patience
         elif torch.abs(self.start_l1 - l1_norm).item() < self.delta:
             if (iteration - self.start_iteration) >= self.patience:
