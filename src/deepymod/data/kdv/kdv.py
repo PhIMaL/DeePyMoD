@@ -1,8 +1,13 @@
+""" Contains several interactive datasets for the Korteweg-de-Vries equation including:
+    - A single soliton wave
+    - Two soliton waves
+"""
+
 import torch
 import numpy as np
 
 
-def SingleSoliton(x, t, c, x0):
+def SingleSoliton(x: torch.tensor, t: torch.tensor, c: float, x0: float) -> torch.tensor:
     """Single soliton solution of the KdV equation (u_t + u_{xxx} - 6 u u_x = 0)
 
     Args:
@@ -13,13 +18,12 @@ def SingleSoliton(x, t, c, x0):
     Returns:
         [Tensor]: Solution. 
     """
-    xi = np.sqrt(c) / 2 * (x - c * t - x0) # switch to moving coordinate frame
-
+    xi = np.sqrt(c) / 2 * (x - c * t - x0)  # switch to moving coordinate frame
     u = c / 2 * 1 / torch.cosh(xi)**2
     return u
 
 
-def DoubleSoliton(x, t, c, x0):
+def DoubleSoliton(x: torch.tensor, t: torch.tensor, c: float, x0: float) -> torch.tensor:
     """ Single soliton solution of the KdV equation (u_t + u_{xxx} - 6 u u_x = 0)
     source: http://lie.math.brocku.ca/~sanco/solitons/kdv_solitons.php
 
@@ -34,7 +38,7 @@ def DoubleSoliton(x, t, c, x0):
     """
     assert c[0] > c[1], 'c1 has to be bigger than c[2]'
     
-    xi0 = np.sqrt(c[0]) / 2 * (x - c[0] * t - x0[0]) # switch to moving coordinate frame
+    xi0 = np.sqrt(c[0]) / 2 * (x - c[0] * t - x0[0]) #  switch to moving coordinate frame
     xi1 = np.sqrt(c[1]) / 2 * (x - c[1] * t - x0[1])
 
     part_1 = 2 * (c[0] - c[1])

@@ -1,3 +1,6 @@
+""" Contains the base class for the Dataset (1 and 2 dimensional) and a function
+     that takes a Pytorch tensor and converts it to a numpy array"""
+
 import torch
 import numpy as np
 from numpy import ndarray
@@ -10,9 +13,18 @@ def pytorch_func(function):
         function (Tensor): Pytorch tensor 
 
     Returns:
-        Numpy array 
+        (wrapper): function that can evaluate the Pytorch function for extra 
+        (keyword) arguments, returning (np.array)
     """
     def wrapper(self, *args, **kwargs):
+        """ Evaluate function, Assign arugments and keyword arguments to a
+         Pytorch function and return it as a numpy array.
+
+        Args: 
+            *args: argument
+            **kwargs: keyword arguments
+        Return
+            (np.array): output of function Tensor converted to numpy array"""
         torch_args = [torch.tensor(arg, requires_grad=True, dtype=torch.float64) if type(arg) is ndarray else arg for arg in args]
         torch_kwargs = {key: torch.tensor(kwarg, requires_grad=True, dtype=torch.float64) if type(kwarg) is ndarray else kwarg for key, kwarg in kwargs.items()}
         result = function(self, *torch_args, **torch_kwargs)
@@ -23,9 +35,13 @@ def pytorch_func(function):
 class Dataset_old:
     """ This class automatically generates all the necessary proporties of a predifined data set with a single spatial dimension as input.
     In particular it calculates the solution, the time derivative and the library. Note that all the pytorch opperations such as automatic differentiation can be used on the results. 
- 
     """
     def __init__(self, solution, **kwargs):
+        """ Create a dataset and add a solution (data) to it
+            Args:
+                solution: give the solution, the actual dataset u
+                parameters: additional parameters in keyword format
+        """
         self.solution = solution  # set solution
         self.parameters = kwargs  # set solution parameters
         self.scaling_factor = None
@@ -154,6 +170,11 @@ class Dataset_2D:
 
     """
     def __init__(self, solution, **kwargs):
+        """ Create a 2D dataset and add a solution (data) to it
+            Args:
+                solution: give the solution, the actual dataset u
+                parameters: additional parameters in keyword format
+        """
         self.solution = solution  # set solution
         self.parameters = kwargs  # set solution parameters
 

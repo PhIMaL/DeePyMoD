@@ -1,8 +1,13 @@
+""" Contains several interactive datasets for the Burgers equation including:
+    - Burgers with initial delta peak profile
+    - Burgers with initial cosine profile
+    - Burgers with initial sawtooth profile"""
+
 import torch
 from numpy import pi
 
 
-def BurgersDelta(x, t, v, A):
+def BurgersDelta(x: torch.tensor, t: torch.tensor, v: float, A: float) -> torch.tensor:
     """ Function to generate analytical solutions of Burgers equation with delta peak initial condition: u(x, 0) = A delta(x)
 
     Source: https://www.iist.ac.in/sites/default/files/people/IN08026/Burgers_equation_viscous.pdf
@@ -24,7 +29,7 @@ def BurgersDelta(x, t, v, A):
     return u
 
 
-def BurgersCos(x, t, v, a, b, k):
+def BurgersCos(x: torch.tensor, t: torch.tensor, v: float, a: float, b: float, k: float):
     """Function to generate analytical solutions of Burgers equation with cosine initial condition: 
     $u(x, 0) = b + a \cos(kx)$
 
@@ -34,9 +39,9 @@ def BurgersCos(x, t, v, a, b, k):
         x ([Tensor]): Input vector of spatial coordinates.
         t ([Tensor]): Input vector of temporal coordinates.
         v (Float): Velocity. 
-        a ([type]): Amplitude of the initial periodic condition.
-        b ([type]): Offset of the initial condition.
-        k ([type]): Wavenumber of the initial condition.
+        a ([Float]): Amplitude of the initial periodic condition.
+        b ([Float]): Offset of the initial condition.
+        k ([Float]): Wavenumber of the initial condition.
 
     Returns:
         [Tensor]: solution. 
@@ -48,7 +53,7 @@ def BurgersCos(x, t, v, a, b, k):
     return u
 
 
-def BurgersSawtooth(x, t, v):
+def BurgersSawtooth(x: torch.tensor, t: torch.tensor, v: float) -> torch.tensor:
     """Function to generate analytical solutions of Burgers equation with sawtooth initial condition (see soruce for exact expression). Solution only
     valid between for x in [0, 2pi] and t in [0, 0.5]
 

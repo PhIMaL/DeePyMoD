@@ -10,10 +10,17 @@ We start by importing the required libraries and setting the plotting style:
 import numpy as np
 import torch
 import matplotlib.pylab as plt
-# DeepMoD stuff
-from deepymod_torch.DeepMod import DeepMod
-from deepymod_torch.library_functions import library_1D_in
-from deepymod_torch.training import train_deepmod, train_mse
+
+# DeepMoD functions
+
+from deepymod import DeepMoD
+from deepymod.model.func_approx import NN
+from deepymod.model.library import Library1D
+from deepymod.model.constraint import LeastSquares
+from deepymod.model.sparse_estimators import Threshold,PDEFIND
+from deepymod.training import train
+from deepymod.training.sparsity_scheduler import TrainTestPeriodic
+from scipy.io import loadmat
 
 # Settings for reproducibility
 np.random.seed(42)
@@ -23,10 +30,6 @@ torch.manual_seed(0)
 %load_ext autoreload
 %autoreload 2
 ```
-
-    The autoreload extension is already loaded. To reload it, use:
-      %reload_ext autoreload
-
 
 Next, we prepare the dataset.
 
@@ -66,11 +69,11 @@ print(X.shape, y.shape)
     (25856, 2) (25856, 1)
 
 
-As we can see, $X$ has 2 dimensions, $\{x, t\}$, while $y$ has only one, $\{u\}$. Always explicity set the shape (i.e. $N\times 1$, not $N$) or you'll get errors. This dataset is noiseless, so let's add $5\%$ noise:
+As we can see, $X$ has 2 dimensions, $\{x, t\}$, while $y$ has only one, $\{u\}$. Always explicity set the shape (i.e. $N\times 1$, not $N$) or you'll get errors. This dataset is noiseless, so let's add $2.5\%$ noise:
 
 
 ```python
-noise_level = 0.05
+noise_level = 0.025
 y_noisy = y + noise_level * np.std(y) * np.random.randn(y[:,0].size, 1)
 ```
 
@@ -78,7 +81,7 @@ The dataset is also much larger than needed, so let's hussle it and pick out a 1
 
 
 ```python
-number_of_samples = 1000
+number_of_samples = 2000
 
 idx = np.random.permutation(y.shape[0])
 X_train = torch.tensor(X[idx, :][:number_of_samples], dtype=torch.float32, requires_grad=True)
@@ -90,7 +93,7 @@ y_train = torch.tensor(y_noisy[idx, :][:number_of_samples], dtype=torch.float32)
 print(X_train.shape, y_train.shape)
 ```
 
-    torch.Size([1000, 2]) torch.Size([1000, 1])
+    torch.Size([2000, 2]) torch.Size([2000, 1])
 
 
 We now have a dataset which we can use. Let's plot, for a final time, the original dataset, the noisy set and the samples points:
@@ -126,94 +129,105 @@ plt.show()
 
 ## Configuring DeepMoD
 
-We now setup the options for DeepMoD. The setup requires the dimensions of the neural network, a library function and some args for the library function:
+Configuration of the function approximator: Here the first argument is the number of input and the last argument the number of output layers.
 
 
 ```python
-## Running DeepMoD
-config = {'n_in': 2, 'hidden_dims': [20, 20, 20, 20, 20, 20], 'n_out': 1, 'library_function': library_1D_in, 'library_args':{'poly_order': 1, 'diff_order': 2}}
+network = NN(2, [30, 30, 30, 30], 1)
 ```
 
-Now we instantiate the model:
+Configuration of the library function: We select athe library with a 2D spatial input. Note that that the max differential order has been pre-determined here out of convinience. So, for poly_order 1 the library contains the following 12 terms:
+* [$1, u_x, u_{xx}, u_{xxx}, u, u u_{x}, u u_{xx}, u u_{xxx}, u^2, u^2 u_{x}, u^2 u_{xx}, u^2 u_{xxx}$]
 
 
 ```python
-model = DeepMod(**config)
-optimizer = torch.optim.Adam([{'params': model.network_parameters(), 'lr':0.001}, {'params': model.coeff_vector(), 'lr':0.005}])
+library = Library1D(poly_order=2, diff_order=3) 
+```
+
+Configuration of the sparsity estimator and sparsity scheduler used. In this case we use the most basic threshold-based Lasso estimator and a scheduler that asseses the validation loss after a given patience. If that value is smaller than 1e-5, the algorithm is converged.  
+
+
+```python
+estimator = Threshold(0.1) 
+sparsity_scheduler = TrainTestPeriodic(periodicity=50, patience=200, delta=1e-5) 
+```
+
+Configuration of the sparsity estimator 
+
+
+```python
+constraint = LeastSquares() 
+# Configuration of the sparsity scheduler
+```
+
+Now we instantiate the model and select the optimizer 
+
+
+```python
+model = DeepMoD(network, library, estimator, constraint)
+
+# Defining optimizer
+optimizer = torch.optim.Adam(model.parameters(), betas=(0.99, 0.99), amsgrad=True, lr=1e-3) 
+
 ```
 
 ## Run DeepMoD 
 
-We can now run DeepMoD using all the options we have set and the training data. We need to slightly preprocess the input data for the derivatives:
+We can now run DeepMoD using all the options we have set and the training data:
+* The directory where the tensorboard file is written (log_dir)
+* The ratio of train/test set used (split)
+* The maximum number of iterations performed (max_iterations)
+* The absolute change in L1 norm considered converged (delta)
+* The amount of epochs over which the absolute change in L1 norm is calculated (patience)
 
 
 ```python
-train_deepmod(model, X_train, y_train, optimizer, 25000, {'l1': 1e-5})
+train(model, X_train, y_train, optimizer,sparsity_scheduler, log_dir='runs/Burgers/', split=0.8, max_iterations=100000) 
 ```
 
-    | Iteration | Progress | Time remaining |     Cost |      MSE |      Reg |       L1 |
-            100      0.40%             371s   2.29e-02   1.64e-02   6.41e-03   1.25e-04 
+     13350  MSE: 2.53e-05  Reg: 1.38e-05  L1: 1.45e+00 Algorithm converged. Writing model to disk.
 
 
-    ---------------------------------------------------------------------------
-
-    KeyboardInterrupt                         Traceback (most recent call last)
-
-    <ipython-input-21-790b1a88b6d5> in <module>
-    ----> 1 train_deepmod(model, X_train, y_train, optimizer, 25000, {'l1': 1e-5})
-    
-
-    ~/Documents/GitHub/New_DeepMod_Simple/DeePyMoD_torch/src/deepymod_torch/training.py in train_deepmod(model, data, target, optimizer, max_iterations, loss_func_args)
-         67     '''Performs full deepmod cycle: trains model, thresholds and trains again for unbiased estimate. Updates model in-place.'''
-         68     # Train first cycle and get prediction
-    ---> 69     train(model, data, target, optimizer, max_iterations, loss_func_args)
-         70     prediction, time_deriv_list, sparse_theta_list, coeff_vector_list = model(data)
-         71 
-
-
-    ~/Documents/GitHub/New_DeepMod_Simple/DeePyMoD_torch/src/deepymod_torch/training.py in train(model, data, target, optimizer, max_iterations, loss_func_args)
-         32         # Optimizer step
-         33         optimizer.zero_grad()
-    ---> 34         loss.backward()
-         35         optimizer.step()
-         36     board.close()
-
-
-    ~/opt/anaconda3/lib/python3.7/site-packages/torch/tensor.py in backward(self, gradient, retain_graph, create_graph)
-        193                 products. Defaults to ``False``.
-        194         """
-    --> 195         torch.autograd.backward(self, gradient, retain_graph, create_graph)
-        196 
-        197     def register_hook(self, hook):
-
-
-    ~/opt/anaconda3/lib/python3.7/site-packages/torch/autograd/__init__.py in backward(tensors, grad_tensors, retain_graph, create_graph, grad_variables)
-         97     Variable._execution_engine.run_backward(
-         98         tensors, grad_tensors, retain_graph, create_graph,
-    ---> 99         allow_unreachable=True)  # allow_unreachable flag
-        100 
-        101 
-
-
-    KeyboardInterrupt: 
-
-
-Now that DeepMoD has converged, it has found the following numbers:
+Sparsity masks provide the active and non-active terms in the PDE:
 
 
 ```python
-print(model.fit.sparsity_mask)
+model.sparsity_masks
 ```
 
-    [tensor([2, 4])]
 
+
+
+    [tensor([False, False,  True, False, False,  True, False, False, False, False,
+             False, False])]
+
+
+
+estimatior_coeffs gives the magnitude of the active terms:
 
 
 ```python
-print(model.fit.coeff_vector[0])
+print(model.estimator_coeffs())
 ```
 
-    Parameter containing:
-    tensor([[ 0.0974],
-            [-0.9905]], requires_grad=True)
+    [array([[ 0.        ],
+           [ 0.        ],
+           [ 0.39227325],
+           [ 0.        ],
+           [ 0.        ],
+           [-1.001875  ],
+           [ 0.        ],
+           [ 0.        ],
+           [ 0.        ],
+           [ 0.        ],
+           [ 0.        ],
+           [ 0.        ]], dtype=float32)]
 
+
+So the final terms that remain are the $u_{xx}$ and $u u_{x}$ resulting in the following Burgers equation (in normalized coefficients: 
+$u_t = 0.4 u_{xx} - u u_{x}$.
+
+
+```python
+
+```

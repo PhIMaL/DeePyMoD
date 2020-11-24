@@ -35,7 +35,7 @@ Next, we prepare the dataset.
 
 
 ```python
-data = loadmat('../data/Advection_diffusion.mat')
+data = loadmat('data/advection_diffusion.mat')
 usol = np.real(data['Expression1'])
 usol= usol.reshape((51,51,61,4))
 

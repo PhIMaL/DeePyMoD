@@ -1,3 +1,4 @@
+""" Module to log performance metrics whilst training Deepmyod """
 import numpy as np
 import torch
 import sys, time
@@ -5,6 +6,12 @@ from torch.utils.tensorboard import SummaryWriter
 
 class Logger:
     def __init__(self, exp_ID, log_dir):
+        """ Log the training process of Deepymod.
+        Args:
+            exp_ID (str): name or ID of the this experiment
+            log_dir (str): directory to save the log files to disk. 
+
+        """
         self.writer = SummaryWriter(comment=exp_ID, log_dir=log_dir, max_queue=5, flush_secs=10)
         self.log_dir = self.writer.get_logdir()
 
@@ -16,6 +23,17 @@ class Logger:
 
     def update_tensorboard(self, iteration, loss, loss_mse, loss_reg, loss_l1,
               constraint_coeff_vectors, unscaled_constraint_coeff_vectors, estimator_coeff_vectors, **kwargs):
+        """Write the current state of training to Tensorboard
+        Args:
+            iteration (int): iteration number
+            loss (float): loss value
+            loss_mse (float): loss of the Mean Squared Error term
+            loss_reg (float): loss of the regularization term
+            loss_l1 (float): loss of the L1 penalty term
+            constraint_coeff_vectors (np.array): vector with constraint coefficients
+            unscaled_constraint_coeff_vectors (np.array): unscaled vector with constraint coefficients
+            estimator_coeff_vectors (np.array): coefficients as computed by the estimator.
+        """
         # Costs and coeff vectors
         self.writer.add_scalar('loss/loss', loss, iteration)
         self.writer.add_scalars('loss/mse', {f'output_{idx}': val for idx, val in enumerate(loss_mse)}, iteration)
@@ -40,6 +58,7 @@ class Logger:
         sys.stdout.flush()
 
     def close(self, model):
+        """Close the Tensorboard writer"""
         print('Algorithm converged. Writing model to disk.')
         self.writer.flush()  # flush remaining stuff to disk
         self.writer.close()  # close writer
