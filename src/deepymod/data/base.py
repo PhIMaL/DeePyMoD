@@ -4,6 +4,7 @@
 import torch
 import numpy as np
 from numpy import ndarray
+from numpy.random import default_rng
 
 
 def pytorch_func(function):
@@ -45,8 +46,10 @@ def pytorch_func(function):
 
 
 class Dataset_old:
-    """This class automatically generates all the necessary proporties of a predifined data set with a single spatial dimension as input.
-    In particular it calculates the solution, the time derivative and the library. Note that all the pytorch opperations such as automatic differentiation can be used on the results.
+    """This class automatically generates all the necessary proporties of a
+    predefined data set with a single spatial dimension as input.
+    In particular it calculates the solution, the time derivative and the library.
+    Note that all the pytorch opperations such as automatic differentiation can be used on the results.
     """
 
     def __init__(self, solution, **kwargs):
@@ -349,9 +352,6 @@ class Dataset_2D:
             return X_train, y_train
         else:
             return X_train, y_train, rand_idx
-
-
-from numpy.random import default_rng
 
 
 class Dataset:
