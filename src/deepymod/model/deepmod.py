@@ -70,7 +70,7 @@ class Constraint(nn.Module, metaclass=ABCMeta):
 
     @staticmethod
     def map_coeffs(mask: torch.Tensor, coeff_vector: torch.Tensor) -> torch.Tensor:
-        """ Places the coeff_vector components in the true positions of the mask.
+        """Places the coeff_vector components in the true positions of the mask.
         I.e. maps ((0, 1, 1, 0), (0.5, 1.5)) -> (0, 0.5, 1.5, 0).
 
         Args:
