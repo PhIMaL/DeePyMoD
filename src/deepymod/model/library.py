@@ -103,50 +103,69 @@ class Library1D(Library):
             Tuple[TensorList, TensorList]: The time derivatives [(n_samples, 1) x n_outputs] and the thetas [(n_samples, (poly_order + 1)(deriv_order + 1))]
             computed from the library and data.
         """
-        prediction, data = input
-        poly_list = []
-        deriv_list = []
-        time_deriv_list = []
+        prediction, coordinates = input
+        time_derivs, space_derivs = self.derivative_features(
+            prediction, coordinates, self.diff_order
+        )
+        thetas = self.combine_features(prediction, space_derivs, self.poly_order)
 
-        # Creating lists for all outputs
+        return time_derivs, thetas
+
+    @staticmethod
+    def derivative_features(
+        prediction: torch.Tensor, coordinates: torch.Tensor, diff_order: int
+    ) -> Tuple[TensorList, TensorList]:
+        space_derivs = []
+        time_derivs = []
+
         for output in np.arange(prediction.shape[1]):
             time_deriv, du = library_deriv(
-                data, prediction[:, output : output + 1], self.diff_order
+                coordinates, prediction[:, [output]], diff_order
             )
-            u = library_poly(prediction[:, output : output + 1], self.poly_order)
+            space_derivs.append(du)
+            time_derivs.append(time_deriv)
 
+        return time_derivs, space_derivs
+
+    @staticmethod
+    def combine_features(
+        prediction: torch.Tensor, space_derivs: torch.Tensor, poly_order: int
+    ) -> TensorList:
+        # Creating lists for all outputs
+        poly_list = []
+        for output in np.arange(prediction.shape[1]):
+            u = library_poly(prediction[:, [output]], poly_order)
             poly_list.append(u)
-            deriv_list.append(du)
-            time_deriv_list.append(time_deriv)
 
-        samples = time_deriv_list[0].shape[0]
-        total_terms = poly_list[0].shape[1] * deriv_list[0].shape[1]
+        n_samples = poly_list[0].shape[0]
+        total_terms = poly_list[0].shape[1] * space_derivs[0].shape[1]
+        n_outputs = len(poly_list)
 
         # Calculating theta
-        if len(poly_list) == 1:
+        if n_outputs == 1:
             # If we have a single output, we simply calculate and flatten matrix product
             # between polynomials and derivatives to get library
             theta = torch.matmul(
-                poly_list[0][:, :, None], deriv_list[0][:, None, :]
-            ).view(samples, total_terms)
+                poly_list[0][:, :, None], space_derivs[0][:, None, :]
+            ).view(n_samples, total_terms)
+
         else:
             theta_uv = reduce(
-                (lambda x, y: (x[:, :, None] @ y[:, None, :]).view(samples, -1)),
+                (lambda x, y: (x[:, :, None] @ y[:, None, :]).view(n_samples, -1)),
                 poly_list,
             )
             # calculate all unique combinations of derivatives
             theta_dudv = torch.cat(
                 [
-                    torch.matmul(du[:, :, None], dv[:, None, :]).view(samples, -1)[
+                    torch.matmul(du[:, :, None], dv[:, None, :]).view(n_samples, -1)[
                         :, 1:
                     ]
-                    for du, dv in combinations(deriv_list, 2)
+                    for du, dv in combinations(space_derivs, 2)
                 ],
                 1,
             )
             theta = torch.cat([theta_uv, theta_dudv], dim=1)
-
-        return time_deriv_list, [theta]
+        return [theta]
 
 
 class Library2D(Library):
