@@ -20,15 +20,16 @@ class Constraint(nn.Module, metaclass=ABCMeta):
         super().__init__()
         self.sparsity_masks: TensorList = None
 
-    def forward(
-        self, input: Tuple[TensorList, TensorList]
-    ) -> Tuple[TensorList, TensorList]:
-        """The forward pass of the constraint module applies the sparsity mask to the feature matrix theta,
-        and then calculates the coefficients according to the method in the child.
+    def forward(self, input: Tuple[TensorList, TensorList]) -> TensorList:
+        """The forward pass of the constraint module applies the sparsity mask to the
+        feature matrix theta, and then calculates the coefficients according to the
+        method in the child.
 
         Args:
             input (Tuple[TensorList, TensorList]): (time_derivs, library) tuple of size
                     ([(n_samples, 1) X n_outputs], [(n_samples, n_features) x n_outputs]).
+        Returns:
+            coeff_vectors (TensorList): List with coefficient vectors of size ([(n_features, 1) x n_outputs])
         """
 
         time_derivs, thetas = input
@@ -39,10 +40,23 @@ class Constraint(nn.Module, metaclass=ABCMeta):
                 for theta in thetas
             ]
 
-        sparse_thetas = self.apply_mask(thetas)
-        self.coeff_vectors = self.calculate_coeffs(sparse_thetas, time_derivs)
+        sparse_thetas = self.apply_mask(thetas, self.sparsity_masks)
 
-    def apply_mask(self, thetas: TensorList) -> TensorList:
+        # Constraint grad. desc style doesn't allow to change shape, so we return full coeff
+        # and multiply by mask to set zeros. For least squares-style, we need to put in
+        # zeros in the right spot to get correct shape.
+        coeff_vectors = self.fit(sparse_thetas, time_derivs)
+        self.coeff_vectors = [
+            self.map_coeffs(mask, coeff)
+            if mask.shape[0] != coeff.shape[0]
+            else coeff * mask[:, None]
+            for mask, coeff in zip(self.sparsity_masks, coeff_vectors)
+        ]
+
+        return self.coeff_vectors
+
+    @staticmethod
+    def apply_mask(thetas: TensorList, masks: TensorList) -> TensorList:
         """Applies the sparsity mask to the feature (library) matrix.
 
         Args:
@@ -51,16 +65,30 @@ class Constraint(nn.Module, metaclass=ABCMeta):
         Returns:
             TensorList: The sparse version of the library matrices of size [(n_samples, n_active_features) x n_outputs].
         """
-        sparse_thetas = [
-            theta[:, sparsity_mask]
-            for theta, sparsity_mask in zip(thetas, self.sparsity_masks)
-        ]
+        sparse_thetas = [theta[:, mask] for theta, mask in zip(thetas, masks)]
         return sparse_thetas
 
+    @staticmethod
+    def map_coeffs(mask: torch.Tensor, coeff_vector: torch.Tensor) -> torch.Tensor:
+        """Places the coeff_vector components in the true positions of the mask.
+        I.e. maps ((0, 1, 1, 0), (0.5, 1.5)) -> (0, 0.5, 1.5, 0).
+
+        Args:
+            mask (torch.Tensor): Boolean mask describing active components.
+            coeff_vector (torch.Tensor): Vector with active-components.
+
+        Returns:
+            mapped_coeffs (torch.Tensor): mapped coefficients.
+        """
+        mapped_coeffs = (
+            torch.zeros((mask.shape[0], 1))
+            .to(coeff_vector.device)
+            .masked_scatter_(mask[:, None], coeff_vector)
+        )
+        return mapped_coeffs
+
     @abstractmethod
-    def calculate_coeffs(
-        self, sparse_thetas: TensorList, time_derivs: TensorList
-    ) -> TensorList:
+    def fit(self, sparse_thetas: TensorList, time_derivs: TensorList) -> TensorList:
         """Abstract method. Specific method should return the coefficients as calculated from the sparse feature
         matrices and temporal derivatives.
 
@@ -69,9 +97,9 @@ class Constraint(nn.Module, metaclass=ABCMeta):
             time_derivs (TensorList): List containing the time derivatives of size (n_samples, n_outputs).
 
         Returns:
-            (TensorList): Calculated coefficients of size (n_features, n_outputs).
+            (TensorList): Calculated coefficients of size (n_active_features, n_outputs).
         """
-        pass
+        raise NotImplementedError
 
 
 class Estimator(nn.Module, metaclass=ABCMeta):
@@ -219,7 +247,7 @@ class DeepMoD(nn.Module):
         """
         prediction, coordinates = self.func_approx(input)
         time_derivs, thetas = self.library((prediction, coordinates))
-        self.constraint((time_derivs, thetas))
+        coeff_vectors = self.constraint((time_derivs, thetas))
         return prediction, time_derivs, thetas
 
     @property
