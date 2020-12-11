@@ -1,7 +1,7 @@
 """ Contains the library classes that store the parameters u_t, theta"""
 import numpy as np
 import torch
-from torch.autograd import grad
+from torch import autograd
 from itertools import combinations
 from functools import reduce
 from .deepmod import Library
@@ -21,16 +21,15 @@ def library_poly(prediction: torch.Tensor, max_order: int) -> torch.Tensor:
         torch.Tensor: Tensor with polynomials (n_samples, max_order + 1)
     """
 
-    u = [prediction ** order for order in torch.arange(1, max_order + 1)]
-    u = torch.cat([torch.ones_like(prediction)] + u, dim=1)
-
+    polynomials = [prediction ** order for order in torch.arange(1, max_order + 1)]
+    u = torch.cat([torch.ones_like(prediction)] + polynomials, dim=1)
     return u
 
 
-def library_deriv(
-    data: torch.Tensor, prediction: torch.Tensor, max_order: int
+def derivs(
+    prediction: torch.Tensor, coordinates: torch.Tensor, max_order: int
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Given a prediction u evaluated at data (t, x), returns du/dt and du/dx up to max_order, including ones
+    """Given a prediction u evaluated at coordinates (t, x), returns du/dt and du/dx up to max_order, including ones
     as first column.
 
     Args:
@@ -41,31 +40,21 @@ def library_deriv(
     Returns:
         Tuple[torch.Tensor, torch.Tensor]: time derivative and feature library ((n_samples, 1), (n_samples,  max_order + 1))
     """
-    dy = grad(
-        prediction, data, grad_outputs=torch.ones_like(prediction), create_graph=True
+    assert max_order > 0, "Only 1st order and up allowed."
+
+    grad = lambda f: autograd.grad(
+        f, coordinates, grad_outputs=torch.ones_like(f), create_graph=True
     )[0]
-    time_deriv = dy[:, 0:1]
 
-    if max_order == 0:
-        du = torch.ones_like(time_deriv)
-    else:
-        du = torch.cat((torch.ones_like(time_deriv), dy[:, 1:2]), dim=1)
-        if max_order > 1:
-            for order in np.arange(1, max_order):
-                du = torch.cat(
-                    (
-                        du,
-                        grad(
-                            du[:, order : order + 1],
-                            data,
-                            grad_outputs=torch.ones_like(prediction),
-                            create_graph=True,
-                        )[0][:, 1:2],
-                    ),
-                    dim=1,
-                )
+    df = grad(prediction)
+    time_derivs, dx = df[:, [0]], df[:, [1]]
 
-    return time_deriv, du
+    du = [torch.ones_like(prediction), dx]
+    for order in np.arange(1, max_order):
+        du.append(grad(du[order])[:, [1]])
+    space_derivs = torch.cat(du, dim=1)
+
+    return time_derivs, space_derivs
 
 
 # ========================= Actual library functions ========================
@@ -107,7 +96,7 @@ class Library1D(Library):
         time_derivs, space_derivs = self.derivative_features(
             prediction, coordinates, self.diff_order
         )
-        thetas = self.combine_features(prediction, space_derivs, self.poly_order)
+        thetas = self.build_features(prediction, space_derivs, self.poly_order)
 
         return time_derivs, thetas
 
@@ -119,16 +108,14 @@ class Library1D(Library):
         time_derivs = []
 
         for output in np.arange(prediction.shape[1]):
-            time_deriv, du = library_deriv(
-                coordinates, prediction[:, [output]], diff_order
-            )
+            time_deriv, du = derivs(prediction[:, [output]], coordinates, diff_order)
             space_derivs.append(du)
             time_derivs.append(time_deriv)
 
         return time_derivs, space_derivs
 
     @staticmethod
-    def combine_features(
+    def build_features(
         prediction: torch.Tensor, space_derivs: torch.Tensor, poly_order: int
     ) -> TensorList:
         # Creating lists for all outputs
