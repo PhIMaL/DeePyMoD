@@ -41,11 +41,11 @@ class Constraint(nn.Module, metaclass=ABCMeta):
             ]
 
         sparse_thetas = self.apply_mask(thetas, self.sparsity_masks)
-        coeff_vectors = self.fit(sparse_thetas, time_derivs)
 
         # Constraint grad. desc style doesn't allow to change shape, so we return full coeff
         # and multiply by mask to set zeros. For least squares-style, we need to put in
         # zeros in the right spot to get correct shape.
+        coeff_vectors = self.fit(sparse_thetas, time_derivs)
         self.coeff_vectors = [
             self.map_coeffs(mask, coeff)
             if mask.shape[0] != coeff.shape[0]
