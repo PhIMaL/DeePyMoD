@@ -35,4 +35,4 @@ coeff_constraint = constraint.fit(
 )[0].numpy()
 # %%
 error = np.mean(np.abs(coeff_ref - coeff_constraint))
-assert error < 1e-5, raise AssertionError
+assert error < 1e-5, f"MAE w.r.t reference is too high: {error}"
