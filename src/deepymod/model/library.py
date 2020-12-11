@@ -104,29 +104,30 @@ class Library1D(Library):
     def derivative_features(
         prediction: torch.Tensor, coordinates: torch.Tensor, diff_order: int
     ) -> Tuple[TensorList, TensorList]:
-        space_derivs = []
-        time_derivs = []
 
-        for output in np.arange(prediction.shape[1]):
-            time_deriv, du = derivs(prediction[:, [output]], coordinates, diff_order)
-            space_derivs.append(du)
-            time_derivs.append(time_deriv)
-
+        # Calculate derivs over all outputs
+        n_outputs = prediction.shape[1]
+        df = [
+            derivs(prediction[:, [output]], coordinates, diff_order)
+            for output in np.arange(n_outputs)
+        ]
+        # Unzip to separate time and space
+        time_derivs, space_derivs = map(list, zip(*df))
         return time_derivs, space_derivs
 
     @staticmethod
     def build_features(
         prediction: torch.Tensor, space_derivs: torch.Tensor, poly_order: int
     ) -> TensorList:
-        # Creating lists for all outputs
-        poly_list = []
-        for output in np.arange(prediction.shape[1]):
-            u = library_poly(prediction[:, [output]], poly_order)
-            poly_list.append(u)
 
-        n_samples = poly_list[0].shape[0]
-        total_terms = poly_list[0].shape[1] * space_derivs[0].shape[1]
-        n_outputs = len(poly_list)
+        n_samples, n_outputs = prediction.shape
+        total_terms = (poly_order + 1) * space_derivs[0].shape[1]
+
+        # Creating lists for all outputs
+        poly_list = [
+            library_poly(prediction[:, [output]], poly_order)
+            for output in np.arange(n_outputs)
+        ]
 
         # Calculating theta
         if n_outputs == 1:
@@ -137,21 +138,17 @@ class Library1D(Library):
             ).view(n_samples, total_terms)
 
         else:
-            theta_uv = reduce(
+            uv = reduce(
                 (lambda x, y: (x[:, :, None] @ y[:, None, :]).view(n_samples, -1)),
                 poly_list,
             )
             # calculate all unique combinations of derivatives
-            theta_dudv = torch.cat(
-                [
-                    torch.matmul(du[:, :, None], dv[:, None, :]).view(n_samples, -1)[
-                        :, 1:
-                    ]
-                    for du, dv in combinations(space_derivs, 2)
-                ],
-                1,
-            )
-            theta = torch.cat([theta_uv, theta_dudv], dim=1)
+            dudv = [
+                torch.matmul(du[:, :, None], dv[:, None, :]).view(n_samples, -1)[:, 1:]
+                for du, dv in combinations(space_derivs, 2)
+            ]
+            dudv = torch.cat(dudv, dim=1)
+            theta = torch.cat([uv, dudv], dim=1)
         return [theta]
 
 
@@ -186,7 +183,7 @@ class Library2D(Library):
             u = torch.cat((u, u[:, order - 1 : order] * prediction), dim=1)
 
         # Gradients
-        du = grad(
+        du = autograd.grad(
             prediction,
             data,
             grad_outputs=torch.ones_like(prediction),
@@ -195,12 +192,12 @@ class Library2D(Library):
         u_t = du[:, 0:1]
         u_x = du[:, 1:2]
         u_y = du[:, 2:3]
-        du2 = grad(
+        du2 = autograd.grad(
             u_x, data, grad_outputs=torch.ones_like(prediction), create_graph=True
         )[0]
         u_xx = du2[:, 1:2]
         u_xy = du2[:, 2:3]
-        u_yy = grad(
+        u_yy = autograd.grad(
             u_y, data, grad_outputs=torch.ones_like(prediction), create_graph=True
         )[0][:, 2:3]
 
