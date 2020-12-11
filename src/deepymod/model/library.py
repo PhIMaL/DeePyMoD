@@ -20,9 +20,9 @@ def library_poly(prediction: torch.Tensor, max_order: int) -> torch.Tensor:
     Returns:
         torch.Tensor: Tensor with polynomials (n_samples, max_order + 1)
     """
-    u = torch.ones_like(prediction)
-    for order in np.arange(1, max_order + 1):
-        u = torch.cat((u, u[:, order - 1 : order] * prediction), dim=1)
+
+    u = [prediction ** order for order in torch.arange(1, max_order + 1)]
+    u = torch.cat([torch.ones_like(prediction)] + u, dim=1)
 
     return u
 
