@@ -4,7 +4,7 @@
 name: Upload Python Package
 
 on:
-  push:
+  pull_request:
     branches:
       - master
     types:
@@ -26,10 +26,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
     - name: Build and publish
-      if: github.event.pull_request.merged == true
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME_TEST }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD_TEST }}
+      if: github.event.pull_request.merged == true
       run: |
         python setup.py sdist bdist_wheel
         twine upload --repository testpypi dist/*
