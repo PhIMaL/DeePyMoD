@@ -359,33 +359,33 @@ class Subsampler(ABC, metaclass=ABCMeta):
     @abstractmethod
     def sample():
         raise NotImplementedError
-    
-    
+
+
 class Dataset(torch.utils.data.Dataset):
     def __init__(
         self,
-        subsampler : Subsampler = None,
-        load_kwargs : dict = {},
-        preprocess_kwargs : dict = {},
-        subsample_kwargs : dict = {},
-        normalize_coords :  bool = False,
-        normalize_data : bool = False,
-        device : str = None,
+        subsampler: Subsampler = None,
+        load_kwargs: dict = {},
+        preprocess_kwargs: dict = {},
+        subsample_kwargs: dict = {},
+        normalize_coords: bool = False,
+        normalize_data: bool = False,
+        device: str = None,
     ):
         """A dataset class that loads the data, preprocesses it and lastly applies subsampling to it
-        Args: 
+        Args:
             subsampler (Subsampler): Function that applies some kind of subsampling to it
             load_kwargs (dict): optional arguments for the load method
             preprocess_kwargs (dict): optional arguments for the preprocess method
             subsample_kwargs (dict): optional arguments for the subsample method
             normalize_coords (bool): apply normalization to the coordinates
             normalize_data (bool): apply normalization to the data
-            device (string): which device to send the data to 
-        Returns: 
+            device (string): which device to send the data to
+        Returns:
             (torch.utils.data.Dataset)"""
         self.subsampler = subsampler
         self.load_kwargs = load_kwargs
-        self.preprocess_kwargs  = preprocess_kwargs 
+        self.preprocess_kwargs = preprocess_kwargs
         self.subsample_kwargs = subsample_kwargs  # so total number of samples is size(self.t_domain) * n_samples_per_frame
         self.device = device
         self.normalize_coords = normalize_coords
@@ -395,9 +395,13 @@ class Dataset(torch.utils.data.Dataset):
         if self.load:
             self.coords, self.data = self.load()
         if self.preprocess:
-            self.coords, self.data = self.preprocess(self.coords, self.data, **self.preprocess_kwargs)
+            self.coords, self.data = self.preprocess(
+                self.coords, self.data, **self.preprocess_kwargs
+            )
         if self.subsampler:
-            self.coords, self.data = self.subsampler.sample(self.coords, self.data, **self.subsample_kwargs)
+            self.coords, self.data = self.subsampler.sample(
+                self.coords, self.data, **self.subsample_kwargs
+            )
         if self.device:
             self.x.to(self.device)
             self.y.to(self.device)
@@ -406,25 +410,31 @@ class Dataset(torch.utils.data.Dataset):
     def __len__(self) -> int:
         """ Returns length of dataset. Required by pytorch"""
         return self.number_of_samples
-    
+
     def __getitem__(self, idx: int) -> int:
         """ Returns coordinate and value. First axis of coordinate should be time."""
         return self.coords[idx], self.data[idx]
-        
+
     # User defined methods
     def load(self):
         """Define a load function that loads a dataset from memory, another function or something else."""
         raise NotImplementedError
-        
-    # Logical methods    
-    def preprocess(self, X : torch.tensor, y : torch.tensor, random_state : int =42, noise : float = None):
+
+    # Logical methods
+    def preprocess(
+        self,
+        X: torch.tensor,
+        y: torch.tensor,
+        random_state: int = 42,
+        noise: float = None,
+    ):
         """Add noise to the data and normalize the features
         Arguments:
             X (torch.tensor) : coordinates of the dataset
             y (torch.tensor) : values of the dataset
             random_state (int) : state for random number geerator
             noise (float) : standard deviations of noise to add
-            """
+        """
         # add noise
         y_processed = y + self.add_noise(y, noise, random_state)
         # normalize coordinates
@@ -436,12 +446,12 @@ class Dataset(torch.utils.data.Dataset):
         if self.normalize_data:
             y_processed = self.apply_normalize(y)
         else:
-            y_processed = y      
+            y_processed = y
         return X_processed, y_processed
 
     @staticmethod
     def add_noise(y, noise_level, random_state):
-        """ Adds gaussian white noise of noise_level standard deviation.
+        """Adds gaussian white noise of noise_level standard deviation.
         Args:
             y (torch.tensor): the data to which noise should be added
             noise_level (float): add white noise as a function of standard deviation
@@ -456,10 +466,10 @@ class Dataset(torch.utils.data.Dataset):
 
     @staticmethod
     def apply_normalize(X):
-        """ minmax Normalize the data along the zeroth axis.
+        """minmax Normalize the data along the zeroth axis.
         Args:
             X (torch.tensor): data to be minmax normalized
-        Returns: 
+        Returns:
             (torch.tensor): minmaxed data"""
         X_norm = (X - X.min(dim=0).values) / (
             X.max(dim=0).values - X.min(dim=0).values
