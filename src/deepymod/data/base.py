@@ -5,6 +5,7 @@ import torch
 import numpy as np
 from numpy import ndarray
 from numpy.random import default_rng
+from abc import ABC, ABCMeta, abstractmethod
 
 
 def pytorch_func(function):
@@ -354,138 +355,113 @@ class Dataset_2D:
             return X_train, y_train, rand_idx
 
 
-class Dataset:
+class Subsampler(ABC, metaclass=ABCMeta):
+    @abstractmethod
+    def sample():
+        raise NotImplementedError
+    
+    
+class Dataset(torch.utils.data.Dataset):
     def __init__(
         self,
-        dataset,
-        noise,
-        n_samples_per_frame,
-        device="cpu",
-        normalize=False,
-        randomize=True,
-        split=0.8,
-        random_state=42,
+        subsampler : Subsampler = None,
+        load_kwargs : dict = {},
+        preprocess_kwargs : dict = {},
+        subsample_kwargs : dict = {},
+        normalize_coords :  bool = False,
+        normalize_data : bool = False,
+        device : str = None,
     ):
-        self.dataset = dataset  # function which returns the data and the grid
-        self.noise = noise
-        self.n_samples = n_samples_per_frame  # so total number of samples is size(self.t_domain) * n_samples_per_frame
+        """A dataset class that loads the data, preprocesses it and lastly applies subsampling to it
+        Args: 
+            subsampler (Subsampler): Function that applies some kind of subsampling to it
+            load_kwargs (dict): optional arguments for the load method
+            preprocess_kwargs (dict): optional arguments for the preprocess method
+            subsample_kwargs (dict): optional arguments for the subsample method
+            normalize_coords (bool): apply normalization to the coordinates
+            normalize_data (bool): apply normalization to the data
+            device (string): which device to send the data to 
+        Returns: 
+            (torch.utils.data.Dataset)"""
+        self.subsampler = subsampler
+        self.load_kwargs = load_kwargs
+        self.preprocess_kwargs  = preprocess_kwargs 
+        self.subsample_kwargs = subsample_kwargs  # so total number of samples is size(self.t_domain) * n_samples_per_frame
         self.device = device
-        self._normalize = normalize
-        self._randomize = randomize
-        self._split = split
-        self.random_state = random_state
+        self.normalize_coords = normalize_coords
+        self.normalize_data = normalize_data
+        self.coords = None
+        self.data = None
+        if self.load:
+            self.coords, self.data = self.load()
+        if self.preprocess:
+            self.coords, self.data = self.preprocess(self.coords, self.data, **self.preprocess_kwargs)
+        if self.subsampler:
+            self.coords, self.data = self.subsampler.sample(self.coords, self.data, **self.subsample_kwargs)
+        if self.device:
+            self.x.to(self.device)
+            self.y.to(self.device)
 
-    # User facing methods
-    def __call__(self):
-        # Get dataset
-        X, y = self.create_dataset(
-            self.n_samples,
-            self.dataset,
-            self.noise,
-            self._normalize,
-            self._randomize,
-            self.random_state,
-        )
-        trainset, testset = self.prepare_dataset(X, y, self.device, self._split)
-        return trainset, testset
-
-    def ground_truth(self, subsampled=False, normalized=False):
-        if subsampled:
-            n_samples = self.n_samples
-        else:
-            n_samples = self.dataset()[0].shape[2]
-
-        X, y = self.create_dataset(
-            n_samples, self.dataset, 0.0, normalized, False, self.random_state
-        )
-        return X.reshape(2, -1, n_samples), y.reshape(1, -1, n_samples)
-
-    def grid(self, subsampled=False, normalized=False):
-        grid = self.ground_truth(subsampled=subsampled, normalized=normalized)[0]
-        X = grid.reshape(-1, 2).to(self.device)
-        return X
-
-    @classmethod
-    def create_dataset(
-        cls, n_samples, dataset, noise, normalize, randomize, random_state
-    ):
-        # Get samples
-        data, grid = dataset()
-        X, y = cls.sample(data, grid, n_samples)  # subsample data and grid
-
+    # Pytorch methods
+    def __len__(self) -> int:
+        """ Returns length of dataset. Required by pytorch"""
+        return self.number_of_samples
+    
+    def __getitem__(self, idx: int) -> int:
+        """ Returns coordinate and value. First axis of coordinate should be time."""
+        return self.coords[idx], self.data[idx]
+        
+    # User defined methods
+    def load(self):
+        """Define a load function that loads a dataset from memory, another function or something else."""
+        raise NotImplementedError
+        
+    # Logical methods    
+    def preprocess(self, X : torch.tensor, y : torch.tensor, random_state : int =42, noise : float = None):
+        """Add noise to the data and normalize the features
+        Arguments:
+            X (torch.tensor) : coordinates of the dataset
+            y (torch.tensor) : values of the dataset
+            random_state (int) : state for random number geerator
+            noise (float) : standard deviations of noise to add
+            """
         # add noise
-        y += cls.add_noise(y, noise, random_state)
-
-        # normalize
-        if normalize:
-            X = cls.normalize(X)
-
-        # Randomize data
-        if randomize:
-            X, y = cls.randomize(X, y, random_state)
-
-        return X, y
-
-    @classmethod
-    def prepare_dataset(cls, X, y, device, split):
-        # Split into test / train, assumes data is randomized
-        X_train, y_train, X_test, y_test = cls.split(X, y, split)
-
-        # Move to device
-        X_train, y_train, X_test, y_test = (
-            X_train.to(device),
-            y_train.to(device),
-            X_test.to(device),
-            y_test.to(device),
-        )
-
-        return (X_train, y_train), (X_test, y_test)
-
-    @staticmethod
-    def sample(data, grid, n_samples):
-        # getting indices of samples
-        x_idx = torch.round(torch.linspace(0, grid.shape[2] - 1, n_samples)).type(
-            torch.long
-        )  # getting x locations
-
-        # getting sample locations from indices
-        X = grid[:, :, x_idx].reshape(-1, 2)
-        y = data[:, :, x_idx].reshape(-1, 1)
-
-        return X, y
+        y_processed = y + self.add_noise(y, noise, random_state)
+        # normalize coordinates
+        if self.normalize_coords:
+            X_processed = self.apply_normalize(X)
+        else:
+            X_processed = X
+        # normalize data
+        if self.normalize_data:
+            y_processed = self.apply_normalize(y)
+        else:
+            y_processed = y      
+        return X_processed, y_processed
 
     @staticmethod
     def add_noise(y, noise_level, random_state):
-        """ Adds gaussian white noise"""
+        """ Adds gaussian white noise of noise_level standard deviation.
+        Args:
+            y (torch.tensor): the data to which noise should be added
+            noise_level (float): add white noise as a function of standard deviation
+            random_state (int): the random state used for random number generation
+        """
         noise = noise_level * torch.std(y).data
         y_noisy = y + torch.tensor(
             default_rng(random_state).normal(loc=0.0, scale=noise, size=y.shape),
             dtype=torch.float32,
         )  # TO DO: switch to pytorch rng
-
         return y_noisy
 
     @staticmethod
-    def normalize(X):
+    def apply_normalize(X):
+        """ minmax Normalize the data along the zeroth axis.
+        Args:
+            X (torch.tensor): data to be minmax normalized
+        Returns: 
+            (torch.tensor): minmaxed data"""
         X_norm = (X - X.min(dim=0).values) / (
             X.max(dim=0).values - X.min(dim=0).values
         ) * 2 - 1
         return X_norm
-
-    @staticmethod
-    def randomize(X, y, random_state):
-        rand_idx = default_rng(random_state).permutation(
-            X.shape[0]
-        )  # TO DO: switch to pytorch rng
-        X_rand, y_rand = X[rand_idx, :], y[rand_idx, :]
-
-        return X_rand, y_rand
-
-    @staticmethod
-    def split(X, y, split):
-        n_train = int(split * X.shape[0])
-        n_test = int(X.shape[0] - n_train)
-        X_train, X_test = torch.split(X, [n_train, n_test], dim=0)
-        y_train, y_test = torch.split(y, [n_train, n_test], dim=0)
-
-        return X_train, y_train, X_test, y_test
