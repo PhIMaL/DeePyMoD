@@ -3,12 +3,15 @@ import torch
 from ..utils.logger import Logger
 from .convergence import Convergence
 from ..model.deepmod import DeepMoD
+from torch.utils.data import DataLoader, Dataset
+
+from icecream import ic
 
 
 def train(
     model: DeepMoD,
-    data: torch.Tensor,
-    target: torch.Tensor,
+    train_dataloader: Dataset,
+    test_dataloader: Dataset,
     optimizer,
     sparsity_scheduler,
     split: float = 0.8,
@@ -38,75 +41,79 @@ def train(
     )  # write checkpoint to same folder as tb output.
 
     # Splitting data, assumes data is already randomized
-    n_train = int(split * data.shape[0])
-    n_test = data.shape[0] - n_train
-    data_train, data_test = torch.split(data, [n_train, n_test], dim=0)
-    target_train, target_test = torch.split(target, [n_train, n_test], dim=0)
-
+    n_train = len(train_dataloader)
+    n_test = len(test_dataloader)
     # Training
-    convergence = Convergence(**convergence_kwargs)
-    for iteration in torch.arange(0, max_iterations):
-        # ================== Training Model ============================
-        prediction, time_derivs, thetas = model(data_train)
+    for train_sample in train_dataloader:
+        data_train, target_train = train_sample
 
-        MSE = torch.mean((prediction - target_train) ** 2, dim=0)  # loss per output
-        Reg = torch.stack(
-            [
-                torch.mean((dt - theta @ coeff_vector) ** 2)
-                for dt, theta, coeff_vector in zip(
-                    time_derivs,
-                    thetas,
-                    model.constraint_coeffs(scaled=False, sparse=True),
-                )
-            ]
-        )
-        loss = torch.sum(MSE + Reg)
+        convergence = Convergence(**convergence_kwargs)
+        for iteration in torch.arange(0, max_iterations):
+            # ================== Training Model ============================
+            prediction, time_derivs, thetas = model(data_train)
 
-        # Optimizer step
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        if iteration % write_iterations == 0:
-            # ================== Validation costs ================
-            with torch.no_grad():
-                prediction_test = model.func_approx(data_test)[0]
-                MSE_test = torch.mean(
-                    (prediction_test - target_test) ** 2, dim=0
-                )  # loss per output
-
-            # ====================== Logging =======================
-            _ = model.sparse_estimator(
-                thetas, time_derivs
-            )  # calculating estimator coeffs but not setting mask
-            logger(
-                iteration,
-                loss,
-                MSE,
-                Reg,
-                model.constraint_coeffs(sparse=True, scaled=True),
-                model.constraint_coeffs(sparse=True, scaled=False),
-                model.estimator_coeffs(),
-                MSE_test=MSE_test,
+            MSE = torch.mean((prediction - target_train) ** 2, dim=0)  # loss per output
+            Reg = torch.stack(
+                [
+                    torch.mean((dt - theta @ coeff_vector) ** 2)
+                    for dt, theta, coeff_vector in zip(
+                        time_derivs,
+                        thetas,
+                        model.constraint_coeffs(scaled=False, sparse=True),
+                    )
+                ]
             )
+            loss = torch.sum(MSE + Reg)
 
-            # ================== Sparsity update =============
-            # Updating sparsity
-            update_sparsity = sparsity_scheduler(
-                iteration, torch.sum(MSE_test), model, optimizer
-            )
-            if update_sparsity:
-                model.constraint.sparsity_masks = model.sparse_estimator(
+            # Optimizer step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            if iteration % write_iterations == 0:
+                # ================== Validation costs ================
+                with torch.no_grad():
+                    for test_sample in test_dataloader:
+                        data_test, target_test = test_sample
+                        prediction_test = model.func_approx(data_test)[0]
+                        MSE_test = torch.mean(
+                            (prediction_test - target_test) ** 2, dim=0
+                        )  # loss per output
+
+                # ====================== Logging =======================
+                _ = model.sparse_estimator(
                     thetas, time_derivs
+                )  # calculating estimator coeffs but not setting mask
+                logger(
+                    iteration,
+                    loss,
+                    MSE,
+                    Reg,
+                    model.constraint_coeffs(sparse=True, scaled=True),
+                    model.constraint_coeffs(sparse=True, scaled=False),
+                    model.estimator_coeffs(),
+                    MSE_test=MSE_test,
                 )
 
-            # ================= Checking convergence
-            l1_norm = torch.sum(
-                torch.abs(
-                    torch.cat(model.constraint_coeffs(sparse=True, scaled=True), dim=1)
+                # ================== Sparsity update =============
+                # Updating sparsity
+                update_sparsity = sparsity_scheduler(
+                    iteration, torch.sum(MSE_test), model, optimizer
                 )
-            )
-            converged = convergence(iteration, l1_norm)
-            if converged:
-                break
+                if update_sparsity:
+                    model.constraint.sparsity_masks = model.sparse_estimator(
+                        thetas, time_derivs
+                    )
+
+                # ================= Checking convergence
+                l1_norm = torch.sum(
+                    torch.abs(
+                        torch.cat(
+                            model.constraint_coeffs(sparse=True, scaled=True), dim=1
+                        )
+                    )
+                )
+                converged = convergence(iteration, l1_norm)
+                if converged:
+                    break
     logger.close(model)

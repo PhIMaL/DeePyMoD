@@ -392,19 +392,21 @@ class Dataset(torch.utils.data.Dataset):
         self.normalize_data = normalize_data
         self.coords = None
         self.data = None
-        if self.load:
-            self.coords, self.data = self.load()
-        if self.preprocess:
-            self.coords, self.data = self.preprocess(
-                self.coords, self.data, **self.preprocess_kwargs
-            )
+        # if self.load:
+        self.coords, self.data = self.load(**self.load_kwargs)
+        self.number_of_samples = self.data.size(-1)
+        # if self.preprocess:
+        self.coords, self.data = self.preprocess(
+            self.coords, self.data, **self.preprocess_kwargs
+        )
         if self.subsampler:
             self.coords, self.data = self.subsampler.sample(
                 self.coords, self.data, **self.subsample_kwargs
             )
+        print("device: ", self.device)
         if self.device:
-            self.x.to(self.device)
-            self.y.to(self.device)
+            self.coords = self.coords.to(self.device)
+            self.data = self.data.to(self.device)
 
     # Pytorch methods
     def __len__(self) -> int:
@@ -426,7 +428,7 @@ class Dataset(torch.utils.data.Dataset):
         X: torch.tensor,
         y: torch.tensor,
         random_state: int = 42,
-        noise: float = None,
+        noise: float = 0.0,
     ):
         """Add noise to the data and normalize the features
         Arguments:

@@ -6,8 +6,45 @@
 import torch
 from numpy import pi
 
+from deepymod.data import Dataset
 
-def BurgersDelta(x: torch.tensor, t: torch.tensor, v: float, A: float) -> torch.tensor:
+
+class BurgersDelta(Dataset):
+    def __main__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def load(self, x: torch.tensor, t: torch.tensor, v: float, A: float):
+        """Function to load the analytical solutions of Burgers equation with delta peak initial condition: u(x, 0) = A delta(x)
+
+        Source: https://www.iist.ac.in/sites/default/files/people/IN08026/Burgers_equation_viscous.pdf
+        Note that this source has an error in the erfc prefactor, should be sqrt(pi)/2, not sqrt(pi/2).
+
+        Args:
+            x ([Tensor]): Input vector of spatial coordinates.
+            t ([Tensor]): Input vector of temporal coordinates.
+            v (Float): Velocity.
+            A (Float): Amplitude of the initial condition.
+
+        Returns:
+            [Tensor]: solution.
+        """
+        x, t = torch.meshgrid(x, t)
+        R = torch.tensor(A / (2 * v))  # otherwise throws error
+        z = x / torch.sqrt(4 * v * t)
+
+        u = (
+            torch.sqrt(v / (pi * t))
+            * ((torch.exp(R) - 1) * torch.exp(-(z ** 2)))
+            / (1 + (torch.exp(R) - 1) / 2 * torch.erfc(z))
+        )
+        print(x.shape, t.shape)
+        coords = torch.cat((x.reshape(-1, 1), t.reshape(-1, 1)), dim=1)
+        return coords, u.view(-1)
+
+
+def BurgersDelta_old(
+    x: torch.tensor, t: torch.tensor, v: float, A: float
+) -> torch.tensor:
     """Function to generate analytical solutions of Burgers equation with delta peak initial condition: u(x, 0) = A delta(x)
 
     Source: https://www.iist.ac.in/sites/default/files/people/IN08026/Burgers_equation_viscous.pdf

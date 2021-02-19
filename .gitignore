@@ -53,3 +53,5 @@ __pycache__
 src/DeePyMoD.egg/
 site/
 .eggs/
+*events.out.tfevents.*
+*.pt
