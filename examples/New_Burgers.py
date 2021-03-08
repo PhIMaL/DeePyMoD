@@ -7,6 +7,7 @@
 # General imports
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 
@@ -19,7 +20,7 @@ from deepymod.model.sparse_estimators import Threshold
 from deepymod.training import train
 from deepymod.training.sparsity_scheduler import TrainTestPeriodic, Periodic, TrainTest
 
-from deepymod.data import Dataset
+from deepymod.data import Dataset, DeePyModGPULoader
 from deepymod.data.burgers import BurgersDelta
 
 from deepymod.analysis import load_tensorboard
@@ -31,7 +32,6 @@ if torch.cuda.is_available():
 else:
     device = "cpu"
 print(device)
-
 
 # In[24]:
 
@@ -49,12 +49,15 @@ A = 1.0
 x = torch.linspace(-3, 4, 100)
 t = torch.linspace(0.5, 5.0, 50)
 load_kwargs = {"x": x, "t": t, "v": v, "A": A}
+preprocess_kwargs = {"noise": 0.4}
 
 
 # In[25]:
 
 
-dataset = BurgersDelta(load_kwargs=load_kwargs, device=device)
+dataset = BurgersDelta(
+    load_kwargs=load_kwargs, preprocess_kwargs=preprocess_kwargs, device=device
+)
 
 
 # In[ ]:
@@ -62,17 +65,23 @@ dataset = BurgersDelta(load_kwargs=load_kwargs, device=device)
 
 # In[26]:
 
+plt.figure()
+plt.scatter(dataset.coords.cpu().numpy()[:, 0], dataset.coords.cpu().numpy()[:, 1])
+plt.show()
 
 train_idx, test_idx = train_test_split(
     np.arange(len(dataset)), test_size=0.2, random_state=42
 )
-train_idx = train_idx[:2000]
-train_dataloader = DataLoader(
-    dataset, sampler=SubsetRandomSampler(train_idx), batch_size=len(train_idx)
-)
-test_dataloader = DataLoader(
-    dataset, sampler=SubsetRandomSampler(test_idx), batch_size=len(test_idx)
-)
+train_idx = train_idx[:1000]
+test_idx = test_idx[:1000]
+# train_dataloader = DeePyModGPULoader(
+#     dataset, sampler=SubsetRandomSampler(train_idx), batch_size=len(train_idx)
+# )
+# test_dataloader = DeePyModGPULoader(
+#     dataset, sampler=SubsetRandomSampler(test_idx), batch_size=len(test_idx)
+# )
+train_dataloader = DeePyModGPULoader(dataset)
+test_dataloader = DeePyModGPULoader(dataset)
 
 
 # In[27]:

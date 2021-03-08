@@ -392,6 +392,7 @@ class Dataset(torch.utils.data.Dataset):
         self.normalize_data = normalize_data
         self.coords = None
         self.data = None
+        self.shuffle = True
         # if self.load:
         self.coords, self.data = self.load(**self.load_kwargs)
         self.number_of_samples = self.data.size(-1)
@@ -404,6 +405,11 @@ class Dataset(torch.utils.data.Dataset):
                 self.coords, self.data, **self.subsample_kwargs
             )
         print("device: ", self.device)
+        if self.shuffle:
+            permutation = np.random.permutation(np.arange(len(self.data)))
+            self.coords = self.coords[permutation]
+            self.data = self.data[permutation]
+
         if self.device:
             self.coords = self.coords.to(self.device)
             self.data = self.data.to(self.device)
@@ -477,3 +483,20 @@ class Dataset(torch.utils.data.Dataset):
             X.max(dim=0).values - X.min(dim=0).values
         ) * 2 - 1
         return X_norm
+
+
+class DeePyModGPULoader:
+    def __init__(self, dataset):
+        """Loader created to follow the workflow of PyTorch Dataset and Dataloader"""
+        self.dataset = dataset
+        self._count = 0
+        self._length = 1
+
+    def __getitem__(self, idx):
+        if idx < self._length:
+            return self.dataset[:]
+        else:
+            raise StopIteration
+
+    def __len__(self):
+        return self._length

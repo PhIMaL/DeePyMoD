@@ -1,1 +1,1 @@
-from .base import Dataset, Dataset_2D
+from .base import Dataset, Dataset_2D, DeePyModGPULoader

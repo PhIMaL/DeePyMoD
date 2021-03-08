@@ -38,7 +38,7 @@ class BurgersDelta(Dataset):
             / (1 + (torch.exp(R) - 1) / 2 * torch.erfc(z))
         )
         print(x.shape, t.shape)
-        coords = torch.cat((x.reshape(-1, 1), t.reshape(-1, 1)), dim=1)
+        coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
         return coords, u.view(-1)
 
 
