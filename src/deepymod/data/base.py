@@ -355,12 +355,6 @@ class Dataset_2D:
             return X_train, y_train, rand_idx
 
 
-class Subsampler(ABC, metaclass=ABCMeta):
-    @abstractmethod
-    def sample():
-        raise NotImplementedError
-
-
 class Dataset(torch.utils.data.Dataset):
     def __init__(
         self,
@@ -404,6 +398,7 @@ class Dataset(torch.utils.data.Dataset):
             self.coords, self.data = self.subsampler.sample(
                 self.coords, self.data, **self.subsample_kwargs
             )
+            self.number_of_samples = self.data.size(-1)
         print("device: ", self.device)
         if self.shuffle:
             permutation = np.random.permutation(np.arange(len(self.data)))
@@ -485,7 +480,7 @@ class Dataset(torch.utils.data.Dataset):
         return X_norm
 
 
-class DeePyModGPULoader:
+class GPULoader:
     def __init__(self, dataset):
         """Loader created to follow the workflow of PyTorch Dataset and Dataloader"""
         self.dataset = dataset
@@ -500,3 +495,17 @@ class DeePyModGPULoader:
 
     def __len__(self):
         return self._length
+
+
+def get_train_test_loader(
+    dataset, train_test_split=0.8, loader=GPULoader, loader_kwargs={}
+):
+    length = dataset.number_of_samples
+    indices = np.arange(0, length, dtype=int)
+    np.random.shuffle(indices)
+    split = int(train_test_split * length)
+    train_indices = indices[:split]
+    test_indices = indices[split:]
+    train_data = torch.utils.data.Subset(dataset, train_indices)
+    test_data = torch.utils.data.Subset(dataset, test_indices)
+    return loader(train_data, **loader_kwargs), loader(test_data, **loader_kwargs)

@@ -20,17 +20,17 @@ from deepymod.model.sparse_estimators import Threshold
 from deepymod.training import train
 from deepymod.training.sparsity_scheduler import TrainTestPeriodic, Periodic, TrainTest
 
-from deepymod.data import Dataset, DeePyModGPULoader
+from deepymod.data import Dataset, GPULoader, get_train_test_loader
 from deepymod.data.burgers import BurgersDelta
 
 from deepymod.analysis import load_tensorboard
 
 from sklearn.model_selection import train_test_split
 
-if torch.cuda.is_available():
-    device = "cuda"
-else:
-    device = "cpu"
+# if torch.cuda.is_available():
+#     device = "cuda"
+# else:
+device = "cpu"
 print(device)
 
 # In[24]:
@@ -65,23 +65,27 @@ dataset = BurgersDelta(
 
 # In[26]:
 
-plt.figure()
-plt.scatter(dataset.coords.cpu().numpy()[:, 0], dataset.coords.cpu().numpy()[:, 1])
-plt.show()
+# plt.figure()
+# plt.scatter(dataset.coords.cpu().numpy()[:, 0], dataset.coords.cpu().numpy()[:, 1])
+# plt.show()
 
-train_idx, test_idx = train_test_split(
-    np.arange(len(dataset)), test_size=0.2, random_state=42
+# train_idx, test_idx = train_test_split(
+#     np.arange(len(dataset)), test_size=0.2, random_state=42
+# )
+# train_idx = train_idx[:1000]
+# test_idx = test_idx[:1000]
+# # train_dataloader = DeePyModGPULoader(
+# #     dataset, sampler=SubsetRandomSampler(train_idx), batch_size=len(train_idx)
+# # )
+# # test_dataloader = DeePyModGPULoader(
+# #     dataset, sampler=SubsetRandomSampler(test_idx), batch_size=len(test_idx)
+# # )
+# train_dataloader = DeePyModGPULoader(dataset)
+# test_dataloader = DeePyModGPULoader(dataset)
+
+train_dataloader, test_dataloader = get_train_test_loader(
+    dataset,
 )
-train_idx = train_idx[:1000]
-test_idx = test_idx[:1000]
-# train_dataloader = DeePyModGPULoader(
-#     dataset, sampler=SubsetRandomSampler(train_idx), batch_size=len(train_idx)
-# )
-# test_dataloader = DeePyModGPULoader(
-#     dataset, sampler=SubsetRandomSampler(test_idx), batch_size=len(test_idx)
-# )
-train_dataloader = DeePyModGPULoader(dataset)
-test_dataloader = DeePyModGPULoader(dataset)
 
 
 # In[27]:
