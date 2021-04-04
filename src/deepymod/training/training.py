@@ -44,18 +44,16 @@ def train(
     # Training
     convergence = Convergence(**convergence_kwargs)
     for iteration in torch.arange(0, max_iterations):
-        # Training variables:
-        batch_loss = torch.zeros(len(train_dataloader))
-        batch_mse = torch.zeros(len(train_dataloader))
-        batch_reg = torch.zeros(len(train_dataloader))
+        # Training variables defined as: loss, mse, regularisation
+        batch_losses = torch.zeros((3, len(train_dataloader)))
         for batch_idx, train_sample in enumerate(train_dataloader):
             data_train, target_train = train_sample
             # ================== Training Model ============================
             prediction, time_derivs, thetas = model(data_train)
-            batch_mse[batch_idx] = torch.mean(
+            batch_losses[1][batch_idx] = torch.mean(
                 (prediction.squeeze() - target_train) ** 2, dim=0
             )  # loss per output
-            batch_reg[batch_idx] = torch.stack(
+            batch_losses[2][batch_idx] = torch.stack(
                 [
                     torch.mean((dt - theta @ coeff_vector) ** 2)
                     for dt, theta, coeff_vector in zip(
@@ -65,25 +63,21 @@ def train(
                     )
                 ]
             )
-            batch_loss[batch_idx] = torch.sum(
-                batch_mse[batch_idx] + batch_reg[batch_idx]
+            batch_losses[0, batch_idx] = torch.sum(
+                batch_losses[1, batch_idx] + batch_losses[2, batch_idx]
             )
 
             # Optimizer step
             optimizer.zero_grad()
-            batch_loss.backward()
+            batch_losses[0].backward()
             optimizer.step()
 
-        loss = torch.mean(batch_loss.cpu().detach()).view(-1)
-        mse = torch.mean(batch_mse.cpu().detach()).view(-1)
-        reg = torch.mean(batch_reg.cpu().detach()).view(-1)
+        loss, mse, reg = torch.mean(batch_losses.cpu().detach(), axis=1)
 
         if iteration % write_iterations == 0:
             # ================== Validation costs ================
             with torch.no_grad():
-                batch_loss_test = torch.zeros(len(test_dataloader))
                 batch_mse_test = torch.zeros(len(test_dataloader))
-                batch_reg_test = torch.zeros(len(test_dataloader))
                 for batch_idx, test_sample in enumerate(test_dataloader):
                     data_test, target_test = test_sample
                     prediction_test = model.func_approx(data_test)[0]
@@ -98,9 +92,9 @@ def train(
             )  # calculating estimator coeffs but not setting mask
             logger(
                 iteration,
-                loss,
-                mse,
-                reg,
+                loss.view(-1),
+                mse.view(-1),
+                reg.view(-1),
                 model.constraint_coeffs(sparse=True, scaled=True),
                 model.constraint_coeffs(sparse=True, scaled=False),
                 model.estimator_coeffs(),
