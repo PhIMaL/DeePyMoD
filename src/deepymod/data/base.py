@@ -5,6 +5,8 @@ import torch
 import numpy as np
 from numpy import ndarray
 from numpy.random import default_rng
+from deepymod.data.samples import Subsampler
+
 from abc import ABC, ABCMeta, abstractmethod
 
 
@@ -358,6 +360,7 @@ class Dataset_2D:
 class Dataset(torch.utils.data.Dataset):
     def __init__(
         self,
+        load_function,
         subsampler: Subsampler = None,
         load_kwargs: dict = {},
         preprocess_kwargs: dict = {},
@@ -368,6 +371,7 @@ class Dataset(torch.utils.data.Dataset):
     ):
         """A dataset class that loads the data, preprocesses it and lastly applies subsampling to it
         Args:
+            load_function (function): Must return some input/coordinate of shape [N,...] and some output/data of shape [N, ...] as torch tensors
             subsampler (Subsampler): Function that applies some kind of subsampling to it
             load_kwargs (dict): optional arguments for the load method
             preprocess_kwargs (dict): optional arguments for the preprocess method
@@ -377,6 +381,7 @@ class Dataset(torch.utils.data.Dataset):
             device (string): which device to send the data to
         Returns:
             (torch.utils.data.Dataset)"""
+        self.load = load_function
         self.subsampler = subsampler
         self.load_kwargs = load_kwargs
         self.preprocess_kwargs = preprocess_kwargs
@@ -387,7 +392,6 @@ class Dataset(torch.utils.data.Dataset):
         self.coords = None
         self.data = None
         self.shuffle = True
-        # if self.load:
         self.coords, self.data = self.load(**self.load_kwargs)
         self.number_of_samples = self.data.size(-1)
         # if self.preprocess:
@@ -417,11 +421,6 @@ class Dataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int) -> int:
         """ Returns coordinate and value. First axis of coordinate should be time."""
         return self.coords[idx], self.data[idx]
-
-    # User defined methods
-    def load(self):
-        """Define a load function that loads a dataset from memory, another function or something else."""
-        raise NotImplementedError
 
     # Logical methods
     def preprocess(

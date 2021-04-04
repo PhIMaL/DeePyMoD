@@ -3,7 +3,6 @@ import numpy as np
 from numpy import ndarray
 from numpy.random import default_rng
 from abc import ABC, ABCMeta, abstractmethod
-from deepymod.data.base import Subsampler, Dataset
 
 
 class Subsampler(ABC, metaclass=ABCMeta):
