@@ -9,18 +9,14 @@ import torch
 
 # DeePyMoD imports
 from deepymod import DeepMoD
-from deepymod.analysis import load_tensorboard
-from deepymod.data import Dataset, GPULoader, get_train_test_loader
-from deepymod.data.burgers import burgersdelta
+from deepymod.data import Dataset, get_train_test_loader
+from deepymod.data.burgers import burgers_delta
 from deepymod.model.constraint import LeastSquares
 from deepymod.model.func_approx import NN
 from deepymod.model.library import Library1D
 from deepymod.model.sparse_estimators import Threshold
 from deepymod.training import train
 from deepymod.training.sparsity_scheduler import Periodic, TrainTest, TrainTestPeriodic
-from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader
-from torch.utils.data.sampler import SubsetRandomSampler
 
 # if torch.cuda.is_available():
 #     device = "cuda"
@@ -44,14 +40,14 @@ load_kwargs = {"x": x, "t": t, "v": v, "A": A}
 preprocess_kwargs = {"noise": 0.4}
 
 dataset = Dataset(
-    burgersdelta,
+    burgers_delta,
     load_kwargs=load_kwargs,
     preprocess_kwargs=preprocess_kwargs,
     device=device,
 )
 
 train_dataloader, test_dataloader = get_train_test_loader(
-    dataset,
+    dataset, train_test_split=0.75
 )
 
 network = NN(2, [30, 30, 30, 30, 30], 1)

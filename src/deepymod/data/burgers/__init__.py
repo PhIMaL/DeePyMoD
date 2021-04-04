@@ -1,1 +1,1 @@
-from .burgers import burgersdelta, burgerscos, burgerssawtooth
+from .burgers import burgers_delta, burgers_cos, burgers_sawtooth

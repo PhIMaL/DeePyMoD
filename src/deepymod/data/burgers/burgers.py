@@ -9,7 +9,7 @@ from numpy import pi
 from deepymod.data import Dataset
 
 
-def burgersdelta(x: torch.tensor, t: torch.tensor, v: float, A: float):
+def burgers_delta(x: torch.tensor, t: torch.tensor, v: float, A: float):
     """Function to load the analytical solutions of Burgers equation with delta peak initial condition: u(x, 0) = A delta(x)
 
     Source: https://www.iist.ac.in/sites/default/files/people/IN08026/Burgers_equation_viscous.pdf
@@ -43,7 +43,7 @@ class BurgersDelta(Dataset):
         super().__init__(burgersdelta, **kwargs)
 
 
-def burgerscos(
+def burgers_cos(
     x: torch.tensor, t: torch.tensor, v: float, a: float, b: float, k: float
 ):
     """Function to generate analytical solutions of Burgers equation with cosine initial condition:
@@ -72,7 +72,7 @@ def burgerscos(
     return coords, u.view(-1)
 
 
-def burgerssawtooth(x: torch.tensor, t: torch.tensor, v: float) -> torch.tensor:
+def burgers_sawtooth(x: torch.tensor, t: torch.tensor, v: float) -> torch.tensor:
     """Function to generate analytical solutions of Burgers equation with sawtooth initial condition (see soruce for exact expression). Solution only
     valid between for x in [0, 2pi] and t in [0, 0.5]
 

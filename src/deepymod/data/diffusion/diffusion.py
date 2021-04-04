@@ -7,7 +7,7 @@ from numpy import pi
 import torch
 
 
-def DiffusionGaussian(
+def diffusion_gaussian(
     x: torch.tensor, t: torch.tensor, D: float, x0: float, sigma: float
 ) -> torch.tensor:
     """Function to generate the solution to the 1D diffusion equation.
@@ -27,10 +27,11 @@ def DiffusionGaussian(
     u = (2 * pi * sigma ** 2 + 4 * pi * D * t) ** (-1 / 2) * torch.exp(
         -((x - x0) ** 2) / (2 * sigma ** 2 + 4 * D * t)
     )
-    return u
+    coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
+    return coords, u.view(-1)
 
 
-def AdvectionDiffusionGaussian2D(
+def advection_diffusion_gaussian_2d(
     x: torch.tensor,
     t: torch.tensor,
     D: float,
@@ -57,4 +58,5 @@ def AdvectionDiffusionGaussian2D(
         -((x[:, 0:1] - x0[0] - v[0] * t) ** 2 + (x[:, 1:2] - x0[1] - v[1] * t) ** 2)
         / (2 * sigma ** 2 + 4 * D * t)
     )
-    return u
+    coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 2)), dim=1)
+    return coords, u.view(-1)
