@@ -362,9 +362,9 @@ class Dataset(torch.utils.data.Dataset):
         self,
         load_function,
         subsampler: Subsampler = None,
+        subsampler_kwargs: dict = {},
         load_kwargs: dict = {},
         preprocess_kwargs: dict = {},
-        subsample_kwargs: dict = {},
         normalize_coords: bool = False,
         normalize_data: bool = False,
         device: str = None,
@@ -385,7 +385,7 @@ class Dataset(torch.utils.data.Dataset):
         self.subsampler = subsampler
         self.load_kwargs = load_kwargs
         self.preprocess_kwargs = preprocess_kwargs
-        self.subsample_kwargs = subsample_kwargs  # so total number of samples is size(self.t_domain) * n_samples_per_frame
+        self.subsampler_kwargs = subsampler_kwargs  # so total number of samples is size(self.t_domain) * n_samples_per_frame
         self.device = device
         self.normalize_coords = normalize_coords
         self.normalize_data = normalize_data
@@ -400,9 +400,9 @@ class Dataset(torch.utils.data.Dataset):
         )
         if self.subsampler:
             self.coords, self.data = self.subsampler.sample(
-                self.coords, self.data, **self.subsample_kwargs
+                self.coords, self.data, **self.subsampler_kwargs
             )
-            self.number_of_samples = self.data.size(-1)
+            self.number_of_samples = self.data.shape[-1]
         print("device: ", self.device)
         if self.shuffle:
             permutation = np.random.permutation(np.arange(len(self.data)))
@@ -446,7 +446,7 @@ class Dataset(torch.utils.data.Dataset):
             X_processed = X
         # normalize data
         if self.normalize_data:
-            y_processed = self.apply_normalize(y)
+            y_processed = self.apply_normalize(y_processed)
         else:
             y_processed = y
         return X_processed, y_processed
@@ -482,6 +482,7 @@ class Dataset(torch.utils.data.Dataset):
 class GPULoader:
     def __init__(self, dataset):
         """Loader created to follow the workflow of PyTorch Dataset and Dataloader"""
+        self.device = dataset.dataset.device
         self.dataset = dataset
         self._count = 0
         self._length = 1

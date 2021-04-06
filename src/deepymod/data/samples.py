@@ -28,18 +28,18 @@ class Subsample_grid(Subsampler):
 
 class Subsample_shifted_grid(Subsampler):
     @staticmethod
-    def sub_sample_shifted_grid(coords, data, number_of_samples):
+    def sample(coords, data, number_of_samples):
         return NotImplementedError
 
 
 class Subsample_random(Subsampler):
     @staticmethod
-    def sub_sample_random(coords, data, number_of_samples):
+    def sample(coords, data, number_of_samples):
         # getting indices of samples
-        x_idx = torch.randperm(coords.shape[1])[
+        x_idx = torch.randperm(coords.shape[0])[
             :number_of_samples
         ]  # getting x locations
         # getting sample locations from indices
-        subsampled_coords = coords[:, :, x_idx]
-        subsampled_data = data[:, :, x_idx]
+        subsampled_coords = coords[x_idx]
+        subsampled_data = data[x_idx]
         return subsampled_coords, subsampled_data
