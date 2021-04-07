@@ -45,9 +45,13 @@ def train(
     convergence = Convergence(**convergence_kwargs)
     for iteration in torch.arange(0, max_iterations):
         # Training variables defined as: loss, mse, regularisation
-        batch_losses = torch.zeros((3, len(train_dataloader)))
+        batch_losses = torch.zeros(
+            (3, len(train_dataloader)), device=train_dataloader.device
+        )
         for batch_idx, train_sample in enumerate(train_dataloader):
             data_train, target_train = train_sample
+            print("data_train", data_train.shape)
+            print("target_train", target_train.shape)
             # ================== Training Model ============================
             prediction, time_derivs, thetas = model(data_train)
             batch_losses[1][batch_idx] = torch.mean(
@@ -77,7 +81,9 @@ def train(
         if iteration % write_iterations == 0:
             # ================== Validation costs ================
             with torch.no_grad():
-                batch_mse_test = torch.zeros(len(test_dataloader))
+                batch_mse_test = torch.zeros(
+                    len(test_dataloader), device=test_dataloader.device
+                )
                 for batch_idx, test_sample in enumerate(test_dataloader):
                     data_test, target_test = test_sample
                     prediction_test = model.func_approx(data_test)[0]
