@@ -1,8 +1,8 @@
 """ Contains the train module that governs training Deepymod """
 import torch
-from ..utils.logger import Logger
-from .convergence import Convergence
-from ..model.deepmod import DeepMoD
+from deepymod.utils.logger import Logger
+from deepymod.training.convergence import Convergence
+from deepymod.model.deepmod import DeepMoD
 from torch.utils.data import DataLoader, Dataset
 
 
@@ -37,27 +37,25 @@ def train(
     sparsity_scheduler.path = (
         logger.log_dir
     )  # write checkpoint to same folder as tb output.
+    n_features = train_dataloader[0][1].shape[-1]
+    # n_features = model.func_approx.modules()[-1].shape[0]
 
-    # Splitting data, assumes data is already randomized
-    n_train = len(train_dataloader)
-    n_test = len(test_dataloader)
     # Training
     convergence = Convergence(**convergence_kwargs)
     for iteration in torch.arange(0, max_iterations):
         # Training variables defined as: loss, mse, regularisation
         batch_losses = torch.zeros(
-            (3, len(train_dataloader)), device=train_dataloader.device
+            (3, n_features, len(train_dataloader)),
+            device=train_dataloader.device,
         )
         for batch_idx, train_sample in enumerate(train_dataloader):
             data_train, target_train = train_sample
-            print("data_train", data_train.shape)
-            print("target_train", target_train.shape)
             # ================== Training Model ============================
             prediction, time_derivs, thetas = model(data_train)
-            batch_losses[1][batch_idx] = torch.mean(
-                (prediction.squeeze() - target_train) ** 2, dim=0
+            batch_losses[1, :, batch_idx] = torch.mean(
+                (prediction - target_train) ** 2, dim=-2
             )  # loss per output
-            batch_losses[2][batch_idx] = torch.stack(
+            batch_losses[2, :, batch_idx] = torch.stack(
                 [
                     torch.mean((dt - theta @ coeff_vector) ** 2)
                     for dt, theta, coeff_vector in zip(
@@ -73,7 +71,7 @@ def train(
 
             # Optimizer step
             optimizer.zero_grad()
-            batch_losses[0].backward()
+            batch_losses[0].sum().backward()
             optimizer.step()
 
         loss, mse, reg = torch.mean(batch_losses.cpu().detach(), axis=1)
@@ -82,16 +80,15 @@ def train(
             # ================== Validation costs ================
             with torch.no_grad():
                 batch_mse_test = torch.zeros(
-                    len(test_dataloader), device=test_dataloader.device
+                    (n_features, len(test_dataloader)), device=test_dataloader.device
                 )
                 for batch_idx, test_sample in enumerate(test_dataloader):
                     data_test, target_test = test_sample
                     prediction_test = model.func_approx(data_test)[0]
-                    batch_mse_test[batch_idx] = torch.mean(
-                        (prediction_test.squeeze() - target_test) ** 2, dim=0
+                    batch_mse_test[:, batch_idx] = torch.mean(
+                        (prediction_test - target_test) ** 2, dim=-2
                     )  # loss per output
             mse_test = torch.mean(batch_mse_test.cpu().detach()).view(-1)
-
             # ====================== Logging =======================
             _ = model.sparse_estimator(
                 thetas, time_derivs

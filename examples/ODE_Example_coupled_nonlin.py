@@ -70,7 +70,7 @@ def create_data(U0=np.array([2.5, 0.4]), ts=np.linspace(0, 5, 1000)):
 
 dataset = Dataset(
     create_data,
-    preprocess_kwargs={"noise": 0.1},
+    preprocess_kwargs={"noise_level": 0.1},
     normalize_coords=True,
     normalize_data=True,
     device=device,
@@ -108,7 +108,7 @@ dataset = Dataset(
     create_data,
     subsampler=Subsample_random,
     subsampler_kwargs={"number_of_samples": 200},
-    preprocess_kwargs={"noise": 0.1},
+    preprocess_kwargs={"noise_level": 0.1},
     normalize_coords=True,
     normalize_data=True,
     device=device,

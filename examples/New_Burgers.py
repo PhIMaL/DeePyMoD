@@ -37,7 +37,7 @@ A = 1.0
 x = torch.linspace(-3, 4, 100)
 t = torch.linspace(0.5, 5.0, 50)
 load_kwargs = {"x": x, "t": t, "v": v, "A": A}
-preprocess_kwargs = {"noise": 0.4}
+preprocess_kwargs = {"noise_level": 0.4}
 
 dataset = Dataset(
     burgers_delta,
@@ -74,7 +74,7 @@ train(
     sparsity_scheduler,
     exp_ID="Test",
     write_iterations=25,
-    max_iterations=1000,
+    max_iterations=1,
     delta=0.001,
     patience=200,
 )

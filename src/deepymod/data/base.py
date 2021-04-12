@@ -9,6 +9,8 @@ from deepymod.data.samples import Subsampler
 
 from abc import ABC, ABCMeta, abstractmethod
 
+from icecream import ic
+
 
 def pytorch_func(function):
     """Decorator to automatically transform arrays to tensors and back
@@ -402,13 +404,13 @@ class Dataset(torch.utils.data.Dataset):
             self.coords, self.data = self.subsampler.sample(
                 self.coords, self.data, **self.subsampler_kwargs
             )
-            self.number_of_samples = self.data.shape[-1]
-        print("device: ", self.device)
         if self.shuffle:
             permutation = np.random.permutation(np.arange(len(self.data)))
             self.coords = self.coords[permutation]
             self.data = self.data[permutation]
+        self.number_of_samples = self.data.shape[0]
 
+        print("Dataset is using device: ", self.device)
         if self.device:
             self.coords = self.coords.to(self.device)
             self.data = self.data.to(self.device)
@@ -423,12 +425,13 @@ class Dataset(torch.utils.data.Dataset):
         return self.coords[idx], self.data[idx]
 
     # Logical methods
+    # @staticmethod
     def preprocess(
         self,
         X: torch.tensor,
         y: torch.tensor,
         random_state: int = 42,
-        noise: float = 0.0,
+        noise_level: float = 0.0,
     ):
         """Add noise to the data and normalize the features
         Arguments:
@@ -438,7 +441,7 @@ class Dataset(torch.utils.data.Dataset):
             noise (float) : standard deviations of noise to add
         """
         # add noise
-        y_processed = y + self.add_noise(y, noise, random_state)
+        y_processed = y + self.add_noise(y, noise_level, random_state)
         # normalize coordinates
         if self.normalize_coords:
             X_processed = self.apply_normalize(X)

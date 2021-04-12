@@ -216,7 +216,6 @@ class DeepMoD(nn.Module):
                                                        ((n_samples, n_outputs), [(n_samples, 1) x n_outputs]), [(n_samples, n_features) x n_outputs])
 
         """
-        print("forward:input", input.shape)
         prediction, coordinates = self.func_approx(input)
         time_derivs, thetas = self.library((prediction, coordinates))
         self.constraint((time_derivs, thetas))

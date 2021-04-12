@@ -27,19 +27,8 @@ class LeastSquares(Constraint):
             (TensorList): Calculated coefficients of size (n_features, n_outputs).
         """
         opt_coeff = []
-        print("LeastSquares:sparse_thetas", sparse_thetas)
-        print("LeastSquares:time_derivs.shape", time_derivs)
         for theta, dt in zip(sparse_thetas, time_derivs):
-            print("LeastSquares:theta.shape", theta.shape)
             Q, R = torch.qr(theta)  # solution of lst. sq. by QR decomp.
-            print(
-                "LeastSquares:Q.shape",
-                Q.shape,
-                "R.shape",
-                R.shape,
-                "dt.shape",
-                dt.shape,
-            )
             opt_coeff.append(torch.inverse(R) @ Q.T @ dt)
 
         # Putting them in the right spot
