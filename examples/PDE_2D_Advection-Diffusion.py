@@ -35,7 +35,6 @@ if torch.cuda.is_available():
     device = "cuda"
 else:
     device = "cpu"
-device = "cpu"
 print(device)
 
 
@@ -47,7 +46,7 @@ print(device)
 
 
 def create_data():
-    data = loadmat("examples/data/advection_diffusion.mat")
+    data = loadmat("data/advection_diffusion.mat")
     usol = np.real(data["Expression1"]).astype("float32")
     usol = torch.from_numpy(usol.reshape((51, 51, 61, 4))).float()
     print(usol.shape)
@@ -63,11 +62,13 @@ def create_data():
 
 dataset = Dataset(
     create_data,
-    preprocess_kwargs={"noise_level": 0.1},
+    preprocess_kwargs={
+        "noise_level": 0.1,
+        "normalize_coords": True,
+        "normalize_data": True,
+    },
     subsampler=Subsample_random,
     subsampler_kwargs={"number_of_samples": 200},
-    normalize_coords=True,
-    normalize_data=True,
     device=device,
 )
 
@@ -131,7 +132,7 @@ constraint = LeastSquares()
 # In[13]:
 
 
-model = DeepMoD(network, library, estimator, constraint)
+model = DeepMoD(network, library, estimator, constraint).to(device)
 
 # Defining optimizer
 optimizer = torch.optim.Adam(
@@ -158,7 +159,7 @@ train(
     optimizer,
     sparsity_scheduler,
     log_dir="runs/2DAD/",
-    max_iterations=100000,
+    max_iterations=5000,
     delta=1e-4,
     patience=8,
 )

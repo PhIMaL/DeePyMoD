@@ -48,7 +48,6 @@ if torch.cuda.is_available():
     device = "cuda"
 else:
     device = "cpu"
-device = "cpu"
 print(device)
 
 
@@ -108,10 +107,11 @@ dataset = Dataset(
     create_data,
     subsampler=Subsample_random,
     subsampler_kwargs={"number_of_samples": 200},
-    preprocess_kwargs={"noise_level": 0.1},
-    normalize_coords=True,
-    normalize_data=True,
-    device=device,
+    preprocess_kwargs={
+        "noise_level": 0.1,
+        "normalize_coords": True,
+        "normalize_data": True,
+    },
 )
 
 
@@ -220,7 +220,7 @@ constraint = LeastSquares()
 # In[13]:
 
 
-model = DeepMoD(network, library, estimator, constraint)
+model = DeepMoD(network, library, estimator, constraint).to(device)
 
 # Defining optimizer
 optimizer = torch.optim.Adam(
@@ -242,8 +242,7 @@ train(
     optimizer,
     sparsity_scheduler,
     log_dir="runs/coupled2/",
-    split=0.8,
-    max_iterations=100000,
+    max_iterations=5000,
     delta=1e-3,
     patience=100,
 )

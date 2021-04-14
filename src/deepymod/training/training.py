@@ -38,7 +38,7 @@ def train(
         logger.log_dir
     )  # write checkpoint to same folder as tb output.
     n_features = train_dataloader[0][1].shape[-1]
-    # n_features = model.func_approx.modules()[-1].shape[0]
+    # n_features = model.func_approx.modules()
 
     # Training
     convergence = Convergence(**convergence_kwargs)

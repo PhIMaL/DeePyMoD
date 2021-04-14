@@ -18,10 +18,10 @@ from deepymod.model.sparse_estimators import Threshold
 from deepymod.training import train
 from deepymod.training.sparsity_scheduler import Periodic, TrainTest, TrainTestPeriodic
 
-# if torch.cuda.is_available():
-#     device = "cuda"
-# else:
-device = "cpu"
+if torch.cuda.is_available():
+    device = "cuda"
+else:
+    device = "cpu"
 print(device)
 
 # Settings for reproducibility
@@ -74,7 +74,7 @@ train(
     sparsity_scheduler,
     exp_ID="Test",
     write_iterations=25,
-    max_iterations=1,
+    max_iterations=5000,
     delta=0.001,
     patience=200,
 )

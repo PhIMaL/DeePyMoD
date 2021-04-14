@@ -9,8 +9,6 @@ from deepymod.data.samples import Subsampler
 
 from abc import ABC, ABCMeta, abstractmethod
 
-from icecream import ic
-
 
 def pytorch_func(function):
     """Decorator to automatically transform arrays to tensors and back
@@ -223,9 +221,9 @@ class Dataset_2D:
 
     def __init__(self, solution, **kwargs):
         """Create a 2D dataset and add a solution (data) to it
-        Args:
-            solution: give the solution, the actual dataset u
-            parameters: additional parameters in keyword format
+                Args:
+        solution: give the solution, the actual dataset u
+                    parameters: additional parameters in keyword format
         """
         self.solution = solution  # set solution
         self.parameters = kwargs  # set solution parameters
@@ -366,9 +364,7 @@ class Dataset(torch.utils.data.Dataset):
         subsampler: Subsampler = None,
         subsampler_kwargs: dict = {},
         load_kwargs: dict = {},
-        preprocess_kwargs: dict = {},
-        normalize_coords: bool = False,
-        normalize_data: bool = False,
+        preprocess_kwargs: dict = {"normalize_coords": False, "normalize_data": False},
         device: str = None,
     ):
         """A dataset class that loads the data, preprocesses it and lastly applies subsampling to it
@@ -378,8 +374,6 @@ class Dataset(torch.utils.data.Dataset):
             load_kwargs (dict): optional arguments for the load method
             preprocess_kwargs (dict): optional arguments for the preprocess method
             subsample_kwargs (dict): optional arguments for the subsample method
-            normalize_coords (bool): apply normalization to the coordinates
-            normalize_data (bool): apply normalization to the data
             device (string): which device to send the data to
         Returns:
             (torch.utils.data.Dataset)"""
@@ -389,14 +383,11 @@ class Dataset(torch.utils.data.Dataset):
         self.preprocess_kwargs = preprocess_kwargs
         self.subsampler_kwargs = subsampler_kwargs  # so total number of samples is size(self.t_domain) * n_samples_per_frame
         self.device = device
-        self.normalize_coords = normalize_coords
-        self.normalize_data = normalize_data
         self.coords = None
         self.data = None
         self.shuffle = True
         self.coords, self.data = self.load(**self.load_kwargs)
         self.number_of_samples = self.data.size(-1)
-        # if self.preprocess:
         self.coords, self.data = self.preprocess(
             self.coords, self.data, **self.preprocess_kwargs
         )
@@ -405,9 +396,7 @@ class Dataset(torch.utils.data.Dataset):
                 self.coords, self.data, **self.subsampler_kwargs
             )
         if self.shuffle:
-            permutation = np.random.permutation(np.arange(len(self.data)))
-            self.coords = self.coords[permutation]
-            self.data = self.data[permutation]
+            self.coords, self.data = self.apply_shuffle(self.coords, self.data)
         self.number_of_samples = self.data.shape[0]
 
         print("Dataset is using device: ", self.device)
@@ -425,13 +414,14 @@ class Dataset(torch.utils.data.Dataset):
         return self.coords[idx], self.data[idx]
 
     # Logical methods
-    # @staticmethod
     def preprocess(
         self,
         X: torch.tensor,
         y: torch.tensor,
         random_state: int = 42,
         noise_level: float = 0.0,
+        normalize_coords: bool = False,
+        normalize_data: bool = False,
     ):
         """Add noise to the data and normalize the features
         Arguments:
@@ -439,16 +429,18 @@ class Dataset(torch.utils.data.Dataset):
             y (torch.tensor) : values of the dataset
             random_state (int) : state for random number geerator
             noise (float) : standard deviations of noise to add
+            normalize_coords (bool): apply normalization to the coordinates
+            normalize_data (bool): apply normalization to the data
         """
         # add noise
         y_processed = y + self.add_noise(y, noise_level, random_state)
         # normalize coordinates
-        if self.normalize_coords:
+        if normalize_coords:
             X_processed = self.apply_normalize(X)
         else:
             X_processed = X
         # normalize data
-        if self.normalize_data:
+        if normalize_data:
             y_processed = self.apply_normalize(y_processed)
         else:
             y_processed = y
@@ -480,6 +472,12 @@ class Dataset(torch.utils.data.Dataset):
             X.max(dim=0).values - X.min(dim=0).values
         ) * 2 - 1
         return X_norm
+
+    @staticmethod
+    def apply_shuffle(coords, data):
+        """ Shuffle the coordinates and data """
+        permutation = np.random.permutation(np.arange(len(data)))
+        return coords[permutation], data[permutation]
 
 
 class GPULoader:
