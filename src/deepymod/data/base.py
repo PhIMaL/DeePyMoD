@@ -387,16 +387,26 @@ class Dataset(torch.utils.data.Dataset):
         self.data = None
         self.shuffle = True
         self.coords, self.data = self.load(**self.load_kwargs)
-        self.number_of_samples = self.data.size(-1)
+        assert (
+            len(self.coords.shape) != 1
+        ), "Please explicitely specify a feature axis for the coordinates"
+        assert (
+            len(self.data.shape) != 1
+        ), "Please explicitely specify a feature axis for the data"
         self.coords, self.data = self.preprocess(
             self.coords, self.data, **self.preprocess_kwargs
         )
+        # Apply the subsampler if there is one
         if self.subsampler:
             self.coords, self.data = self.subsampler.sample(
                 self.coords, self.data, **self.subsampler_kwargs
             )
+        # Reshaping the data to a (number_of_samples, number_of_features) shape if needed
+        if len(self.data.shape) != 2 or len(self.coords.shape) != 2:
+            self.coords, self.data = self._reshape(self.coords, self.data)
         if self.shuffle:
             self.coords, self.data = self.apply_shuffle(self.coords, self.data)
+        # Now we know the data are shape (number_of_samples, number_of_features) we can set the number_of_samples
         self.number_of_samples = self.data.shape[0]
 
         print("Dataset is using device: ", self.device)
@@ -412,6 +422,15 @@ class Dataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int) -> int:
         """ Returns coordinate and value. First axis of coordinate should be time."""
         return self.coords[idx], self.data[idx]
+
+    # get methods
+    def get_coords(self):
+        """Retrieve all the coordinate features"""
+        return self.coords
+
+    def get_data(self):
+        """Retrieve all the data features"""
+        return self.data
 
     # Logical methods
     def preprocess(
@@ -468,8 +487,9 @@ class Dataset(torch.utils.data.Dataset):
             X (torch.tensor): data to be minmax normalized
         Returns:
             (torch.tensor): minmaxed data"""
-        X_norm = (X - X.min(dim=0).values) / (
-            X.max(dim=0).values - X.min(dim=0).values
+        X_norm = (X - X.view(-1, X.shape[-1]).min(dim=0).values) / (
+            X.view(-1, X.shape[-1]).max(dim=0).values
+            - X.view(-1, X.shape[-1]).min(dim=0).values
         ) * 2 - 1
         return X_norm
 
@@ -478,6 +498,13 @@ class Dataset(torch.utils.data.Dataset):
         """ Shuffle the coordinates and data """
         permutation = np.random.permutation(np.arange(len(data)))
         return coords[permutation], data[permutation]
+
+    @staticmethod
+    def _reshape(coords, data):
+        """Reshape the coordinates and data to the format [number_of_samples, number_of_features]"""
+        coords = coords.reshape([-1, coords.shape[-1]])
+        data = data.reshape([-1, data.shape[-1]])
+        return coords, data
 
 
 class GPULoader:

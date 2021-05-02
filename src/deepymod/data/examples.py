@@ -14,6 +14,6 @@ def matlab_dataset_2d():
     x1 = np.linspace(-np.pi, np.pi, 100)
     X0, X1 = np.meshgrid(x0, x1)
     y = np.sinc(X0 * X1)
-    coords = torch.tensor(np.stack((X0, X1)))  # .reshape(-1, 2))
-    data = torch.tensor(y).unsqueeze(0)  # .reshape(-1, 1))
+    coords = torch.tensor(np.stack((X0, X1)))
+    data = torch.tensor(y).unsqueeze(0)
     return coords, data
