@@ -87,11 +87,11 @@ class Dataset(torch.utils.data.Dataset):
 
     # Pytorch methods
     def __len__(self) -> int:
-        """ Returns length of dataset. Required by pytorch"""
+        """Returns length of dataset. Required by pytorch"""
         return self.number_of_samples
 
     def __getitem__(self, idx: int) -> int:
-        """ Returns coordinate and value. First axis of coordinate should be time."""
+        """Returns coordinate and value. First axis of coordinate should be time."""
         return self.coords[idx], self.data[idx]
 
     # get methods
@@ -167,7 +167,7 @@ class Dataset(torch.utils.data.Dataset):
 
     @staticmethod
     def apply_shuffle(coords, data):
-        """ Shuffle the coordinates and data """
+        """Shuffle the coordinates and data"""
         permutation = np.random.permutation(np.arange(len(data)))
         return coords[permutation], data[permutation]
 

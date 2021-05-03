@@ -251,7 +251,7 @@ class DeepMoD(nn.Module):
 
     @property
     def sparsity_masks(self):
-        """Returns the sparsity masks which contain the active terms. """
+        """Returns the sparsity masks which contain the active terms."""
         return self.constraint.sparsity_masks
 
     def estimator_coeffs(self) -> TensorList:
