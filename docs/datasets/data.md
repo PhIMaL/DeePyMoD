@@ -7,7 +7,7 @@ The custom DeePyMoD dataset and dataloaders are created for data that typically 
 
 For model discovery we typically want to add some noise to our dataset, normalize certain features and ensure it is in the right place for optimal PyTorch performance. This can easily be done by using the custom `deepymod.data.Dataset` and `deepymod.data.get_train_test_loader`. An illustration of the workflow is shown below:
 
-![Workflow](figures/data_workflow_for_deepymod.png)
+![Workflow](../figures/data_workflow_for_deepymod.png)
 
 ## The dataset
 The dataset needs a function that loads all the samples and returns it in a coordinate, data format. 
