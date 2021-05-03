@@ -88,7 +88,7 @@ def train(
                     batch_mse_test[:, batch_idx] = torch.mean(
                         (prediction_test - target_test) ** 2, dim=-2
                     )  # loss per output
-            mse_test = batch_mse_test.cpu().detach()
+            mse_test = batch_mse_test.cpu().detach().mean(dim=-1)
             # ====================== Logging =======================
             _ = model.sparse_estimator(
                 thetas, time_derivs
@@ -101,7 +101,7 @@ def train(
                 model.constraint_coeffs(sparse=True, scaled=True),
                 model.constraint_coeffs(sparse=True, scaled=False),
                 model.estimator_coeffs(),
-                MSE_test=mse_test.mean(),
+                MSE_test=mse_test,
             )
 
             # ================== Sparsity update =============
