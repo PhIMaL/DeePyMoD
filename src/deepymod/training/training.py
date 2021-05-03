@@ -1,15 +1,15 @@
 """ Contains the train module that governs training Deepymod """
 import torch
-from deepymod.utils.logger import Logger
-from deepymod.training.convergence import Convergence
-from deepymod.model.deepmod import DeepMoD
-from torch.utils.data import DataLoader, Dataset
+from ..utils.logger import Logger
+from .convergence import Convergence
+from ..model.deepmod import DeepMoD
+from torch.utils.data import DataLoader
 
 
 def train(
     model: DeepMoD,
-    train_dataloader: Dataset,
-    test_dataloader: Dataset,
+    train_dataloader: DataLoader,
+    test_dataloader: DataLoader,
     optimizer,
     sparsity_scheduler,
     split: float = 0.8,
@@ -39,7 +39,6 @@ def train(
     )  # write checkpoint to same folder as tb output.
     n_features = train_dataloader[0][1].shape[-1]
     # n_features = model.func_approx.modules()
-
     # Training
     convergence = Convergence(**convergence_kwargs)
     for iteration in torch.arange(0, max_iterations):
