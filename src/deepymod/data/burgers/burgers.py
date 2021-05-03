@@ -38,11 +38,6 @@ def burgers_delta(x: torch.tensor, t: torch.tensor, v: float, A: float):
     return coords, u.view(-1, 1)
 
 
-class BurgersDelta(Dataset):
-    def __main__(self, **kwargs):
-        super().__init__(burgersdelta, **kwargs)
-
-
 def burgers_cos(
     x: torch.tensor, t: torch.tensor, v: float, a: float, b: float, k: float
 ):
@@ -69,7 +64,7 @@ def burgers_cos(
         b + a * torch.exp(-z) * torch.cos(k * x)
     )
     coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
-    return coords, u.view(-1)
+    return coords, u.view(-1, 1)
 
 
 def burgers_sawtooth(x: torch.tensor, t: torch.tensor, v: float) -> torch.tensor:
@@ -97,4 +92,4 @@ def burgers_sawtooth(x: torch.tensor, t: torch.tensor, v: float) -> torch.tensor
     ) - 2 * z_right / l * torch.exp(-(z_right ** 2) / l)
     u = -2 * v * dphi_x / phi + 4
     coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
-    return coords, u.view(-1)
+    return coords, u.view(-1, 1)

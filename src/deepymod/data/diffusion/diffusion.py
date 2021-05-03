@@ -28,7 +28,7 @@ def diffusion_gaussian(
         -((x - x0) ** 2) / (2 * sigma ** 2 + 4 * D * t)
     )
     coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
-    return coords, u.view(-1)
+    return coords, u.view(-1, 1)
 
 
 def advection_diffusion_gaussian_2d(
@@ -59,4 +59,4 @@ def advection_diffusion_gaussian_2d(
         / (2 * sigma ** 2 + 4 * D * t)
     )
     coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 2)), dim=1)
-    return coords, u.view(-1)
+    return coords, u.view(-1, 1)

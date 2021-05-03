@@ -23,7 +23,7 @@ def single_soliton(
     xi = np.sqrt(c) / 2 * (x - c * t - x0)  # switch to moving coordinate frame
     u = c / 2 * 1 / torch.cosh(xi) ** 2
     coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
-    return coords, u.view(-1)
+    return coords, u.view(-1, 1)
 
 
 def double_soliton(
@@ -54,4 +54,4 @@ def double_soliton(
     denominator_2 = (np.sqrt(c[0]) + np.sqrt(c[1])) * torch.cosh(xi0 - xi1)
     u = part_1 * numerator / (denominator_1 + denominator_2) ** 2
     coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
-    return coords, u.view(-1)
+    return coords, u.view(-1, 1)
