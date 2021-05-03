@@ -65,16 +65,16 @@ def train(
                     )
                 ]
             )
-            batch_losses[0, batch_idx] = torch.sum(
-                batch_losses[1, batch_idx] + batch_losses[2, batch_idx]
+            batch_losses[0, :, batch_idx] = (
+                batch_losses[1, :, batch_idx] + batch_losses[2, :, batch_idx]
             )
 
             # Optimizer step
             optimizer.zero_grad()
-            batch_losses[0].sum().backward()
+            batch_losses[0, :, batch_idx].sum().backward()
             optimizer.step()
 
-        loss, mse, reg = torch.mean(batch_losses.cpu().detach(), axis=1)
+        loss, mse, reg = torch.mean(batch_losses.cpu().detach(), axis=-1)
 
         if iteration % write_iterations == 0:
             # ================== Validation costs ================
@@ -88,20 +88,20 @@ def train(
                     batch_mse_test[:, batch_idx] = torch.mean(
                         (prediction_test - target_test) ** 2, dim=-2
                     )  # loss per output
-            mse_test = torch.mean(batch_mse_test.cpu().detach()).view(-1)
+            mse_test = batch_mse_test.cpu().detach()
             # ====================== Logging =======================
             _ = model.sparse_estimator(
                 thetas, time_derivs
             )  # calculating estimator coeffs but not setting mask
             logger(
                 iteration,
-                loss.view(-1),
+                loss.view(-1).mean(),
                 mse.view(-1),
                 reg.view(-1),
                 model.constraint_coeffs(sparse=True, scaled=True),
                 model.constraint_coeffs(sparse=True, scaled=False),
                 model.estimator_coeffs(),
-                MSE_test=mse_test,
+                MSE_test=mse_test.mean(),
             )
 
             # ================== Sparsity update =============
