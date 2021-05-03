@@ -365,6 +365,7 @@ class Dataset(torch.utils.data.Dataset):
         subsampler_kwargs: dict = {},
         load_kwargs: dict = {},
         preprocess_kwargs: dict = {"normalize_coords": False, "normalize_data": False},
+        preprocess_functions: dict = {"apply_normalize": None, "add_noise": None},
         device: str = None,
     ):
         """A dataset class that loads the data, preprocesses it and lastly applies subsampling to it
@@ -382,6 +383,17 @@ class Dataset(torch.utils.data.Dataset):
         self.load_kwargs = load_kwargs
         self.preprocess_kwargs = preprocess_kwargs
         self.subsampler_kwargs = subsampler_kwargs  # so total number of samples is size(self.t_domain) * n_samples_per_frame
+        # If some override function is provided, use that instead of the default.
+        if (
+            "apply_normalize" in preprocess_functions
+            and preprocess_functions["apply_normalize"] != None
+        ):
+            self.apply_normalize = preprocess_functions["apply_normalize"]
+        if (
+            "add_noise" in preprocess_functions
+            and preprocess_functions["add_noise"] != None
+        ):
+            self.apply_normalize = preprocess_functions["add_noise"]
         self.device = device
         self.coords = None
         self.data = None
@@ -451,6 +463,7 @@ class Dataset(torch.utils.data.Dataset):
             normalize_coords (bool): apply normalization to the coordinates
             normalize_data (bool): apply normalization to the data
         """
+
         # add noise
         y_processed = y + self.add_noise(y, noise_level, random_state)
         # normalize coordinates
@@ -482,7 +495,7 @@ class Dataset(torch.utils.data.Dataset):
 
     @staticmethod
     def apply_normalize(X):
-        """minmax Normalize the data along the zeroth axis.
+        """minmax Normalize the data along the zeroth axis. Per feature
         Args:
             X (torch.tensor): data to be minmax normalized
         Returns:
