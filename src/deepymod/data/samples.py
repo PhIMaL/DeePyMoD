@@ -14,8 +14,7 @@ class Subsampler(ABC, metaclass=ABCMeta):
 class Subsample_time(Subsampler):
     @staticmethod
     def sample(coords, data, number_of_slices):
-        """Subsample on the time axis for that has shape [t,x,y,z,...,feature] for both data and features.
-        it will format"""
+        """Subsample on the time axis for that has shape [t,x,y,z,...,feature] for both data and features."""
         # getting indices of samples
         x_idx = torch.linspace(
             0, coords.shape[0] - 1, number_of_slices, dtype=torch.long

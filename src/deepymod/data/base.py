@@ -361,23 +361,31 @@ class Dataset(torch.utils.data.Dataset):
     def __init__(
         self,
         load_function,
-        subsampler: Subsampler = None,
-        subsampler_kwargs: dict = {},
-        load_kwargs: dict = {},
-        preprocess_kwargs: dict = {"normalize_coords": False, "normalize_data": False},
+        shuffle=True,
         preprocess_functions: dict = {"apply_normalize": None, "add_noise": None},
+        subsampler: Subsampler = None,
+        load_kwargs: dict = {},
+        preprocess_kwargs: dict = {
+            "random_state": 42,
+            "noise_level": 0.0,
+            "normalize_coords": False,
+            "normalize_data": False,
+        },
+        subsampler_kwargs: dict = {},
         device: str = None,
     ):
         """A dataset class that loads the data, preprocesses it and lastly applies subsampling to it
+
         Args:
-            load_function (function): Must return some input/coordinate of shape [N,...] and some output/data of shape [N, ...] as torch tensors
-            subsampler (Subsampler): Function that applies some kind of subsampling to it
-            load_kwargs (dict): optional arguments for the load method
-            preprocess_kwargs (dict): optional arguments for the preprocess method
-            subsample_kwargs (dict): optional arguments for the subsample method
-            device (string): which device to send the data to
-        Returns:
-            (torch.utils.data.Dataset)"""
+            load_function (func):Must return torch tensors in the format coordinates, data
+            shuffle (bool, optional): Shuffle the data. Defaults to True.
+            preprocess_functions (dict, optional): override the default normalization and noise addition. Defaults to {"apply_normalize": None, "add_noise": None}.
+            subsampler (Subsampler, optional): Add some subsampling function. Defaults to None.
+            load_kwargs (dict, optional): kwargs to pass to the load_function. Defaults to {}.
+            preprocess_kwargs (dict, optional): (optional) arguments to pass to the preprocess method. Defaults to { "random_state": 42, "noise_level": 0.0, "normalize_coords": False, "normalize_data": False, }.
+            subsampler_kwargs (dict, optional): (optional) arguments to pass to the subsampler method. Defaults to {}.
+            device (str, optional): which device to send the data to. Defaults to None.
+        """
         self.load = load_function
         self.subsampler = subsampler
         self.load_kwargs = load_kwargs
@@ -395,16 +403,16 @@ class Dataset(torch.utils.data.Dataset):
         ):
             self.apply_normalize = preprocess_functions["add_noise"]
         self.device = device
-        self.coords = None
-        self.data = None
-        self.shuffle = True
+        self.shuffle = shuffle
         self.coords, self.data = self.load(**self.load_kwargs)
+        # Ensure the data that loaded is not 0D/1D
         assert (
-            len(self.coords.shape) != 1
+            len(self.coords.shape) >= 2
         ), "Please explicitely specify a feature axis for the coordinates"
         assert (
-            len(self.data.shape) != 1
+            len(self.data.shape) >= 2
         ), "Please explicitely specify a feature axis for the data"
+        # Preprocess (add noise and normalization)
         self.coords, self.data = self.preprocess(
             self.coords, self.data, **self.preprocess_kwargs
         )
@@ -522,8 +530,12 @@ class Dataset(torch.utils.data.Dataset):
 
 class GPULoader:
     def __init__(self, dataset):
-        """Loader created to follow the workflow of PyTorch Dataset and Dataloader"""
-        self.device = dataset.dataset.device
+        """Loader created to follow the workflow of PyTorch Dataset and Dataloader
+        Leaves all data where it currently is."""
+        if isinstance(dataset, torch.utils.data.Subset):
+            self.device = dataset.dataset.device
+        else:
+            self.device = dataset.device
         self.dataset = dataset
         self._count = 0
         self._length = 1
@@ -541,6 +553,18 @@ class GPULoader:
 def get_train_test_loader(
     dataset, train_test_split=0.8, loader=GPULoader, loader_kwargs={}
 ):
+    """Take a dataset, shuffle it, split it into a train and test and then
+    return two loaders that are compatible with PyTorch.
+
+    Args:
+        dataset (torch.utils.data.Dataset): The dataset to use
+        train_test_split (float, optional): The fraction of data used for train. Defaults to 0.8.
+        loader (torch.utils.data.Dataloader, optional): The type of Dataloader to use. Defaults to GPULoader.
+        loader_kwargs (dict, optional): Any kwargs to be passed to the loader]. Defaults to {}.
+
+    Returns:
+        Dataloader, Dataloader: The train and test dataloader
+    """
     length = dataset.number_of_samples
     indices = np.arange(0, length, dtype=int)
     np.random.shuffle(indices)
