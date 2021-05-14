@@ -3,7 +3,7 @@ import numpy as np
 from deepymod.data.base import Dataset
 
 
-def matlab_dataset_2d():
+def sinc_2d():
     """Output: Grid[N x M x L],  Data[N x M x O],
     N = Coordinate dimension 0
     M = Coordinate dimension 1
