@@ -179,7 +179,6 @@ class Library(nn.Module):
         Returns:
             Tuple[TensorList, TensorList]: Temporal derivative and libraries of size ([(n_samples, 1) x n_outputs]), [(n_samples, n_features)x n_outputs])
         """
-
         time_derivs, thetas = self.library(input)
         self.norms = [
             (torch.norm(time_deriv) / torch.norm(theta, dim=0, keepdim=True))
@@ -252,7 +251,7 @@ class DeepMoD(nn.Module):
 
     @property
     def sparsity_masks(self):
-        """Returns the sparsity masks which contain the active terms. """
+        """Returns the sparsity masks which contain the active terms."""
         return self.constraint.sparsity_masks
 
     def estimator_coeffs(self) -> TensorList:

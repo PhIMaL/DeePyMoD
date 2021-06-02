@@ -5,13 +5,13 @@ import torch.nn as nn
 
 
 def string_matmul(list_1, list_2):
-    """ Matrix multiplication with strings."""
+    """Matrix multiplication with strings."""
     prod = [element[0] + element[1] for element in product(list_1, list_2)]
     return prod
 
 
 def terms_definition(poly_list, deriv_list):
-    """ Calculates which terms are in the library."""
+    """Calculates which terms are in the library."""
     if len(poly_list) == 1:
         theta = string_matmul(
             poly_list[0], deriv_list[0]

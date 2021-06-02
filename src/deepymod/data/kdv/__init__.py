@@ -1,1 +1,1 @@
-from .kdv import *
+from .kdv import single_soliton, double_soliton

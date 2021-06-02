@@ -7,7 +7,7 @@ import torch
 import numpy as np
 
 
-def SingleSoliton(
+def single_soliton(
     x: torch.tensor, t: torch.tensor, c: float, x0: float
 ) -> torch.tensor:
     """Single soliton solution of the KdV equation (u_t + u_{xxx} - 6 u u_x = 0)
@@ -22,10 +22,11 @@ def SingleSoliton(
     """
     xi = np.sqrt(c) / 2 * (x - c * t - x0)  # switch to moving coordinate frame
     u = c / 2 * 1 / torch.cosh(xi) ** 2
-    return u
+    coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
+    return coords, u.view(-1, 1)
 
 
-def DoubleSoliton(
+def double_soliton(
     x: torch.tensor, t: torch.tensor, c: float, x0: float
 ) -> torch.tensor:
     """Single soliton solution of the KdV equation (u_t + u_{xxx} - 6 u u_x = 0)
@@ -52,4 +53,5 @@ def DoubleSoliton(
     denominator_1 = (np.sqrt(c[0]) - np.sqrt(c[1])) * torch.cosh(xi0 + xi1)
     denominator_2 = (np.sqrt(c[0]) + np.sqrt(c[1])) * torch.cosh(xi0 - xi1)
     u = part_1 * numerator / (denominator_1 + denominator_2) ** 2
-    return u
+    coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
+    return coords, u.view(-1, 1)

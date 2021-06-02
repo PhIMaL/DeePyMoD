@@ -10,7 +10,7 @@ TensorList = List[torch.Tensor]
 
 class LeastSquares(Constraint):
     def __init__(self) -> None:
-        """ Least Squares Constraint solved by QR decomposition"""
+        """Least Squares Constraint solved by QR decomposition"""
         super().__init__()
 
     def fit(self, sparse_thetas: TensorList, time_derivs: TensorList) -> TensorList:
@@ -60,7 +60,7 @@ class GradParams(Constraint):
 
 
 class Ridge(Constraint):
-    """Implements the constraint as a least squares problem solved by QR decomposition. """
+    """Implements the constraint as a least squares problem solved by QR decomposition."""
 
     def __init__(self, l=1e-3) -> None:
         super().__init__()
