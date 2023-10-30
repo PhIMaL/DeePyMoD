@@ -16,7 +16,9 @@ import numpy as np
 
 class Constraint(nn.Module, metaclass=ABCMeta):
     def __init__(self) -> None:
-        """Abstract baseclass for the constraint module."""
+        """Abstract baseclass for the constraint module.
+        for specific use cases see deepymod.model.constraint
+        """
         super().__init__()
         self.sparsity_masks: TensorList = None
 
@@ -55,13 +57,14 @@ class Constraint(nn.Module, metaclass=ABCMeta):
 
         return self.coeff_vectors
 
+    # static method is bound to a class rather than the objects for that class. This means that a static method can be called without an object for that class. This also means that static methods cannot modify the state of an object as they are not bound to it.
     @staticmethod
     def apply_mask(thetas: TensorList, masks: TensorList) -> TensorList:
-        """Applies the sparsity mask to the feature (library) matrix.
+        """Applies the sparsity mask to the feature (library) matrix theta.
 
         Args:
             thetas (TensorList): List of all library matrices of size [(n_samples, n_features) x n_outputs].
-
+            masks (TensorList): List of all sparsity masks
         Returns:
             TensorList: The sparse version of the library matrices of size [(n_samples, n_active_features) x n_outputs].
         """
@@ -71,7 +74,7 @@ class Constraint(nn.Module, metaclass=ABCMeta):
     @staticmethod
     def map_coeffs(mask: torch.Tensor, coeff_vector: torch.Tensor) -> torch.Tensor:
         """Places the coeff_vector components in the true positions of the mask.
-        I.e. maps ((0, 1, 1, 0), (0.5, 1.5)) -> (0, 0.5, 1.5, 0).
+        i.e. maps ((0, 1, 1, 0), (0.5, 1.5)) -> (0, 0.5, 1.5, 0).
 
         Args:
             mask (torch.Tensor): Boolean mask describing active components.
@@ -90,7 +93,7 @@ class Constraint(nn.Module, metaclass=ABCMeta):
     @abstractmethod
     def fit(self, sparse_thetas: TensorList, time_derivs: TensorList) -> TensorList:
         """Abstract method. Specific method should return the coefficients as calculated from the sparse feature
-        matrices and temporal derivatives.
+        matrices and temporal derivatives from dt ~ theta @ coeff_vector, equation (7) of the original paper
 
         Args:
             sparse_thetas (TensorList): List containing the sparse feature tensors of size (n_samples, n_active_features).
@@ -104,13 +107,13 @@ class Constraint(nn.Module, metaclass=ABCMeta):
 
 class Estimator(nn.Module, metaclass=ABCMeta):
     def __init__(self) -> None:
-        """Abstract baseclass for the sparse estimator module."""
+        """Abstract baseclass for the sparse estimator module. For specific implementation see deepymod.model.sparse_estimators"""
         super().__init__()
         self.coeff_vectors = None
 
     def forward(self, thetas: TensorList, time_derivs: TensorList) -> TensorList:
         """The forward pass of the sparse estimator module first normalizes the library matrices
-        and time derivatives by dividing each column (i.e. feature) by their l2 norm, than calculate the coefficient vectors
+        and time derivatives by dividing each column (i.e. feature) by their l2 norm, than calculates the coefficient vectors
         according to the sparse estimation algorithm supplied by the child and finally returns the sparsity
         mask (i.e. which terms are active) based on these coefficients.
 
@@ -163,7 +166,9 @@ class Estimator(nn.Module, metaclass=ABCMeta):
 
 class Library(nn.Module):
     def __init__(self) -> None:
-        """Abstract baseclass for the library module."""
+        """Abstract baseclass for the library module. For specific uses see
+        deepymod.model.library
+        """
         super().__init__()
         self.norms = None
 
@@ -217,9 +222,13 @@ class DeepMoD(nn.Module):
         during training to update the sparsity mask (i.e. which terms the constraint is allowed to use.)
 
         Args:
-            function_approximator (torch.nn.Sequential): [description]
-            library (Library): [description]
-            sparsity_estimator (Estimator): [description]
+            function_approximator (torch.nn.Sequential):
+                makes predictions about the dynamical field (variable), its value and derivatives
+                parametrized by Neural Network (NN) so taking use of autodiff
+            library (Library):
+                Library of terms to be used in the model discovery process
+            sparsity_estimator (Estimator): updates the sparsity mask
+                Example: Threshold(0.1) would set threshold = 0.1 for the thresholding estimator of the coefficients
             constraint (Constraint): [description]
         """
         super().__init__()
@@ -244,19 +253,26 @@ class DeepMoD(nn.Module):
                                                        ((n_samples, n_outputs), [(n_samples, 1) x n_outputs]), [(n_samples, n_features) x n_outputs])
 
         """
-        prediction, coordinates = self.func_approx(input)
-        time_derivs, thetas = self.library((prediction, coordinates))
-        coeff_vectors = self.constraint((time_derivs, thetas))
+        prediction, coordinates = self.func_approx(
+            input
+        )  # predict the dynamical field (variable), its value and derivatives
+        time_derivs, thetas = self.library(
+            (prediction, coordinates)
+        )  # library function returns time_deriv and theta (equation (4) of the manuscript)
+        coeff_vectors = self.constraint(
+            (time_derivs, thetas)
+        )  # used to be called `fit` in DeepMoD_torch
         return prediction, time_derivs, thetas
 
     @property
     def sparsity_masks(self):
-        """Returns the sparsity masks which contain the active terms."""
+        """Returns the sparsity masks which contain the active terms (array of bools).
+        Calls on constraint object which is attribute of DeepMoD class."""
         return self.constraint.sparsity_masks
 
     def estimator_coeffs(self) -> TensorList:
         """Calculate the coefficients as estimated by the sparse estimator.
-
+        Calls on sparse_estimator object which is attribute of DeepMoD class.
         Returns:
             (TensorList): List of coefficients of size [(n_features, 1) x n_outputs]
         """
@@ -265,7 +281,8 @@ class DeepMoD(nn.Module):
 
     def constraint_coeffs(self, scaled=False, sparse=False) -> TensorList:
         """Calculate the coefficients as estimated by the constraint.
-
+        Calls on constraint object which is attribute of DeepMoD class to get coeff_vectors
+        which are processed depending on:
         Args:
             scaled (bool): Determine whether or not the coefficients should be normalized
             sparse (bool): Whether to apply the sparsity mask to the coefficients.
@@ -274,14 +291,14 @@ class DeepMoD(nn.Module):
             (TensorList): List of coefficients of size [(n_features, 1) x n_outputs]
         """
         coeff_vectors = self.constraint.coeff_vectors
-        if scaled:
+        if scaled:  # perform normalization
             coeff_vectors = [
                 coeff / norm[:, None]
                 for coeff, norm, mask in zip(
                     coeff_vectors, self.library.norms, self.sparsity_masks
                 )
             ]
-        if sparse:
+        if sparse:  # apply sparsity mask
             coeff_vectors = [
                 sparsity_mask[:, None] * coeff
                 for sparsity_mask, coeff in zip(self.sparsity_masks, coeff_vectors)

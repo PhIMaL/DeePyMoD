@@ -32,9 +32,9 @@ class Dataset(torch.utils.data.Dataset):
         """A dataset class that loads the data, preprocesses it and lastly applies subsampling to it
 
         Args:
-            load_function (func):Must return torch tensors in the format coordinates, data
+            load_function (func): Must return torch tensors in the format: (coordinates, data)
             shuffle (bool, optional): Shuffle the data. Defaults to True.
-            apply_normalize (func)
+            apply_normalize (func): if not None, apply this function to the data for normalization. Defaults to None.
             subsampler (Subsampler, optional): Add some subsampling function. Defaults to None.
             load_kwargs (dict, optional): kwargs to pass to the load_function. Defaults to {}.
             preprocess_kwargs (dict, optional): (optional) arguments to pass to the preprocess method. Defaults to { "random_state": 42, "noise_level": 0.0, "normalize_coords": False, "normalize_data": False, }.
@@ -122,9 +122,9 @@ class Dataset(torch.utils.data.Dataset):
             normalize_coords (bool): apply normalization to the coordinates
             normalize_data (bool): apply normalization to the data
         """
-
+        print("Preprocessing data")
         # add noise
-        y_processed = y + self.apply_noise(y, noise_level, random_state)
+        y_processed = self.apply_noise(y, noise_level, random_state)
         # normalize coordinates
         if normalize_coords:
             X_processed = self.apply_normalize(X)
@@ -133,8 +133,7 @@ class Dataset(torch.utils.data.Dataset):
         # normalize data
         if normalize_data:
             y_processed = self.apply_normalize(y_processed)
-        else:
-            y_processed = y
+
         return X_processed, y_processed
 
     @staticmethod
