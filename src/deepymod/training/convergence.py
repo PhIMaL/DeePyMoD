@@ -5,6 +5,7 @@ import torch
 class Convergence:
     """Implements convergence criterium. Convergence is when change in patience
     epochs is smaller than delta.
+    returns a bool, such that True indicates the algorithm has converged
     """
 
     def __init__(self, patience: int = 200, delta: float = 1e-3) -> None:

@@ -30,7 +30,7 @@ def burgers_delta(x: torch.tensor, t: torch.tensor, v: float, A: float):
 
     u = (
         torch.sqrt(v / (pi * t))
-        * ((torch.exp(R) - 1) * torch.exp(-(z ** 2)))
+        * ((torch.exp(R) - 1) * torch.exp(-(z**2)))
         / (1 + (torch.exp(R) - 1) / 2 * torch.erfc(z))
     )
     coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
@@ -57,7 +57,7 @@ def burgers_cos(
         [Tensor]: solution.
     """
 
-    z = v * k ** 2 * t
+    z = v * k**2 * t
 
     u = (2 * v * a * k * torch.exp(-z) * torch.sin(k * x)) / (
         b + a * torch.exp(-z) * torch.cos(k * x)
@@ -85,10 +85,10 @@ def burgers_sawtooth(x: torch.tensor, t: torch.tensor, v: float) -> torch.tensor
     z_right = x - 4 * t - 2 * pi
     l = 4 * v * (t + 1)
 
-    phi = torch.exp(-(z_left ** 2) / l) + torch.exp(-(z_right ** 2) / l)
+    phi = torch.exp(-(z_left**2) / l) + torch.exp(-(z_right**2) / l)
     dphi_x = -2 * z_left / l * torch.exp(
-        -(z_left ** 2) / l
-    ) - 2 * z_right / l * torch.exp(-(z_right ** 2) / l)
+        -(z_left**2) / l
+    ) - 2 * z_right / l * torch.exp(-(z_right**2) / l)
     u = -2 * v * dphi_x / phi + 4
     coords = torch.cat((t.reshape(-1, 1), x.reshape(-1, 1)), dim=1)
     return coords, u.view(-1, 1)

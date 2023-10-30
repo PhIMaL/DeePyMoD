@@ -40,8 +40,8 @@ def train(
     n_features = train_dataloader[0][1].shape[-1]
     # n_features = model.func_approx.modules()
     # Training
-    convergence = Convergence(**convergence_kwargs)
-    for iteration in torch.arange(0, max_iterations):
+    convergence = Convergence(**convergence_kwargs)  # Convergence check initialization
+    for iteration in torch.arange(0, max_iterations):  # iterate over epochs
         # Training variables defined as: loss, mse, regularisation
         batch_losses = torch.zeros(
             (3, n_features, len(train_dataloader)),
@@ -53,10 +53,12 @@ def train(
             prediction, time_derivs, thetas = model(data_train)
             batch_losses[1, :, batch_idx] = torch.mean(
                 (prediction - target_train) ** 2, dim=-2
-            )  # loss per output
+            )  # loss per output, equation (6) of the paper, used to be called mse_loss in DeePyMoD_torch
             batch_losses[2, :, batch_idx] = torch.stack(
                 [
-                    torch.mean((dt - theta @ coeff_vector) ** 2)
+                    torch.mean(
+                        (dt - theta @ coeff_vector) ** 2
+                    )  # equation (7) of the original paper, used to be called reg_loss in DeePyMoD_torch
                     for dt, theta, coeff_vector in zip(
                         time_derivs,
                         thetas,
@@ -64,9 +66,10 @@ def train(
                     )
                 ]
             )
-            batch_losses[0, :, batch_idx] = (
+            batch_losses[0, :, batch_idx] = (  # mse_loss + reg_loss
                 batch_losses[1, :, batch_idx] + batch_losses[2, :, batch_idx]
-            )
+            )  # The weight optimization does not call on L1 losses, instead
+            # L1 is included in the logging below. See the latest paper: http://arxiv.org/abs/2011.04336
 
             # Optimizer step
             optimizer.zero_grad()
@@ -84,7 +87,7 @@ def train(
                 for batch_idx, test_sample in enumerate(test_dataloader):
                     data_test, target_test = test_sample
                     prediction_test = model.func_approx(data_test)[0]
-                    batch_mse_test[:, batch_idx] = torch.mean(
+                    batch_mse_test[:, batch_idx] = torch.mean(  # mse loss
                         (prediction_test - target_test) ** 2, dim=-2
                     )  # loss per output
             mse_test = batch_mse_test.cpu().detach().mean(dim=-1)
@@ -119,7 +122,9 @@ def train(
                     torch.cat(model.constraint_coeffs(sparse=True, scaled=True), dim=1)
                 )
             )
-            converged = convergence(iteration, l1_norm)
+            converged = convergence(
+                iteration, l1_norm
+            )  # Check if change is smaller than delta and if we've exceeded patience
             if converged:
                 break
     logger.close(model)

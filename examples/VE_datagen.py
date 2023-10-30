@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.integrate as integ
 
+
 # Data generation routines
 def calculate_strain_stress(
     input_type, time_array, input_expr, E_mods, viscs, D_input_lambda=None
@@ -55,7 +56,6 @@ def calculate_strain_stress(
 
 
 def relax_creep(E_mods, viscs, input_type):
-
     # The following function interprets the provided model parameters differently depending on the input_type.
     # If the input_type is 'Strain' then the parameters are assumed to refer to a Maxwell model, whereas
     # if the input_type is 'Stress' then the parameters are assumed to refer to a Kelvin model.
