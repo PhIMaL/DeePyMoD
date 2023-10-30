@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 from torch.autograd import grad
-from itertools import combinations
+from itertools import combinations, product
 from functools import reduce
 from .deepmod import Library
 from typing import Tuple
@@ -52,19 +52,7 @@ def library_deriv(
         du = torch.cat((torch.ones_like(time_deriv), dy[:, 1:2]), dim=1) # second column of dy gives first order derivative
         if max_order > 1: # If we want higher order derivatives, we calculate them successively and concatenate them to du
             for order in np.arange(1, max_order):
-                du = torch.cat(
-                    (
-                        du,
-                        grad(
-                            du[:, order : order + 1],
-                            data,
-                            grad_outputs=torch.ones_like(prediction),
-                            create_graph=True,
-                        )[0][:, 1:2],
-                    ),
-                    dim=1,
-                )
-
+                du = torch.cat((du, grad(du[:, order:order+1], data, grad_outputs=torch.ones_like(prediction), create_graph=True)[0][:, 1:2]), dim=1)
     return time_deriv, du
 
 
@@ -79,7 +67,7 @@ class Library1D(Library):
         Order of terms is derivative first, i.e. [$1, u_x, u, uu_x, u^2, ...$]
 
         Only works for 1D+1 data. Also works for multiple outputs but in that case doesn't calculate
-        polynomial and derivative cross terms.
+        polynomial and derivative cross terms. <- trying to go back to DeePyMoD_torch, so ignore this statement
 
         Parameters
         ----------
@@ -117,11 +105,9 @@ class Library1D(Library):
         deriv_list = []
         time_deriv_list = []
 
-        # Creating lists for all outputs
+        # Creating lists for all outputs (each degree of freedom: l.h.s. of differential equation)
         for output in np.arange(prediction.shape[1]):
-            time_deriv, du = library_deriv(
-                data, prediction[:, output : output + 1], self.diff_order
-            )
+            time_deriv, du = library_deriv(data, prediction[:, output : output + 1], self.diff_order)
             u = library_poly(prediction[:, output : output + 1], self.poly_order)
 
             poly_list.append(u)
@@ -135,31 +121,17 @@ class Library1D(Library):
         if len(poly_list) == 1:
             # If we have a single output, we simply calculate and flatten matrix product
             # between polynomials and derivatives to get library
-            theta = torch.matmul(
-                poly_list[0][:, :, None], deriv_list[0][:, None, :]
-            ).view(samples, total_terms)
+            theta = torch.matmul(poly_list[0][:, :, None], deriv_list[0][:, None, :]).view(samples, total_terms)
             # For each sample poly_list[0][each_sample, :] and deriv_list[0][each_sample, :] the above line is equivalent to np.multiply.outer(poly_list[0][each_sample, :],deriv_list[0][each_sample, :] ).reshape(-1)
             # so the logic of the expression can be understood by executing np.add.outer(np.array(['', 'u', 'u^2'], object),np.array(['', 'u_x', 'u_xx','u_xxx'], object)).reshape(-1) <- this is consistent with equation (4)
             # this means that we iterate over deriv_list first (fast index) and then over poly_list (slow index)
             # this gives, for example: ['', 'u_x', 'u_xx', 'u_xxx', 'u', 'uu_x', 'uu_xx', 'uu_xxx', 'u^2', 'u^2u_x', 'u^2u_xx', 'u^2u_xxx']
         else:
-            theta_uv = reduce(
-                (lambda x, y: (x[:, :, None] @ y[:, None, :]).view(samples, -1)),
-                poly_list,
-            )
-            # calculate all unique combinations of derivatives
-            theta_dudv = torch.cat(
-                [
-                    torch.matmul(du[:, :, None], dv[:, None, :]).view(samples, -1)[
-                        :, 1:
-                    ]
-                    for du, dv in combinations(deriv_list, 2)
-                ],
-                1,
-            )
-            theta = torch.cat([theta_uv, theta_dudv], dim=1)
-
-        return time_deriv_list, [theta]
+            theta_uv = reduce((lambda x, y: (x[:, :, None] @ y[:, None, :]).view(samples, -1)), poly_list) # TODO comment the following lines
+            theta_dudv = torch.cat([torch.matmul(du[:, :, None], dv[:, None, :]).view(samples, -1)[:, 1:] for du, dv in combinations(deriv_list, 2)],1) # calculate all unique combinations of derivatives
+            theta_udu = torch.cat([torch.matmul(u[:, 1:, None], du[:, None, 1:]).view(samples, (poly_list[0].shape[1]-1) * (deriv_list[0].shape[1]-1)) for u, dv in product(poly_list, deriv_list)], 1)  # calculate all unique products of polynomials and derivatives. This term was absent in DeePyMoD original repo but it is necessary for identification of Keller Segel
+            theta = torch.cat([theta_uv, theta_dudv, theta_udu], dim=1)
+        return time_deriv_list, [theta]*len(poly_list)
 
 
 class Library2D(Library):
