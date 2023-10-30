@@ -45,50 +45,145 @@ def load_tensorboard(path: str) -> pd.DataFrame:
         for idx, tag in enumerate(tags):
             try:
                 df[tag] = data[idx]
-            except ValueError: # more debugging info
-                print(f"Warning: Either the {tag = } of `df` or {idx = } of `data` do not exist! Check for pre-existing saved files. ")
+            except ValueError:  # more debugging info
+                print(
+                    f"Warning: Either the {tag = } of `df` or {idx = } of `data` do not exist! Check for pre-existing saved files. "
+                )
         df.index = steps
     return df
 
+
 def plot_history(foldername: str):
     """Plots the training history of the model."""
-    history = load_tensorboard(foldername) 
+    history = load_tensorboard(foldername)
     fig, axs = plt.subplots(1, 4, figsize=(20, 5))
 
     for history_key in history.keys():
         history_key_parts = history_key.split("_")
-        if history_key_parts[0] == "loss":    
+        if history_key_parts[0] == "loss":
             if history_key_parts[-1] == "0":
-                axs[0].semilogy(history[history_key], label=history_key_parts[1]+"_"+history_key_parts[-1], linestyle="--")
+                axs[0].semilogy(
+                    history[history_key],
+                    label=history_key_parts[1] + "_" + history_key_parts[-1],
+                    linestyle="--",
+                )
             elif history_key_parts[-1] == "1":
-                axs[0].semilogy(history[history_key],  label=history_key_parts[1]+"_"+history_key_parts[-1], linestyle=":")
+                axs[0].semilogy(
+                    history[history_key],
+                    label=history_key_parts[1] + "_" + history_key_parts[-1],
+                    linestyle=":",
+                )
             else:
-                axs[0].semilogy(history[history_key],  label=history_key_parts[1]+"_"+history_key_parts[-1], linestyle="-")
-            if history_key_parts[0] == "remaining":    
-                axs[0].semilogy(history[history_key],  label=history_key_parts[1]+"_"+history_key_parts[3]+"_"+history_key_parts[4], linestyle="-.")
+                axs[0].semilogy(
+                    history[history_key],
+                    label=history_key_parts[1] + "_" + history_key_parts[-1],
+                    linestyle="-",
+                )
+            if history_key_parts[0] == "remaining":
+                axs[0].semilogy(
+                    history[history_key],
+                    label=history_key_parts[1]
+                    + "_"
+                    + history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4],
+                    linestyle="-.",
+                )
         if history_key_parts[0] == "coeffs":
             if history_key_parts[2] == "0":
-                axs[1].plot(history[history_key], label=history_key_parts[2]+"_"+history_key_parts[3]+"_"+history_key_parts[4], linestyle="--")
+                axs[1].plot(
+                    history[history_key],
+                    label=history_key_parts[2]
+                    + "_"
+                    + history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4],
+                    linestyle="--",
+                )
             elif history_key_parts[2] == "1":
-                axs[1].plot(history[history_key], label=history_key_parts[2]+"_"+history_key_parts[3]+"_"+history_key_parts[4], linestyle=":")
+                axs[1].plot(
+                    history[history_key],
+                    label=history_key_parts[2]
+                    + "_"
+                    + history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4],
+                    linestyle=":",
+                )
             else:
-                axs[1].plot(history[history_key], label=history_key_parts[2]+"_"+history_key_parts[3]+"_"+history_key_parts[4], linestyle="-")
-        if history_key_parts[0] == "unscaled":    
+                axs[1].plot(
+                    history[history_key],
+                    label=history_key_parts[2]
+                    + "_"
+                    + history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4],
+                    linestyle="-",
+                )
+        if history_key_parts[0] == "unscaled":
             if history_key_parts[3] == "0":
-                axs[2].plot(history[history_key], label=history_key_parts[3]+"_"+history_key_parts[4]+"_"+history_key_parts[5], linestyle="--")
+                axs[2].plot(
+                    history[history_key],
+                    label=history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4]
+                    + "_"
+                    + history_key_parts[5],
+                    linestyle="--",
+                )
             elif history_key_parts[3] == "1":
-                axs[2].plot(history[history_key], label=history_key_parts[3]+"_"+history_key_parts[4]+"_"+history_key_parts[5], linestyle=":")
+                axs[2].plot(
+                    history[history_key],
+                    label=history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4]
+                    + "_"
+                    + history_key_parts[5],
+                    linestyle=":",
+                )
             else:
-                axs[2].plot(history[history_key], label=history_key_parts[3]+"_"+history_key_parts[4]+"_"+history_key_parts[5], linestyle="-")
-        if history_key_parts[0] == "estimator":    
+                axs[2].plot(
+                    history[history_key],
+                    label=history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4]
+                    + "_"
+                    + history_key_parts[5],
+                    linestyle="-",
+                )
+        if history_key_parts[0] == "estimator":
             if history_key_parts[3] == "0":
-                axs[3].plot(history[history_key], label=history_key_parts[3]+"_"+history_key_parts[4]+"_"+history_key_parts[5], linestyle="--")
+                axs[3].plot(
+                    history[history_key],
+                    label=history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4]
+                    + "_"
+                    + history_key_parts[5],
+                    linestyle="--",
+                )
             elif history_key_parts[3] == "1":
-                axs[3].plot(history[history_key], label=history_key_parts[3]+"_"+history_key_parts[4]+"_"+history_key_parts[5], linestyle=":")
+                axs[3].plot(
+                    history[history_key],
+                    label=history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4]
+                    + "_"
+                    + history_key_parts[5],
+                    linestyle=":",
+                )
             else:
-                axs[3].plot(history[history_key], label=history_key_parts[3]+"_"+history_key_parts[4]+"_"+history_key_parts[5], linestyle="-")
+                axs[3].plot(
+                    history[history_key],
+                    label=history_key_parts[3]
+                    + "_"
+                    + history_key_parts[4]
+                    + "_"
+                    + history_key_parts[5],
+                    linestyle="-",
+                )
 
-    #axs[0].set_ylim([-2, 2])
+    # axs[0].set_ylim([-2, 2])
     axs[1].set_ylim([-2, 2])
     axs[2].set_ylim([-2, 2])
     axs[3].set_ylim([-2, 2])

@@ -103,7 +103,8 @@ class TrainTestPeriodic:
             periodicity (int): apply sparsity mask per periodicity epochs
             patience (int): wait patience epochs before checking TrainTest
             delta (float): desired accuracy
-            path (str): pathname where to store the savepoints, must have ".pt" extension"""
+            path (str): pathname where to store the savepoints, must have ".pt" extension
+        """
         self.path = path
         self.patience = patience
         self.delta = delta

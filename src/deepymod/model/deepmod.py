@@ -56,14 +56,15 @@ class Constraint(nn.Module, metaclass=ABCMeta):
         ]
 
         return self.coeff_vectors
-    # static method is bound to a class rather than the objects for that class. This means that a static method can be called without an object for that class. This also means that static methods cannot modify the state of an object as they are not bound to it. 
+
+    # static method is bound to a class rather than the objects for that class. This means that a static method can be called without an object for that class. This also means that static methods cannot modify the state of an object as they are not bound to it.
     @staticmethod
     def apply_mask(thetas: TensorList, masks: TensorList) -> TensorList:
         """Applies the sparsity mask to the feature (library) matrix theta.
 
         Args:
             thetas (TensorList): List of all library matrices of size [(n_samples, n_features) x n_outputs].
-            masks (TensorList): List of all sparsity masks 
+            masks (TensorList): List of all sparsity masks
         Returns:
             TensorList: The sparse version of the library matrices of size [(n_samples, n_active_features) x n_outputs].
         """
@@ -166,7 +167,7 @@ class Estimator(nn.Module, metaclass=ABCMeta):
 class Library(nn.Module):
     def __init__(self) -> None:
         """Abstract baseclass for the library module. For specific uses see
-        deepymod.model.library 
+        deepymod.model.library
         """
         super().__init__()
         self.norms = None
@@ -221,10 +222,10 @@ class DeepMoD(nn.Module):
         during training to update the sparsity mask (i.e. which terms the constraint is allowed to use.)
 
         Args:
-            function_approximator (torch.nn.Sequential): 
+            function_approximator (torch.nn.Sequential):
                 makes predictions about the dynamical field (variable), its value and derivatives
                 parametrized by Neural Network (NN) so taking use of autodiff
-            library (Library): 
+            library (Library):
                 Library of terms to be used in the model discovery process
             sparsity_estimator (Estimator): updates the sparsity mask
                 Example: Threshold(0.1) would set threshold = 0.1 for the thresholding estimator of the coefficients
@@ -252,14 +253,20 @@ class DeepMoD(nn.Module):
                                                        ((n_samples, n_outputs), [(n_samples, 1) x n_outputs]), [(n_samples, n_features) x n_outputs])
 
         """
-        prediction, coordinates = self.func_approx(input) # predict the dynamical field (variable), its value and derivatives
-        time_derivs, thetas = self.library((prediction, coordinates)) # library function returns time_deriv and theta (equation (4) of the manuscript)
-        coeff_vectors = self.constraint((time_derivs, thetas)) # used to be called `fit` in DeepMoD_torch
+        prediction, coordinates = self.func_approx(
+            input
+        )  # predict the dynamical field (variable), its value and derivatives
+        time_derivs, thetas = self.library(
+            (prediction, coordinates)
+        )  # library function returns time_deriv and theta (equation (4) of the manuscript)
+        coeff_vectors = self.constraint(
+            (time_derivs, thetas)
+        )  # used to be called `fit` in DeepMoD_torch
         return prediction, time_derivs, thetas
 
     @property
     def sparsity_masks(self):
-        """Returns the sparsity masks which contain the active terms (array of bools). 
+        """Returns the sparsity masks which contain the active terms (array of bools).
         Calls on constraint object which is attribute of DeepMoD class."""
         return self.constraint.sparsity_masks
 
@@ -284,14 +291,14 @@ class DeepMoD(nn.Module):
             (TensorList): List of coefficients of size [(n_features, 1) x n_outputs]
         """
         coeff_vectors = self.constraint.coeff_vectors
-        if scaled: # perform normalization
+        if scaled:  # perform normalization
             coeff_vectors = [
                 coeff / norm[:, None]
                 for coeff, norm, mask in zip(
                     coeff_vectors, self.library.norms, self.sparsity_masks
                 )
             ]
-        if sparse: # apply sparsity mask
+        if sparse:  # apply sparsity mask
             coeff_vectors = [
                 sparsity_mask[:, None] * coeff
                 for sparsity_mask, coeff in zip(self.sparsity_masks, coeff_vectors)
