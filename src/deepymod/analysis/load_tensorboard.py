@@ -3,8 +3,6 @@
 import pandas as pd
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 import os
-from natsort import natsorted
-import matplotlib.pyplot as plt
 
 
 def load_tensorboard(path: str) -> pd.DataFrame:
@@ -17,16 +15,17 @@ def load_tensorboard(path: str) -> pd.DataFrame:
         DataFrame: Pandas dataframe with all run data.
     """
 
-    event_paths = [
-        file
-        for file in os.walk(path, topdown=True)
-        if file[2][0][: len("events")] == "events"
-    ]
+    def event_filter(x):
+        is_event = False
+        if len(x[2]) > 0:  # check if folder contains files
+            if x[2][0].find("event") != -1:  # check if folder contains eventfile
+                is_event = True
+        return is_event
 
     df = pd.DataFrame()
     steps = None  # steps are the same for all files
 
-    for event_idx, path in enumerate(event_paths):
+    for path in filter(event_filter, os.walk(path, topdown=True)):
         summary_iterator = EventAccumulator(os.path.join(path[0], path[2][0])).Reload()
         tags = summary_iterator.Tags()["scalars"]
         data = [
@@ -37,9 +36,7 @@ def load_tensorboard(path: str) -> pd.DataFrame:
 
         # Adding to dataframe
         tags = [tag.replace("/", "_") for tag in tags]  # for name consistency
-        if (
-            event_idx > 0
-        ):  # We have one file in the top level, so after we need to use folder name
+        if len(path[1]) == 0:  # if there's no deeper folder, add the folder name.
             tags = [path[0].split("/")[-1]]
 
         for idx, tag in enumerate(tags):
