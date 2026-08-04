@@ -2,6 +2,8 @@
 We keep the API in line with scikit learn (mostly), so scikit learn can also be plugged in.
 See scikitlearn.linear_models for applicable estimators."""
 
+import inspect
+
 import numpy as np
 from .deepmod import Estimator
 from sklearn.cluster import KMeans
@@ -15,6 +17,14 @@ import warnings
 warnings.filterwarnings(
     "ignore", category=UserWarning
 )  # To silence annoying pysindy warnings
+
+
+def make_stlsq(**params):
+    """Create STLSQ across PySINDy versions with slightly different signatures."""
+
+    if "fit_intercept" not in inspect.signature(STLSQ).parameters:
+        params.pop("fit_intercept", None)
+    return STLSQ(**params)
 
 
 class Base(Estimator):
@@ -177,7 +187,7 @@ class PDEFIND(Estimator):
         delta_t = delta_threshold  # for interal use, can be updated
 
         # Initial estimate
-        optimizer = STLSQ(
+        optimizer = make_stlsq(
             threshold=0, alpha=0.0, fit_intercept=False
         )  # Now similar to LSTSQ
         y_predict = optimizer.fit(X_train, y_train).predict(X_test)

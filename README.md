@@ -12,6 +12,18 @@ More information can be found in the following two papers: , [arXiv:2011.04336](
 
 **What types of models can you discover?** DeepMoD can discover non-linear, multi-dimensional and/or coupled ODEs and PDEs. See our paper and the examples folder for a demonstration of each.
 
+# PDEComp benchmark compatibility
+
+This fork includes a few compatibility fixes used by the PDEComp benchmark wrapper:
+
+* `PDEFIND` creates PySINDy `STLSQ` objects through a small compatibility helper, so it works across PySINDy versions where the `fit_intercept` argument may or may not exist.
+* Tensor normalization uses `reshape(...)` instead of `view(...)`, which avoids failures on non-contiguous PyTorch tensors.
+* Sparse coefficient vectors and masks are normalized to stable one-dimensional shapes, including the single-term case.
+* The training and logging code computes L1 norms per coefficient vector instead of assuming that all coefficient tensors can always be concatenated along the same dimension.
+* Logging can run without TensorBoard installed; in that case a no-op `SummaryWriter` is used while model saving still works.
+
+These changes do not alter the benchmark wrapper logic. They make the original DeePyMoD internals robust enough for fixed-library benchmark runs with different sparse estimators and small candidate sets.
+
 # How to install
 
 ## Dependencies and CUDA

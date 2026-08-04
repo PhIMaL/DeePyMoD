@@ -2,7 +2,31 @@
 import numpy as np
 import torch
 import sys, time
-from torch.utils.tensorboard import SummaryWriter
+from pathlib import Path
+
+try:
+    from torch.utils.tensorboard import SummaryWriter
+except ModuleNotFoundError:
+    class SummaryWriter:  # type: ignore[override]
+        def __init__(self, comment=None, log_dir=None, max_queue=5, flush_secs=10):
+            base_dir = Path(log_dir or "runs")
+            base_dir.mkdir(parents=True, exist_ok=True)
+            self._log_dir = str(base_dir.resolve()) + "/"
+
+        def get_logdir(self):
+            return self._log_dir
+
+        def add_scalar(self, *args, **kwargs):
+            return None
+
+        def add_scalars(self, *args, **kwargs):
+            return None
+
+        def flush(self):
+            return None
+
+        def close(self):
+            return None
 
 
 class Logger:
@@ -18,6 +42,12 @@ class Logger:
         )
         self.log_dir = self.writer.get_logdir()
 
+    @staticmethod
+    def coefficient_items(values):
+        if torch.is_tensor(values):
+            values = values.detach().cpu().numpy()
+        return np.atleast_1d(np.squeeze(values))
+
     def __call__(
         self,
         iteration,
@@ -29,7 +59,10 @@ class Logger:
         estimator_coeffs,
         **kwargs,
     ):
-        l1_norm = torch.sum(torch.abs(torch.cat(constraint_coeffs, dim=1)), dim=0)
+        l1_norm = torch.stack([
+            torch.sum(torch.abs(coeffs))
+            for coeffs in constraint_coeffs
+        ])
 
         self.update_tensorboard(
             iteration,
@@ -94,14 +127,17 @@ class Logger:
         ):
             self.writer.add_scalars(
                 f"coeffs/output_{output_idx}",
-                {f"coeff_{idx}": val for idx, val in enumerate(coeffs.squeeze())},
+                {
+                    f"coeff_{idx}": val
+                    for idx, val in enumerate(self.coefficient_items(coeffs))
+                },
                 iteration,
             )
             self.writer.add_scalars(
                 f"unscaled_coeffs/output_{output_idx}",
                 {
                     f"coeff_{idx}": val
-                    for idx, val in enumerate(unscaled_coeffs.squeeze())
+                    for idx, val in enumerate(self.coefficient_items(unscaled_coeffs))
                 },
                 iteration,
             )
@@ -109,7 +145,7 @@ class Logger:
                 f"estimator_coeffs/output_{output_idx}",
                 {
                     f"coeff_{idx}": val
-                    for idx, val in enumerate(estimator_coeffs.squeeze())
+                    for idx, val in enumerate(self.coefficient_items(estimator_coeffs))
                 },
                 iteration,
             )
