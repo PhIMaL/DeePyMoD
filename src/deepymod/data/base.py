@@ -158,10 +158,10 @@ class Dataset(torch.utils.data.Dataset):
             X (torch.tensor): data to be minmax normalized
         Returns:
             (torch.tensor): minmaxed data"""
-        X_norm = (X - X.view(-1, X.shape[-1]).min(dim=0).values) / (
-            X.view(-1, X.shape[-1]).max(dim=0).values
-            - X.view(-1, X.shape[-1]).min(dim=0).values
-        ) * 2 - 1
+        X_flat = X.reshape(-1, X.shape[-1])
+        minimum = X_flat.min(dim=0).values
+        maximum = X_flat.max(dim=0).values
+        X_norm = (X - minimum) / (maximum - minimum) * 2 - 1
         return X_norm
 
     @staticmethod

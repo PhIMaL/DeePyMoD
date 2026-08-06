@@ -137,12 +137,12 @@ class Estimator(nn.Module, metaclass=ABCMeta):
             ]
 
         self.coeff_vectors = [
-            self.fit(theta, time_deriv.squeeze())[:, None]
+            np.asarray(self.fit(theta, time_deriv.reshape(-1))).reshape(-1, 1)
             for theta, time_deriv in zip(normed_thetas, normed_time_derivs)
         ]
         sparsity_masks = [
             torch.tensor(coeff_vector != 0.0, dtype=torch.bool)
-            .squeeze()
+            .reshape(-1)
             .to(thetas[0].device)  # move to gpu if required
             for coeff_vector in self.coeff_vectors
         ]
@@ -293,7 +293,7 @@ class DeepMoD(nn.Module):
         coeff_vectors = self.constraint.coeff_vectors
         if scaled:  # perform normalization
             coeff_vectors = [
-                coeff / norm[:, None]
+                coeff / norm.reshape(-1)[:, None]
                 for coeff, norm, mask in zip(
                     coeff_vectors, self.library.norms, self.sparsity_masks
                 )

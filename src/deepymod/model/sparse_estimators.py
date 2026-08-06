@@ -177,9 +177,7 @@ class PDEFIND(Estimator):
         delta_t = delta_threshold  # for interal use, can be updated
 
         # Initial estimate
-        optimizer = STLSQ(
-            threshold=0, alpha=0.0, fit_intercept=False
-        )  # Now similar to LSTSQ
+        optimizer = STLSQ(threshold=0, alpha=0.0)  # Now similar to LSTSQ
         y_predict = optimizer.fit(X_train, y_train).predict(X_test)
         min_loss = np.linalg.norm(y_predict - y_test, 2) + l0 * np.count_nonzero(
             optimizer.coef_

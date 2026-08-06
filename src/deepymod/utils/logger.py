@@ -18,6 +18,12 @@ class Logger:
         )
         self.log_dir = self.writer.get_logdir()
 
+    @staticmethod
+    def coefficient_items(values) -> np.ndarray:
+        if torch.is_tensor(values):
+            values = values.detach().cpu().numpy()
+        return np.asarray(values).reshape(-1)
+
     def __call__(
         self,
         iteration,
@@ -29,7 +35,9 @@ class Logger:
         estimator_coeffs,
         **kwargs,
     ):
-        l1_norm = torch.sum(torch.abs(torch.cat(constraint_coeffs, dim=1)), dim=0)
+        l1_norm = torch.stack(
+            [torch.sum(torch.abs(coeffs)) for coeffs in constraint_coeffs]
+        )
 
         self.update_tensorboard(
             iteration,
@@ -94,14 +102,17 @@ class Logger:
         ):
             self.writer.add_scalars(
                 f"coeffs/output_{output_idx}",
-                {f"coeff_{idx}": val for idx, val in enumerate(coeffs.squeeze())},
+                {
+                    f"coeff_{idx}": val
+                    for idx, val in enumerate(self.coefficient_items(coeffs))
+                },
                 iteration,
             )
             self.writer.add_scalars(
                 f"unscaled_coeffs/output_{output_idx}",
                 {
                     f"coeff_{idx}": val
-                    for idx, val in enumerate(unscaled_coeffs.squeeze())
+                    for idx, val in enumerate(self.coefficient_items(unscaled_coeffs))
                 },
                 iteration,
             )
@@ -109,7 +120,7 @@ class Logger:
                 f"estimator_coeffs/output_{output_idx}",
                 {
                     f"coeff_{idx}": val
-                    for idx, val in enumerate(estimator_coeffs.squeeze())
+                    for idx, val in enumerate(self.coefficient_items(estimator_coeffs))
                 },
                 iteration,
             )
