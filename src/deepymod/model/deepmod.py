@@ -137,7 +137,7 @@ class Estimator(nn.Module, metaclass=ABCMeta):
             ]
 
         self.coeff_vectors = [
-            np.atleast_1d(self.fit(theta, time_deriv.squeeze()))[:, None]
+            np.asarray(self.fit(theta, time_deriv.reshape(-1))).reshape(-1, 1)
             for theta, time_deriv in zip(normed_thetas, normed_time_derivs)
         ]
         sparsity_masks = [

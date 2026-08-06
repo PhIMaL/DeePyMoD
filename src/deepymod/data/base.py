@@ -159,10 +159,9 @@ class Dataset(torch.utils.data.Dataset):
         Returns:
             (torch.tensor): minmaxed data"""
         X_flat = X.reshape(-1, X.shape[-1])
-        X_norm = (X - X_flat.min(dim=0).values) / (
-            X_flat.max(dim=0).values
-            - X_flat.min(dim=0).values
-        ) * 2 - 1
+        minimum = X_flat.min(dim=0).values
+        maximum = X_flat.max(dim=0).values
+        X_norm = (X - minimum) / (maximum - minimum) * 2 - 1
         return X_norm
 
     @staticmethod

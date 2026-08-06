@@ -117,10 +117,12 @@ def train(
                 )
 
             # ================= Checking convergence
-            l1_norm = torch.stack([
-                torch.sum(torch.abs(coeffs))
-                for coeffs in model.constraint_coeffs(sparse=True, scaled=True)
-            ]).sum()
+            l1_norm = torch.stack(
+                [
+                    torch.sum(torch.abs(coeffs))
+                    for coeffs in model.constraint_coeffs(sparse=True, scaled=True)
+                ]
+            ).sum()
             converged = convergence(
                 iteration, l1_norm
             )  # Check if change is smaller than delta and if we've exceeded patience

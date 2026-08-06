@@ -2,31 +2,7 @@
 import numpy as np
 import torch
 import sys, time
-from pathlib import Path
-
-try:
-    from torch.utils.tensorboard import SummaryWriter
-except ModuleNotFoundError:
-    class SummaryWriter:  # type: ignore[override]
-        def __init__(self, comment=None, log_dir=None, max_queue=5, flush_secs=10):
-            base_dir = Path(log_dir or "runs")
-            base_dir.mkdir(parents=True, exist_ok=True)
-            self._log_dir = str(base_dir.resolve()) + "/"
-
-        def get_logdir(self):
-            return self._log_dir
-
-        def add_scalar(self, *args, **kwargs):
-            return None
-
-        def add_scalars(self, *args, **kwargs):
-            return None
-
-        def flush(self):
-            return None
-
-        def close(self):
-            return None
+from torch.utils.tensorboard import SummaryWriter
 
 
 class Logger:
@@ -43,10 +19,10 @@ class Logger:
         self.log_dir = self.writer.get_logdir()
 
     @staticmethod
-    def coefficient_items(values):
+    def coefficient_items(values) -> np.ndarray:
         if torch.is_tensor(values):
             values = values.detach().cpu().numpy()
-        return np.atleast_1d(np.squeeze(values))
+        return np.asarray(values).reshape(-1)
 
     def __call__(
         self,
@@ -59,10 +35,9 @@ class Logger:
         estimator_coeffs,
         **kwargs,
     ):
-        l1_norm = torch.stack([
-            torch.sum(torch.abs(coeffs))
-            for coeffs in constraint_coeffs
-        ])
+        l1_norm = torch.stack(
+            [torch.sum(torch.abs(coeffs)) for coeffs in constraint_coeffs]
+        )
 
         self.update_tensorboard(
             iteration,
